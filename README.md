@@ -1,0 +1,1 @@
+# termometro-solar-fotus
