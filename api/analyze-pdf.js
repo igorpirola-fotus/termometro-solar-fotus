@@ -1,12 +1,20 @@
-export default async function handler(req, res) {
-  // Apenas POST é aceito
+module.exports = async function handler(req, res) {
+  // CORS - permite requisicoes do mesmo dominio
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada no ambiente.' });
+    return res.status(500).json({ error: 'ANTHROPIC_API_KEY nao configurada no ambiente.' });
   }
 
   try {
@@ -22,10 +30,9 @@ export default async function handler(req, res) {
 
     const data = await upstream.json();
 
-    // Repassa o status code original da Anthropic
     return res.status(upstream.status).json(data);
   } catch (err) {
-    console.error('[analyze-pdf] Erro:', err);
+    console.error('[analyze-pdf] Erro:', err.message);
     return res.status(500).json({ error: err.message });
   }
-}
+};

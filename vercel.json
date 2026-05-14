@@ -1,3 +1,9 @@
 {
-  "outputDirectory": "Termometro Mercado Solar"
+  "outputDirectory": "public",
+  "functions": {
+    "api/analyze-pdf.js": {
+      "maxDuration": 30
+    }
+  }
 }
+
