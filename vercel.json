@@ -1,0 +1,11 @@
+{
+  "outputDirectory": "Termometro Mercado Solar",
+  "functions": {
+    "api/analyze-pdf.js": {
+      "runtime": "@vercel/node"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/analyze-pdf", "destination": "/api/analyze-pdf" }
+  ]
+}
