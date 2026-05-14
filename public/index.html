@@ -523,8 +523,18 @@ async function processFile(file) {
     document.getElementById('loadingSub').textContent = 'Extraindo sinais estratégicos...';
 
     if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || 'Erro na API');
+      const ct = response.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        const err = await response.json();
+        throw new Error(err.error?.message || `Erro ${response.status}`);
+      }
+      // Vercel retornou HTML (timeout, crash ou API Key não configurada)
+      const hints = {
+        401: 'API Key inválida — verifique ANTHROPIC_API_KEY no Vercel',
+        500: 'Erro interno — confirme que a variável ANTHROPIC_API_KEY está salva no Vercel',
+        504: 'Timeout — a análise demorou mais de 30s. Tente um PDF menor.'
+      };
+      throw new Error(hints[response.status] || `Erro ${response.status} — verifique as variáveis de ambiente no Vercel`);
     }
 
     const data = await response.json();
