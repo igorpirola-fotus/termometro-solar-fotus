@@ -99,6 +99,40 @@ Deploy: `git push origin main` → Vercel auto-deploy ativo.
 
 ## Próximos passos
 
+---
+
+### Fase 8 — Premissas de análise e reformulação do prompt (16/05/2026)
+
+Sessão estratégica completa antes de redesenhar o front-end. Definido e documentado:
+
+**Portfólio Fotus mapeado:**
+- Inversores string: GoodWe, Solplanet, Solis, AUXSOL (exclusivo), Deye
+- Inversores híbridos: GoodWe Hybrid, Solis Hybrid (lançamento), Solplanet Hybrid, Deye Hybrid
+- Microinversores: TSUNESS, Deye Micro (exclusivo)
+- Módulos: LONGi, Astronergy, Sunova, Pulling (exclusivo), Jinko Solar
+- Baterias: Deye Battery (ecossistema fechado Deye), UCB Power (aberto)
+
+**Marcas fora do portfólio (sinais de lacuna):** Growatt, Sungrow, Fronius, Huawei, SAJ, Chint, Hoymiles, APsystems, Enphase, JA Solar, Canadian Solar, Trina Solar, Risen, BYD, Pylontech
+
+**Mapa competitivo (Greener 2026):**
+- Tier 1: Belenergy (#1, domina SP, ganhou Greener 2 anos) + Fortlev Solar (nacional + local ES)
+- Tier 2: Soollar (#2), Aldo Solar (#4), Sou Energy (#5)
+- Praças estratégicas: SP (Belenergy) e ES (Fortlev + sede Fotus)
+
+**Regras de análise estabelecidas:**
+- Nunca citar nomes de pessoas da equipe Fotus na análise — sempre institucional
+- Marcas Fotus em crise = problema interno, não de concorrente
+- Score ponderado por relevância de portfólio, não só volume
+- Cinco linhas de análise: temperatura, radar de portfólio, inteligência competitiva, sinais de demanda, percepção da Fotus
+
+**Problema crítico identificado na análise anterior:** o Claude classificava Deye e Solis como "Concorr." quando são produtos Fotus. A análise concluía que a "Fotus estava ausente" quando na verdade estava presente como produto mas invisível como marca. Corrigido no novo prompt.
+
+**Novo schema JSON da Edge Function:** adicionados `briefing_executivo` (3 insights acionáveis), `radar_portfolio` (marcas Fotus monitoradas), `lacunas_portfolio` (marcas demandadas fora do portfólio), `concorrentes_distribuidores` (distribuidoras separado de marcas de produto). Deploy realizado.
+
+---
+
+## Próximos passos
+
 ### Imediatos
 
 1. **Publicar o workflow diário no n8n** — clicar em "Publish" no "Termômetro – Análise Diária" para ativar o agendamento automático das 06:00
