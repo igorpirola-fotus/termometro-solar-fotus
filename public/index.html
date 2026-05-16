@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── IMPECCABLE AUDIT v2 ─────────────────────────────────────────────────── */
 :root{
@@ -368,35 +369,34 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 <!-- MAIN -->
 <main class="main">
 
-  <!-- UPLOAD SCREEN -->
+  <!-- EMPTY STATE (shown when no report exists yet) -->
   <div id="uploadScreen">
-    <div class="upload-zone" id="dropZone">
+    <div class="upload-zone">
       <div class="upload-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <div class="upload-title">Carregar Resumo Semanal</div>
-      <div class="upload-sub">Faça upload do PDF gerado pelo agente de extração dos grupos.<br>O Cortex analisa e monta o painel automaticamente.</div>
-      <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M8 12V3M4 7l4-4 4 4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 14h12" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Selecionar PDF
+      <div class="upload-title">Aguardando análise semanal</div>
+      <div class="upload-sub">O Cortex atualiza automaticamente toda segunda às 09:00 via n8n.<br>Nenhum relatório encontrado ainda.</div>
+      <button class="upload-btn" onclick="loadLatestReport()">
+        <svg viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.5 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M13.5 4v4h-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Verificar novamente
       </button>
-      <div class="upload-hint">ou arraste o arquivo aqui · toda segunda às 07:00</div>
+      <div class="upload-hint">atualização automática via n8n · toda segunda às 09:00</div>
     </div>
     <div class="upload-info">
       <div class="upload-info-item">
         <svg viewBox="0 0 16 16" fill="none"><path d="M13 6l-5 5-5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Análise automática por IA
+        Análise automática por Claude Sonnet
       </div>
       <div class="upload-info-item">
         <svg viewBox="0 0 16 16" fill="none"><path d="M13 6l-5 5-5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Matriz de sinais estratégicos
+        Atualização em tempo real via Supabase
       </div>
       <div class="upload-info-item">
         <svg viewBox="0 0 16 16" fill="none"><path d="M13 6l-5 5-5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Radar de concorrentes e marcas
       </div>
     </div>
-    <input type="file" id="fileInput" accept=".pdf">
   </div>
 
   <!-- LOADING SCREEN -->
@@ -404,12 +404,12 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="loading-orb">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <div class="loading-title">Analisando relatório</div>
-    <div class="loading-sub" id="loadingSub">Lendo PDF e extraindo sinais...</div>
+    <div class="loading-title">Carregando Cortex</div>
+    <div class="loading-sub" id="loadingSub">Conectando ao banco de dados...</div>
     <div class="loading-steps">
-      <div class="lstep active" id="step1"><div class="lstep-dot"></div>Lendo e decodificando PDF</div>
-      <div class="lstep" id="step2"><div class="lstep-dot"></div>Enviando para análise Claude</div>
-      <div class="lstep" id="step3"><div class="lstep-dot"></div>Extraindo sinais estratégicos</div>
+      <div class="lstep active" id="step1"><div class="lstep-dot"></div>Conectando ao banco de dados</div>
+      <div class="lstep" id="step2"><div class="lstep-dot"></div>Buscando análise mais recente</div>
+      <div class="lstep" id="step3"><div class="lstep-dot"></div>Processando dados</div>
       <div class="lstep" id="step4"><div class="lstep-dot"></div>Montando painel</div>
     </div>
     <div class="loading-bar-wrap">
@@ -526,22 +526,10 @@ Regras:
 let gaugeChart = null;
 let objChart = null;
 
-// ─── DRAG & DROP ────────────────────────────────────────────────────────────
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag');
-  const file = e.dataTransfer.files[0];
-  if (file && file.type === 'application/pdf') processFile(file);
-  else alert('Por favor, selecione um arquivo PDF.');
-});
-fileInput.addEventListener('change', e => {
-  if (e.target.files[0]) processFile(e.target.files[0]);
-});
+// ─── SUPABASE CONFIG ─────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://wttmlnhzvevtabjetsqz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ─── PROGRESS ───────────────────────────────────────────────────────────────
 function setStep(n, progress) {
@@ -555,96 +543,62 @@ function setStep(n, progress) {
 }
 
 // ─── MAIN FLOW ───────────────────────────────────────────────────────────────
-async function processFile(file) {
+async function loadLatestReport() {
   document.getElementById('uploadScreen').style.display = 'none';
   document.getElementById('loadingScreen').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
 
   try {
-    // Step 1: Read PDF as base64
-    setStep(1, 15);
-    document.getElementById('loadingSub').textContent = 'Lendo e decodificando PDF...';
-    const base64 = await fileToBase64(file);
+    setStep(1, 20);
+    document.getElementById('loadingSub').textContent = 'Conectando ao banco de dados...';
 
-    // Step 2: Send to Claude API
-    setStep(2, 35);
-    document.getElementById('loadingSub').textContent = 'Enviando para análise...';
+    const { data: rows, error } = await sb
+      .from('relatorios')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(1);
 
-    const response = await fetch('/api/analyze-pdf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        system: SYSTEM_PROMPT,
-        messages: [{
-          role: 'user',
-          content: [
-            {
-              type: 'document',
-              source: { type: 'base64', media_type: 'application/pdf', data: base64 }
-            },
-            {
-              type: 'text',
-              text: 'Analise este resumo semanal de inteligência de mercado e retorne o JSON estruturado conforme especificado.'
-            }
-          ]
-        }]
-      })
-    });
+    setStep(2, 50);
+    document.getElementById('loadingSub').textContent = 'Buscando análise mais recente...';
 
-    // Step 3: Parse response
-    setStep(3, 65);
-    document.getElementById('loadingSub').textContent = 'Extraindo sinais estratégicos...';
+    if (error) throw new Error(error.message);
 
-    if (!response.ok) {
-      const ct = response.headers.get('content-type') || '';
-      if (ct.includes('application/json')) {
-        const err = await response.json();
-        throw new Error(err.error?.message || `Erro ${response.status}`);
-      }
-      // Vercel retornou HTML (timeout, crash ou API Key não configurada)
-      const hints = {
-        401: 'API Key inválida — verifique ANTHROPIC_API_KEY no Vercel',
-        500: 'Erro interno — confirme que a variável ANTHROPIC_API_KEY está salva no Vercel',
-        504: 'Timeout — a análise demorou mais de 60s. Tente um PDF menor ou com menos páginas.'
-      };
-      throw new Error(hints[response.status] || `Erro ${response.status} — verifique as variáveis de ambiente no Vercel`);
+    if (!rows || rows.length === 0) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('uploadScreen').style.display = 'flex';
+      return;
     }
 
-    const data = await response.json();
-    const rawText = data.content.find(b => b.type === 'text')?.text || '';
-
-    let parsed;
-    try {
-      const clean = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      parsed = JSON.parse(clean);
-    } catch(e) {
-      throw new Error('Resposta da IA não é JSON válido. Tente novamente.');
-    }
-
-    // Step 4: Render
-    setStep(4, 90);
-    document.getElementById('loadingSub').textContent = 'Montando painel...';
-    await delay(400);
+    setStep(3, 80);
+    document.getElementById('loadingSub').textContent = 'Processando dados...';
+    await delay(300);
 
     setStep(4, 100);
-    renderDashboard(parsed);
+    document.getElementById('loadingSub').textContent = 'Montando painel...';
+    renderDashboard(rows[0].payload);
 
   } catch (err) {
     document.getElementById('loadingScreen').style.display = 'none';
     document.getElementById('uploadScreen').style.display = 'flex';
-    alert('Erro ao processar: ' + err.message);
+    console.error('Erro ao carregar relatório:', err.message);
   }
 }
 
-function fileToBase64(file) {
-  return new Promise((res, rej) => {
-    const r = new FileReader();
-    r.onload = () => res(r.result.split(',')[1]);
-    r.onerror = () => rej(new Error('Erro ao ler arquivo'));
-    r.readAsDataURL(file);
-  });
+// ─── SUPABASE REALTIME ───────────────────────────────────────────────────────
+function initRealtime() {
+  try {
+    sb.channel('relatorios-live')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'relatorios' },
+        (payload) => {
+          if (payload.new && payload.new.payload) {
+            renderDashboard(payload.new.payload);
+          }
+        }
+      )
+      .subscribe();
+  } catch (e) {
+    console.warn('Realtime não disponível:', e.message);
+  }
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
@@ -986,12 +940,17 @@ function resetToUpload() {
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('dashboard').innerHTML = '';
   document.getElementById('uploadScreen').style.display = 'flex';
-  document.getElementById('fileInput').value = '';
   document.getElementById('sbDate').textContent = '—';
   document.getElementById('sbStatus').textContent = 'Aguardando extração';
   if (gaugeChart) { gaugeChart.destroy(); gaugeChart = null; }
   if (objChart) { objChart.destroy(); objChart = null; }
 }
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  loadLatestReport();
+  initRealtime();
+});
 </script>
 </body>
 </html>

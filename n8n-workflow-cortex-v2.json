@@ -1,0 +1,93 @@
+{
+  "name": "Termômetro Solar – Cortex Fotus v2",
+  "nodes": [
+    {
+      "id": "node-schedule",
+      "name": "Agendamento Semanal",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [1],
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-postgres",
+      "name": "Busca Mensagens",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [480, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE message_timestamp >= NOW() - INTERVAL '7 days' AND content_text IS NOT NULL AND content_text <> '' ORDER BY message_timestamp ASC LIMIT 2000",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "id": "node-code-prepare",
+      "name": "Prepara Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\nconst msgs = items.map(i => i.json);\n\nif (msgs.length === 0) {\n  throw new Error('Sem mensagens nos ultimos 7 dias.');\n}\n\nconst body = JSON.stringify({\n  messages: msgs,\n  periodo_inicio: msgs[0].message_timestamp,\n  periodo_fim: msgs[msgs.length - 1].message_timestamp\n});\n\nreturn [{ json: { body } }];"
+      }
+    },
+    {
+      "id": "node-http-edge",
+      "name": "Chama Edge Function",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://wttmlnhzvevtabjetsqz.supabase.co/functions/v1/analyze-market",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $('Prepara Payload').first().json.body }}"
+      }
+    }
+  ],
+  "connections": {
+    "Agendamento Semanal": {
+      "main": [[{ "node": "Busca Mensagens", "type": "main", "index": 0 }]]
+    },
+    "Busca Mensagens": {
+      "main": [[{ "node": "Prepara Payload", "type": "main", "index": 0 }]]
+    },
+    "Prepara Payload": {
+      "main": [[{ "node": "Chama Edge Function", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}

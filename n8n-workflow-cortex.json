@@ -1,0 +1,197 @@
+{
+  "name": "Termômetro Solar – Cortex Fotus",
+  "nodes": [
+    {
+      "id": "node-schedule",
+      "name": "Agendamento Semanal",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [1],
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-postgres",
+      "name": "Busca Mensagens",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [480, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE message_timestamp >= NOW() - INTERVAL '7 days' AND content_text IS NOT NULL AND content_text <> '' ORDER BY message_timestamp ASC LIMIT 2000",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "id": "node-code-prepare",
+      "name": "Prepara Requisicao",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\nconst msgs = items.map(i => i.json);\n\nif (msgs.length === 0) {\n  throw new Error('Sem mensagens nos ultimos 7 dias. Verifique a tabela messages.');\n}\n\nconst fmt = (ts) => {\n  if (!ts) return '';\n  try {\n    return new Date(ts).toLocaleString('pt-BR', {\n      day: '2-digit', month: '2-digit', year: 'numeric',\n      hour: '2-digit', minute: '2-digit'\n    });\n  } catch (e) { return String(ts); }\n};\n\nconst texto = msgs.map(m =>\n  '[' + fmt(m.message_timestamp) + '] ' +\n  (m.sender_name || 'Desconhecido') + ' (' +\n  (m.group_name || m.group_jid || 'Grupo') + '): ' +\n  (m.content_text || '')\n).join('\\n');\n\nconst SYSTEM_PROMPT = `Voce e o motor analitico do Cortex Fotus - sistema de inteligencia de mercado para a Fotus Distribuidora Solar (B2B, distribuidora de equipamentos fotovoltaicos para integradores de pequeno e medio porte).\n\nVoce recebera mensagens brutas de grupos de WhatsApp de integradores solares. Cada linha segue o formato: [Data/Hora] Remetente (Grupo): Conteudo. Sua missao e extrair dados estruturados para um painel de inteligencia.\n\nRETORNE APENAS JSON VALIDO, sem markdown, sem explicacoes, sem texto fora do JSON.\n\nCampos obrigatorios no JSON de saida:\n- meta: objeto com os campos data (DD/MM/AAAA), mensagens (numero), grupos (numero), modelo (string), score_aquecimento (0-100), status_aquecimento (Volume Reduzido|Volume Moderado|Volume Alto|Mercado Quente), status_cor (#3B82F6|#EF9F27|#FFC20E|#E24B4A)\n- tese_executiva: string HTML com analise executiva em 2-3 fracoes densas, use tag strong para destaques\n- tags_exec: array de objetos com texto e tipo, onde tipo e hot ou warn ou neu\n- kpis: objeto com score, mensagens, grupos e concorrentes - cada um com valor (numero), sub (texto curto), tag (texto) e tag_tipo (up ou dn ou neu)\n- mencoes_fotus: array de objetos com tipo (Positivo|Negativo|Neutro), categoria (Suporte|Comercial|Produto|Relacionamento), texto e grupo\n- oportunidade_fotus: string com insight estrategico sobre as mencoes\n- concorrentes: array de objetos com rank, nome, mencoes, alerta (boolean), badge_texto, badge_cor (hex), badge_txt_cor (hex), descricao, estados (array de strings UF xN)\n- marcas: array de objetos com nome, mencoes, tipo (Software|Fotus|Neutro|Concorr.|Saindo|Parceiro), cor (hex), estados (array de strings)\n- estados: array de objetos com uf e contagem\n- objecoes: array de objetos com titulo, descricao, prioridade (Alta|Media|Baixa|Oport.), badge_extra, icon_cor (hex), icon_stroke (hex)\n- matriz_sinais: array de objetos com dimensao (Suporte tecnico|Competicao|Financiamento|Garantia/Pos-venda|Reputacao Fotus|Oportunidade), score (ALTO|MEDIO|POS.|BAIXO), score_classe (ms-high|ms-mid|ms-low), intensidade (0-100), cor (hex), desc\n- insight_estrategico: string com analise de oportunidade em 2-3 linhas\n- risco_principal: string com analise de risco em 2-3 linhas\n- chart_objecoes: objeto com labels (array de strings), valores (array de numeros), cores (array de hex)\n\nRegras:\n- score_aquecimento: menos de 100 msgs = max 40; 100-300 = entre 40 e 65; mais de 300 = entre 65 e 100\n- Seja estrategico, nao descritivo. Cada campo deve ter valor analitico para tomada de decisao\n- Mencoes vazias da Fotus: retorne array vazio\n- Sempre extraia insights sobre oportunidades para a Fotus converter dores de mercado`;\n\nconst body = JSON.stringify({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 4000,\n  system: SYSTEM_PROMPT,\n  messages: [{ role: 'user', content: texto }]\n});\n\nreturn [{\n  json: {\n    claude_body: body,\n    total: msgs.length,\n    inicio: msgs[0].message_timestamp,\n    fim: msgs[msgs.length - 1].message_timestamp\n  }\n}];"
+      }
+    },
+    {
+      "id": "node-http-claude",
+      "name": "Chama Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $('Prepara Requisicao').first().json.claude_body }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "id": "node-code-parse",
+      "name": "Extrai Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const resp = $input.first().json;\nconst prep = $('Prepara Requisicao').first().json;\n\nconst text = (resp.content && resp.content[0] && resp.content[0].text) ? resp.content[0].text : '';\n\nif (!text) {\n  throw new Error('Claude nao retornou conteudo. Status: ' + (resp.error ? JSON.stringify(resp.error) : 'desconhecido'));\n}\n\nlet payload;\ntry {\n  const clean = text.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  payload = JSON.parse(clean);\n} catch (e) {\n  const m = text.match(/\\{[\\s\\S]*\\}/);\n  if (!m) throw new Error('Claude nao retornou JSON valido. Inicio da resposta: ' + text.substring(0, 200));\n  try {\n    payload = JSON.parse(m[0]);\n  } catch (e2) {\n    throw new Error('Falha ao parsear JSON: ' + e2.message);\n  }\n}\n\nconst toISODate = (v) => {\n  if (!v) return null;\n  try { return new Date(v).toISOString().split('T')[0]; }\n  catch (e) { return null; }\n};\n\nconst row = {\n  payload: payload,\n  total_mensagens: prep.total,\n  periodo_inicio: toISODate(prep.inicio),\n  periodo_fim: toISODate(prep.fim)\n};\n\nreturn [{ json: { supabase_row: JSON.stringify(row) } }];"
+      }
+    },
+    {
+      "id": "node-http-supabase",
+      "name": "Salva Supabase",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1440, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://wttmlnhzvevtabjetsqz.supabase.co/rest/v1/relatorios",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "COLE_AQUI_SUA_SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer COLE_AQUI_SUA_SUPABASE_ANON_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $('Extrai Resultado').first().json.supabase_row }}"
+      }
+    }
+  ],
+  "connections": {
+    "Agendamento Semanal": {
+      "main": [
+        [
+          {
+            "node": "Busca Mensagens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca Mensagens": {
+      "main": [
+        [
+          {
+            "node": "Prepara Requisicao",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepara Requisicao": {
+      "main": [
+        [
+          {
+            "node": "Chama Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chama Claude": {
+      "main": [
+        [
+          {
+            "node": "Extrai Resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrai Resultado": {
+      "main": [
+        [
+          {
+            "node": "Salva Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": []
+}
