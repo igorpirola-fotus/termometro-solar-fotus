@@ -1,0 +1,84 @@
+{
+  "name": "Cortex Fotus – Análise Diária",
+  "nodes": [
+    {
+      "id": "node-schedule",
+      "name": "Agendamento Diário",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "node-postgres",
+      "name": "Busca Mensagens de Ontem",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [480, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = (CURRENT_DATE - INTERVAL '1 day') AND content_text IS NOT NULL AND content_text <> '' AND group_jid LIKE '%-%' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' ORDER BY message_timestamp ASC",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": { "name": "Postgres account" }
+      }
+    },
+    {
+      "id": "node-code-prepare",
+      "name": "Prepara Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\nconst msgs = items.map(i => i.json);\n\nif (msgs.length === 0) {\n  throw new Error('Sem mensagens para ontem. Verificar integracao WhatsApp.');\n}\n\nconst yesterday = new Date();\nyesterday.setDate(yesterday.getDate() - 1);\nconst dataRef = yesterday.toISOString().split('T')[0];\n\nconst body = JSON.stringify({\n  messages: msgs,\n  data_referencia: dataRef,\n  periodo_inicio: msgs[0].message_timestamp,\n  periodo_fim: msgs[msgs.length - 1].message_timestamp\n});\n\nreturn [{ json: { body, data_referencia: dataRef, total: msgs.length } }];"
+      }
+    },
+    {
+      "id": "node-http-edge",
+      "name": "Chama Edge Function",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [960, 300],
+      "parameters": {
+        "method": "POST",
+        "url": "https://wttmlnhzvevtabjetsqz.supabase.co/functions/v1/analyze-market",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $('Prepara Payload').first().json.body }}",
+        "options": { "timeout": 180000 }
+      }
+    }
+  ],
+  "connections": {
+    "Agendamento Diário": {
+      "main": [[{ "node": "Busca Mensagens de Ontem", "type": "main", "index": 0 }]]
+    },
+    "Busca Mensagens de Ontem": {
+      "main": [[{ "node": "Prepara Payload", "type": "main", "index": 0 }]]
+    },
+    "Prepara Payload": {
+      "main": [[{ "node": "Chama Edge Function", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "tags": []
+}

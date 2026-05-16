@@ -1,0 +1,150 @@
+{
+  "name": "Cortex Fotus – Backfill Histórico",
+  "nodes": [
+    {
+      "id": "node-manual",
+      "name": "Iniciar Backfill",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "parameters": {}
+    },
+    {
+      "id": "node-dates",
+      "name": "Gera Datas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Gera datas de 01/05/2026 ate ontem\nconst start = new Date('2026-05-01T00:00:00Z');\nconst yesterday = new Date();\nyesterday.setUTCDate(yesterday.getUTCDate() - 1);\nyesterday.setUTCHours(23, 59, 59, 0);\n\nconst dates = [];\nconst cur = new Date(start);\nwhile (cur <= yesterday) {\n  dates.push({ json: { data_referencia: cur.toISOString().split('T')[0] } });\n  cur.setUTCDate(cur.getUTCDate() + 1);\n}\nreturn dates;"
+      }
+    },
+    {
+      "id": "node-loop",
+      "name": "Loop por Data",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [680, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": {}
+      }
+    },
+    {
+      "id": "node-code-query",
+      "name": "Monta Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [900, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const dataRef = $input.first().json.data_referencia;\nconst query = `SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = '${dataRef}'::date AND content_text IS NOT NULL AND content_text <> '' AND group_jid LIKE '%-%' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' ORDER BY message_timestamp ASC`;\nreturn [{ json: { data_referencia: dataRef, query } }];"
+      }
+    },
+    {
+      "id": "node-postgres",
+      "name": "Busca Mensagens do Dia",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1120, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.query }}",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": { "name": "Postgres account" }
+      }
+    },
+    {
+      "id": "node-code-payload",
+      "name": "Prepara Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all();\nconst msgs = items.map(i => i.json);\nconst dataRef = $('Loop por Data').first().json.data_referencia;\n\nif (msgs.length === 0) {\n  return [{ json: { skip: true, data_referencia: dataRef, total: 0 } }];\n}\n\nconst body = JSON.stringify({\n  messages: msgs,\n  data_referencia: dataRef,\n  periodo_inicio: msgs[0].message_timestamp,\n  periodo_fim: msgs[msgs.length - 1].message_timestamp\n});\n\nreturn [{ json: { skip: false, body, data_referencia: dataRef, total: msgs.length } }];"
+      }
+    },
+    {
+      "id": "node-if",
+      "name": "Tem Mensagens?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1560, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
+          "conditions": [
+            {
+              "id": "cond-skip",
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": false,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "node-http",
+      "name": "Chama Edge Function",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1780, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "https://wttmlnhzvevtabjetsqz.supabase.co/functions/v1/analyze-market",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ $json.body }}",
+        "options": { "timeout": 180000 }
+      }
+    }
+  ],
+  "connections": {
+    "Iniciar Backfill": {
+      "main": [[{ "node": "Gera Datas", "type": "main", "index": 0 }]]
+    },
+    "Gera Datas": {
+      "main": [[{ "node": "Loop por Data", "type": "main", "index": 0 }]]
+    },
+    "Loop por Data": {
+      "main": [
+        [{ "node": "Monta Query", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Monta Query": {
+      "main": [[{ "node": "Busca Mensagens do Dia", "type": "main", "index": 0 }]]
+    },
+    "Busca Mensagens do Dia": {
+      "main": [[{ "node": "Prepara Payload", "type": "main", "index": 0 }]]
+    },
+    "Prepara Payload": {
+      "main": [[{ "node": "Tem Mensagens?", "type": "main", "index": 0 }]]
+    },
+    "Tem Mensagens?": {
+      "main": [
+        [{ "node": "Chama Edge Function", "type": "main", "index": 0 }],
+        [{ "node": "Loop por Data", "type": "main", "index": 0 }]
+      ]
+    },
+    "Chama Edge Function": {
+      "main": [[{ "node": "Loop por Data", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": { "executionOrder": "v1" },
+  "staticData": null,
+  "tags": []
+}
