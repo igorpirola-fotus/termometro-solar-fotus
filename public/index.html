@@ -300,6 +300,34 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .btn-primary:hover{background:#0D2E6E}
 .btn-primary svg{width:12px;height:12px}
 
+/* ── DELTA CARD ──────────────────────────────────────────────────────────── */
+.delta-card{display:flex;align-items:center;gap:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px 18px;margin-bottom:16px;animation:fadeUp .3s .22s ease both}
+.delta-score{display:flex;align-items:center;gap:8px;min-width:90px}
+.delta-icon{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
+.delta-icon svg{width:12px;height:12px}
+.delta-num{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-.04em;line-height:1}
+.delta-pts{font-size:10px;color:var(--hint);font-family:var(--sans);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
+.delta-divider{width:1px;background:var(--border);align-self:stretch;flex-shrink:0}
+.delta-body{flex:1;min-width:0}
+.delta-lbl{font-size:var(--t-xs);font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-family:var(--sans);display:flex;align-items:center;gap:8px}
+.delta-resumo{font-size:var(--t-sm);color:var(--text);line-height:1.55;font-weight:300}
+.delta-lists{display:flex;gap:20px;min-width:180px;flex-shrink:0}
+.delta-list-col{flex:1}
+.delta-list-ttl{font-size:var(--t-xs);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:var(--sans)}
+.delta-list-col ul{list-style:none;display:flex;flex-direction:column;gap:3px}
+.delta-list-col li{font-size:11px;color:var(--muted);line-height:1.4;font-weight:300;padding-left:10px;position:relative}
+.delta-list-col li::before{content:'';position:absolute;left:2px;top:5px;width:4px;height:4px;border-radius:50%;background:currentColor}
+
+/* ── DATE NAV ────────────────────────────────────────────────────────────── */
+.date-nav{display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--r-ctrl);padding:4px 6px}
+.date-nav-btn{width:26px;height:26px;border:none;background:transparent;border-radius:6px;cursor:pointer;display:grid;place-items:center;color:var(--muted);transition:background-color .12s,color .12s}
+.date-nav-btn:hover:not(:disabled){background:var(--surface);color:var(--blue)}
+.date-nav-btn:disabled{opacity:.3;cursor:default}
+.date-nav-btn svg{width:11px;height:11px}
+.date-nav-center{text-align:center;min-width:76px}
+.date-nav-lbl{font-family:var(--mono);font-size:12px;color:var(--text);font-weight:500;letter-spacing:.01em;line-height:1}
+.date-nav-rel{font-size:10px;color:var(--hint);font-family:var(--sans);margin-top:2px}
+
 /* ── ANIMATIONS ──────────────────────────────────────────────────────────── */
 /* P2: translateY reduzido de 8→6px — entrada mais sutil */
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -525,6 +553,8 @@ Regras:
 // ─── STATE ──────────────────────────────────────────────────────────────────
 let gaugeChart = null;
 let objChart = null;
+let availableDates = []; // ['YYYY-MM-DD', ...] sorted desc
+let currentDateIndex = 0; // 0 = most recent
 
 // ─── SUPABASE CONFIG ─────────────────────────────────────────────────────────
 const SUPABASE_URL = 'https://wttmlnhzvevtabjetsqz.supabase.co';
@@ -542,6 +572,33 @@ function setStep(n, progress) {
   document.getElementById('loadingBar').style.width = progress + '%';
 }
 
+// ─── DATE HELPERS ────────────────────────────────────────────────────────────
+async function loadAvailableDates() {
+  const { data } = await sb
+    .from('relatorios')
+    .select('data_referencia')
+    .order('data_referencia', { ascending: false });
+  availableDates = (data || []).map(r => r.data_referencia).filter(Boolean);
+}
+
+async function loadReportByDate(dateStr) {
+  const { data: rows, error } = await sb
+    .from('relatorios')
+    .select('*')
+    .eq('data_referencia', dateStr)
+    .limit(1);
+  if (error || !rows || rows.length === 0) return null;
+  return rows[0];
+}
+
+async function navigateDate(direction) {
+  const newIndex = currentDateIndex + direction;
+  if (newIndex < 0 || newIndex >= availableDates.length) return;
+  currentDateIndex = newIndex;
+  const report = await loadReportByDate(availableDates[currentDateIndex]);
+  if (report) renderDashboard(report.payload);
+}
+
 // ─── MAIN FLOW ───────────────────────────────────────────────────────────────
 async function loadLatestReport() {
   document.getElementById('uploadScreen').style.display = 'none';
@@ -552,18 +609,21 @@ async function loadLatestReport() {
     setStep(1, 20);
     document.getElementById('loadingSub').textContent = 'Conectando ao banco de dados...';
 
-    const { data: rows, error } = await sb
-      .from('relatorios')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(1);
+    await loadAvailableDates();
 
     setStep(2, 50);
     document.getElementById('loadingSub').textContent = 'Buscando análise mais recente...';
 
-    if (error) throw new Error(error.message);
+    if (availableDates.length === 0) {
+      document.getElementById('loadingScreen').style.display = 'none';
+      document.getElementById('uploadScreen').style.display = 'flex';
+      return;
+    }
 
-    if (!rows || rows.length === 0) {
+    currentDateIndex = 0;
+    const report = await loadReportByDate(availableDates[0]);
+
+    if (!report) {
       document.getElementById('loadingScreen').style.display = 'none';
       document.getElementById('uploadScreen').style.display = 'flex';
       return;
@@ -575,7 +635,7 @@ async function loadLatestReport() {
 
     setStep(4, 100);
     document.getElementById('loadingSub').textContent = 'Montando painel...';
-    renderDashboard(rows[0].payload);
+    renderDashboard(report.payload);
 
   } catch (err) {
     document.getElementById('loadingScreen').style.display = 'none';
@@ -589,8 +649,10 @@ function initRealtime() {
   try {
     sb.channel('relatorios-live')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'relatorios' },
-        (payload) => {
+        async (payload) => {
           if (payload.new && payload.new.payload) {
+            await loadAvailableDates();
+            currentDateIndex = 0;
             renderDashboard(payload.new.payload);
           }
         }
@@ -602,6 +664,86 @@ function initRealtime() {
 }
 
 function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ─── DATE LABEL HELPERS ──────────────────────────────────────────────────────
+function getDateLabel() {
+  const dateStr = availableDates[currentDateIndex];
+  if (!dateStr) return '';
+  const [y, mo, d] = dateStr.split('-');
+  return `${d}/${mo}/${y}`;
+}
+
+function getRelativeLabel() {
+  const dateStr = availableDates[currentDateIndex];
+  if (!dateStr) return '';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const ref = new Date(dateStr + 'T12:00:00');
+  ref.setHours(0, 0, 0, 0);
+  const diff = Math.round((today - ref) / (1000 * 60 * 60 * 24));
+  if (diff === 0) return 'hoje';
+  if (diff === 1) return 'ontem';
+  if (diff === 2) return 'anteontem';
+  return `${diff} dias atrás`;
+}
+
+// ─── DELTA CARD ───────────────────────────────────────────────────────────────
+function buildDeltaCard(delta) {
+  if (!delta) return '';
+
+  const hasScore = delta.score_delta !== null && delta.score_delta !== undefined;
+  const isUp = hasScore && delta.score_delta > 0;
+  const isDown = hasScore && delta.score_delta < 0;
+
+  const scoreColor = isUp ? 'var(--green)' : isDown ? 'var(--red)' : 'var(--muted)';
+  const scorePrefix = isUp ? '+' : '';
+  const scoreVal = hasScore ? `${scorePrefix}${delta.score_delta}` : '—';
+
+  const upSVG = `<svg viewBox="0 0 12 12" fill="none"><path d="M6 9V3M3 6l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const downSVG = `<svg viewBox="0 0 12 12" fill="none"><path d="M6 3v6M3 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  const flatSVG = `<svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+  const arrowSVG = isUp ? upSVG : isDown ? downSVG : flatSVG;
+  const iconBg = isUp ? '#EAFBF0' : isDown ? '#FEF0F0' : 'var(--s2)';
+
+  const tendMap = {
+    'acelerando': { label: 'Acelerando', cls: 'tag-up' },
+    'estavel': { label: 'Estável', cls: 'tag-neu' },
+    'arrefecendo': { label: 'Arrefecendo', cls: 'tag-dn' }
+  };
+  const tend = tendMap[delta.tendencia] || { label: delta.tendencia || 'Estável', cls: 'tag-neu' };
+
+  const novos = (delta.novos_alertas || []);
+  const encerrados = (delta.temas_encerrados || []);
+  const hasLists = novos.length > 0 || encerrados.length > 0;
+
+  const novosHTML = novos.length > 0 ? `
+    <div class="delta-list-col">
+      <div class="delta-list-ttl" style="color:var(--red)">+ Novos</div>
+      <ul>${novos.map(a => `<li style="color:var(--red)">${a}</li>`).join('')}</ul>
+    </div>` : '';
+
+  const encerradosHTML = encerrados.length > 0 ? `
+    <div class="delta-list-col">
+      <div class="delta-list-ttl" style="color:var(--muted)">− Encerrados</div>
+      <ul>${encerrados.map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>` : '';
+
+  return `<div class="delta-card">
+    <div class="delta-score">
+      <div class="delta-icon" style="background:${iconBg};color:${scoreColor}">${arrowSVG}</div>
+      <div>
+        <div class="delta-num" style="color:${scoreColor}">${scoreVal}</div>
+        <div class="delta-pts">pts score</div>
+      </div>
+    </div>
+    <div class="delta-divider"></div>
+    <div class="delta-body">
+      <div class="delta-lbl">O que mudou hoje <span class="${tend.cls}">${tend.label}</span></div>
+      <div class="delta-resumo">${delta.resumo || ''}</div>
+    </div>
+    ${hasLists ? `<div class="delta-divider"></div><div class="delta-lists">${novosHTML}${encerradosHTML}</div>` : ''}
+  </div>`;
+}
 
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 function renderDashboard(d) {
@@ -743,26 +885,42 @@ function buildDashboardHTML(d) {
     </div>`;
   }).join('');
 
+  const dateLabel = getDateLabel();
+  const relLabel = getRelativeLabel();
+  const hasPrev = currentDateIndex < availableDates.length - 1;
+  const hasNext = currentDateIndex > 0;
+
   return `
   <div class="topbar">
     <div>
       <h1>Termômetro de Mercado</h1>
-      <p>Semana ${m.data} · ${m.grupos} grupos · ${m.mensagens} mensagens · ${m.modelo||'Claude'}</p>
+      <p>Dia ${m.data} · ${m.grupos} grupos · ${m.mensagens} mensagens · ${m.modelo||'Claude'}</p>
     </div>
     <div class="topbar-r">
+      <div class="date-nav">
+        <button class="date-nav-btn" onclick="navigateDate(1)" ${!hasPrev ? 'disabled' : ''} title="Dia anterior">
+          <svg viewBox="0 0 12 12" fill="none"><path d="M7.5 2l-4 4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="date-nav-center">
+          <div class="date-nav-lbl">${dateLabel}</div>
+          <div class="date-nav-rel">${relLabel}</div>
+        </div>
+        <button class="date-nav-btn" onclick="navigateDate(-1)" ${!hasNext ? 'disabled' : ''} title="Próximo dia">
+          <svg viewBox="0 0 12 12" fill="none"><path d="M4.5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
       <div class="heat-pill">
         <div class="heat-dot" style="background:${m.status_cor}"></div>
         ${m.status_aquecimento}
       </div>
-      <button class="btn-ghost" onclick="resetToUpload()">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M13 2H3a1 1 0 00-1 1v10a1 1 0 001 1h10a1 1 0 001-1V3a1 1 0 00-1-1zM8 5v6M5 8h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        Nova extração
-      </button>
     </div>
   </div>
 
   <!-- KPIs -->
   <div class="g4">${kpisHTML}</div>
+
+  <!-- DELTA -->
+  ${buildDeltaCard(d.delta)}
 
   <!-- EXEC -->
   <div class="exec">
