@@ -607,7 +607,7 @@ async function processFile(file) {
       const hints = {
         401: 'API Key inválida — verifique ANTHROPIC_API_KEY no Vercel',
         500: 'Erro interno — confirme que a variável ANTHROPIC_API_KEY está salva no Vercel',
-        504: 'Timeout — a análise demorou mais de 30s. Tente um PDF menor.'
+        504: 'Timeout — a análise demorou mais de 60s. Tente um PDF menor ou com menos páginas.'
       };
       throw new Error(hints[response.status] || `Erro ${response.status} — verifique as variáveis de ambiente no Vercel`);
     }
