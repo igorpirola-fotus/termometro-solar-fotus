@@ -300,6 +300,85 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 .btn-primary:hover{background:#0D2E6E}
 .btn-primary svg{width:12px;height:12px}
 
+/* ── BRIEFING EXECUTIVO ──────────────────────────────────────────────────── */
+.briefing-section{margin-bottom:16px;animation:fadeUp .3s .05s ease both}
+.briefing-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.briefing-hdr-ttl{font-family:var(--sans);font-size:var(--t-xs);font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.10em}
+.briefing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.briefing-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:18px 18px 16px 21px;position:relative;overflow:hidden;animation:fadeUp .3s ease both;display:flex;flex-direction:column;gap:0}
+.briefing-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.bc-critica::before{background:var(--red)}
+.bc-alta::before{background:var(--amber)}
+.bc-media::before{background:var(--blue)}
+.briefing-top{display:flex;align-items:center;gap:7px;margin-bottom:9px}
+.briefing-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r-chip);text-transform:uppercase;letter-spacing:.05em;font-family:var(--sans);flex-shrink:0}
+.bb-critica{background:#FEF0F0;color:#B91C1C}
+.bb-alta{background:#FEF3E2;color:#92510D}
+.bb-media{background:#EEF4FF;color:#1D4ED8}
+.briefing-title{font-size:var(--t-md);font-weight:600;color:var(--text);letter-spacing:-.01em;line-height:1.2;margin-bottom:10px}
+.briefing-blk{margin-bottom:8px}
+.briefing-blk-lbl{font-size:var(--t-xs);font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-family:var(--sans)}
+.briefing-blk-txt{font-size:var(--t-sm);color:var(--muted);line-height:1.55;font-weight:300}
+.briefing-acao{margin-top:auto;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
+.briefing-acao-icon{width:18px;height:18px;border-radius:50%;background:var(--blue);display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+.briefing-acao-icon svg{width:9px;height:9px;color:#fff}
+.briefing-acao-txt{font-size:var(--t-sm);color:var(--navy);font-weight:500;line-height:1.4}
+
+/* ── RADAR PORTFÓLIO ─────────────────────────────────────────────────────── */
+.radar-list{display:flex;flex-direction:column;gap:0}
+.radar-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.radar-item:last-child{border-bottom:none;padding-bottom:0}
+.radar-item:first-child{padding-top:0}
+.radar-body{flex:1;min-width:0}
+.radar-head{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.radar-name{font-size:var(--t-sm);font-weight:500;color:var(--text)}
+.radar-ctx{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300}
+.radar-alerta{padding:5px 9px;background:#FEF0F0;border-radius:var(--r-ctrl);border:1px solid rgba(226,75,74,.18);margin-top:6px;font-size:11px;color:#B91C1C;line-height:1.5}
+.radar-stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:44px}
+.radar-n{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
+.radar-n-lbl{font-size:10px;color:var(--hint);font-family:var(--sans)}
+.st-pos{background:#EAFBF0;color:#0A7C35}
+.st-neg{background:#FEF0F0;color:#B91C1C}
+.st-neu{background:#F0F2F5;color:var(--muted)}
+.st-mix{background:#FEF3E2;color:#92510D}
+
+/* ── LACUNAS ─────────────────────────────────────────────────────────────── */
+.lacuna-list{display:flex;flex-direction:column;gap:0}
+.lacuna-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.lacuna-item:last-child{border-bottom:none;padding-bottom:0}
+.lacuna-item:first-child{padding-top:0}
+.lacuna-body{flex:1;min-width:0}
+.lacuna-head{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.lacuna-name{font-size:var(--t-sm);font-weight:500;color:var(--text)}
+.lacuna-ctx{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300;margin-bottom:4px}
+.lacuna-impl{font-size:11px;color:#5C4A0A;line-height:1.5;font-weight:400;background:#FFFBF0;border-radius:var(--r-chip);padding:4px 8px;display:block}
+.lacuna-stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:44px}
+.lacuna-n{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
+.lacuna-n-lbl{font-size:10px;color:var(--hint);font-family:var(--sans)}
+.dem-alta{background:#FEF0F0;color:#B91C1C}
+.dem-media{background:#FEF3E2;color:#92510D}
+.dem-baixa{background:#F0F2F5;color:var(--muted)}
+
+/* ── DISTRIBUIDORES ──────────────────────────────────────────────────────── */
+.dist-list{display:flex;flex-direction:column;gap:0}
+.dist-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.dist-item:last-child{border-bottom:none;padding-bottom:0}
+.dist-item:first-child{padding-top:0}
+.dist-tier-badge{width:32px;height:32px;border-radius:var(--r-ctrl);display:grid;place-items:center;flex-shrink:0;font-family:var(--mono);font-size:11px;font-weight:700}
+.dt-1{background:rgba(226,75,74,.1);color:var(--red)}
+.dt-2{background:rgba(239,159,39,.1);color:var(--amber)}
+.dt-3{background:var(--s2);color:var(--muted)}
+.dist-body{flex:1;min-width:0}
+.dist-name{font-size:var(--t-sm);font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.dist-ctx{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300}
+.dist-alerta{padding:5px 9px;background:#FEF0F0;border-radius:var(--r-ctrl);border:1px solid rgba(226,75,74,.18);margin-top:6px;font-size:11px;color:#B91C1C;line-height:1.5}
+.dist-stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:44px}
+.dist-n{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
+.dist-n-lbl{font-size:10px;color:var(--hint);font-family:var(--sans)}
+.sent-pos-dist{background:#EAFBF0;color:#0A7C35}
+.sent-neg-dist{background:#FEF0F0;color:#B91C1C}
+.sent-neu-dist{background:#F0F2F5;color:var(--muted)}
+
 /* ── DELTA CARD ──────────────────────────────────────────────────────────── */
 .delta-card{display:flex;align-items:center;gap:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px 18px;margin-bottom:16px;animation:fadeUp .3s .22s ease both}
 .delta-score{display:flex;align-items:center;gap:8px;min-width:90px}
@@ -745,6 +824,146 @@ function buildDeltaCard(delta) {
   </div>`;
 }
 
+// ─── BRIEFING EXECUTIVO ───────────────────────────────────────────────────────
+function buildBriefingHTML(briefing) {
+  if (!briefing || briefing.length === 0) return '';
+
+  const prioMap = {
+    'critica': { badge: 'bb-critica', card: 'bc-critica', label: 'Crítica' },
+    'alta':    { badge: 'bb-alta',    card: 'bc-alta',    label: 'Alta' },
+    'media':   { badge: 'bb-media',   card: 'bc-media',   label: 'Moderada' }
+  };
+
+  const arrowSVG = `<svg viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+  const cards = briefing.slice(0, 3).map((b, i) => {
+    const prio = prioMap[b.prioridade] || prioMap['media'];
+    return `<div class="briefing-card ${prio.card}" style="animation-delay:${0.05 + i*0.06}s">
+      <div class="briefing-top">
+        <span class="briefing-badge ${prio.badge}">${prio.label}</span>
+      </div>
+      <div class="briefing-title">${b.titulo}</div>
+      ${b.contexto ? `<div class="briefing-blk">
+        <div class="briefing-blk-lbl">Contexto</div>
+        <div class="briefing-blk-txt">${b.contexto}</div>
+      </div>` : ''}
+      ${b.implicacao ? `<div class="briefing-blk">
+        <div class="briefing-blk-lbl">Implicação para a Fotus</div>
+        <div class="briefing-blk-txt">${b.implicacao}</div>
+      </div>` : ''}
+      ${b.acao ? `<div class="briefing-acao">
+        <div class="briefing-acao-icon">${arrowSVG}</div>
+        <div class="briefing-acao-txt">${b.acao}</div>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+
+  return `<div class="briefing-section">
+    <div class="briefing-hdr">
+      <div class="briefing-hdr-ttl">Briefing executivo · leitura em 60 segundos</div>
+    </div>
+    <div class="briefing-grid">${cards}</div>
+  </div>`;
+}
+
+// ─── RADAR PORTFÓLIO ──────────────────────────────────────────────────────────
+function buildRadarPortfolioHTML(radar) {
+  if (!radar || radar.length === 0) {
+    return `<div style="padding:12px;background:var(--s2);border-radius:var(--r-ctrl);font-size:11px;color:var(--hint);text-align:center">Nenhuma marca do portfólio Fotus mencionada hoje.</div>`;
+  }
+
+  const sentMap = { positivo:'st-pos', negativo:'st-neg', neutro:'st-neu', misto:'st-mix' };
+  const sentLabel = { positivo:'Positivo', negativo:'Negativo', neutro:'Neutro', misto:'Misto' };
+  const catLabel = { inversor_string:'String', inversor_hibrido:'Híbrido', microinversor:'Micro', modulo:'Módulo', bateria:'Bateria' };
+
+  return `<div class="radar-list">` + radar.map(r => {
+    const sc = sentMap[r.sentimento] || 'st-neu';
+    const sl = sentLabel[r.sentimento] || r.sentimento || '';
+    const cl = catLabel[r.categoria] || r.categoria || '';
+    return `<div class="radar-item">
+      <div class="radar-body">
+        <div class="radar-head">
+          <span class="radar-name">${r.marca}</span>
+          ${r.exclusivo ? `<span class="btag t-fotus">Exclusivo</span>` : `<span class="btag t-fotus">Fotus</span>`}
+          ${cl ? `<span class="cstate">${cl}</span>` : ''}
+          <span class="btag ${sc}">${sl}</span>
+        </div>
+        ${r.contexto ? `<div class="radar-ctx">${r.contexto}</div>` : ''}
+        ${r.alerta && r.alerta_descricao ? `<div class="radar-alerta">⚠ ${r.alerta_descricao}</div>` : ''}
+      </div>
+      <div class="radar-stat">
+        <div class="radar-n">${r.mencoes}</div>
+        <div class="radar-n-lbl">menções</div>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+// ─── LACUNAS DE PORTFÓLIO ─────────────────────────────────────────────────────
+function buildLacunasHTML(lacunas) {
+  if (!lacunas || lacunas.length === 0) {
+    return `<div style="padding:12px;background:var(--s2);border-radius:var(--r-ctrl);font-size:11px;color:var(--hint);text-align:center">Nenhuma marca fora do portfólio com demanda relevante hoje.</div>`;
+  }
+
+  const demMap = { alta:'dem-alta', media:'dem-media', baixa:'dem-baixa' };
+  const demLabel = { alta:'Demanda Alta', media:'Demanda Média', baixa:'Demanda Baixa' };
+  const catLabel = { inversor_string:'String', inversor_hibrido:'Híbrido', microinversor:'Micro', modulo:'Módulo', bateria:'Bateria' };
+
+  return `<div class="lacuna-list">` + lacunas.map(l => {
+    const dc = demMap[l.demanda] || 'dem-baixa';
+    const dl = demLabel[l.demanda] || l.demanda || '';
+    const cl = catLabel[l.categoria] || l.categoria || '';
+    return `<div class="lacuna-item">
+      <div class="lacuna-body">
+        <div class="lacuna-head">
+          <span class="lacuna-name">${l.marca}</span>
+          <span class="btag t-warn">${dl}</span>
+          ${cl ? `<span class="cstate">${cl}</span>` : ''}
+        </div>
+        ${l.contexto ? `<div class="lacuna-ctx">${l.contexto}</div>` : ''}
+        ${l.implicacao ? `<div class="lacuna-impl">${l.implicacao}</div>` : ''}
+      </div>
+      <div class="lacuna-stat">
+        <div class="lacuna-n">${l.mencoes}</div>
+        <div class="lacuna-n-lbl">menções</div>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
+// ─── CONCORRENTES DISTRIBUIDORES ──────────────────────────────────────────────
+function buildDistribuidoresHTML(distribuidores) {
+  if (!distribuidores || distribuidores.length === 0) {
+    return `<div style="padding:12px;background:var(--s2);border-radius:var(--r-ctrl);font-size:11px;color:var(--hint);text-align:center">Nenhuma distribuidora concorrente mencionada hoje.</div>`;
+  }
+
+  const sentDistMap = { positivo:'sent-pos-dist', negativo:'sent-neg-dist', neutro:'sent-neu-dist' };
+  const sentDistLabel = { positivo:'Positivo', negativo:'Negativo', neutro:'Neutro' };
+
+  return `<div class="dist-list">` + distribuidores.map(d => {
+    const tierClass = d.tier === 1 ? 'dt-1' : d.tier === 2 ? 'dt-2' : 'dt-3';
+    const sc = sentDistMap[d.sentimento] || 'sent-neu-dist';
+    const sl = sentDistLabel[d.sentimento] || d.sentimento || '';
+    const regioesHTML = (d.regioes || []).map(r => `<span class="cstate">${r}</span>`).join('');
+    return `<div class="dist-item">
+      <div class="dist-tier-badge ${tierClass}">T${d.tier || '?'}</div>
+      <div class="dist-body">
+        <div class="dist-name">
+          ${d.nome}
+          ${sl ? `<span class="btag ${sc}">${sl}</span>` : ''}
+          ${regioesHTML}
+        </div>
+        ${d.contexto ? `<div class="dist-ctx">${d.contexto}</div>` : ''}
+        ${d.alerta && d.contexto ? `<div class="dist-alerta">⚠ ${d.contexto}</div>` : ''}
+      </div>
+      <div class="dist-stat">
+        <div class="dist-n">${d.mencoes}</div>
+        <div class="dist-n-lbl">menções</div>
+      </div>
+    </div>`;
+  }).join('') + `</div>`;
+}
+
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 function renderDashboard(d) {
   const m = d.meta;
@@ -776,7 +995,6 @@ function buildDashboardHTML(d) {
 
   // KPIs
   const kpiColors = { score: 'var(--yellow)', mensagens: 'var(--blue)', grupos: 'var(--green)', concorrentes: 'var(--red)' };
-  const kpiAccents = { score: 'var(--yellow)', mensagens: 'var(--blue)', grupos: 'var(--green)', concorrentes: 'var(--red)' };
   const kpiKeys = ['score', 'mensagens', 'grupos', 'concorrentes'];
   const kpiLabels = { score: 'Score de aquecimento', mensagens: 'Mensagens analisadas', grupos: 'Grupos monitorados', concorrentes: 'Concorrentes detectados' };
 
@@ -785,56 +1003,12 @@ function buildDashboardHTML(d) {
     const tagClass = kpi.tag_tipo === 'up' ? 'tag-up' : kpi.tag_tipo === 'dn' ? 'tag-dn' : 'tag-neu';
     const suffix = k === 'score' ? `<span style="font-size:13px;font-weight:300;color:var(--hint)">/100</span>` : '';
     return `<div class="kpi" style="animation-delay:${0.04 + i*0.04}s">
-      <div class="kpi-accent" style="background:${kpiAccents[k]}"></div>
+      <div class="kpi-accent" style="background:${kpiColors[k]}"></div>
       <div class="kpi-lbl">${kpiLabels[k]}</div>
       <div class="kpi-val" style="color:${kpiColors[k]}">${kpi.valor}${suffix}</div>
       <div class="kpi-sub"><span class="${tagClass}">${kpi.tag}</span> ${kpi.sub}</div>
     </div>`;
   }).join('');
-
-  // Exec tags
-  const tagsHTML = (d.tags_exec||[]).map(t => `<span class="etag ${t.tipo}">${t.texto}</span>`).join('');
-
-  // Stats
-  const statsHTML = `
-    <div class="estat-item" style="margin-bottom:6px"><div class="estat-n">${m.mensagens}</div><div class="estat-l">Mensagens</div></div>
-    <div class="estat-item" style="margin-bottom:6px"><div class="estat-n">${m.grupos}</div><div class="estat-l">Grupos</div></div>
-    <div class="estat-item"><div class="estat-n">${d.kpis.concorrentes.valor}</div><div class="estat-l">Concorrentes</div></div>`;
-
-  // Gauge bar color
-  const gaugeBarColor = score < 35 ? '#3B82F6' : score < 65 ? '#FFC20E' : '#E24B4A';
-
-  // Brands
-  const topBrands = (d.marcas||[]).slice(0,5);
-  const maxBrandMencoes = Math.max(...topBrands.map(b => b.mencoes), 1);
-  const brandColorsMap = { 'Concorr.': 'var(--red)', 'Saindo': 'var(--amber)', 'Neutro': 'var(--muted)', 'Software': 'var(--blue)', 'Fotus': 'var(--green)', 'Parceiro': 'var(--green)' };
-  const brandsHTML = topBrands.map((b, i) => {
-    const pct = Math.round((b.mencoes / maxBrandMencoes) * 100);
-    const cor = b.cor || brandColorsMap[b.tipo] || 'var(--muted)';
-    const tagClass = b.tipo === 'Concorr.' || b.tipo === 'Saindo' ? 't-comp' : b.tipo === 'Software' ? 't-neu' : b.tipo === 'Fotus' ? 't-fotus' : 't-neu';
-    return `<div class="brow">
-      <span class="bname">${b.nome}</span>
-      <div class="btrack"><div class="bfill" id="brand${i}" style="width:0%;background:${cor}"></div></div>
-      <span class="bcnt">${b.mencoes}</span>
-      <span class="btag ${tagClass}">${b.tipo}</span>
-    </div>`;
-  }).join('');
-
-  // States
-  const statesHTML = (d.estados||[]).sort((a,b)=>b.contagem-a.contagem).map(s =>
-    `<div class="state-pill">${s.uf} <span class="state-count">${s.contagem}</span></div>`
-  ).join('');
-
-  // Matrix
-  const matrixHTML = (d.matriz_sinais||[]).map((mx, i) => `
-    <div class="mitem">
-      <div class="mitem-head">
-        <span class="mitem-lbl">${mx.dimensao}</span>
-        <span class="mitem-score ${mx.score_classe}">${mx.score}</span>
-      </div>
-      <div class="mitem-bar"><div class="mitem-fill" id="mx${i}" style="width:0%;background:${mx.cor}"></div></div>
-      <div class="mitem-desc">${mx.desc}</div>
-    </div>`).join('');
 
   // Mentions Fotus
   const mentionsHTML = d.mencoes_fotus && d.mencoes_fotus.length > 0
@@ -851,19 +1025,21 @@ function buildDashboardHTML(d) {
       }).join('')
     : `<div class="mention-empty">Sem menções diretas à Fotus nesta extração.</div>`;
 
-  // Competitors
-  const competitorsHTML = (d.concorrentes||[]).map((c, i) => {
-    const badgeHTML = c.nome ? `<span class="ibadge" style="background:${c.badge_cor};color:${c.badge_txt_cor}">${c.badge_texto}</span>` : '';
-    const statesStr = (c.estados||[]).map(s => `<span class="cstate">${s}</span>`).join('');
-    return `<div class="citem">
-      <div class="crank">${String(i+1).padStart(2,'0')}</div>
-      <div class="cbody">
-        <div class="cname">${c.nome} ${badgeHTML}</div>
-        <div class="cdesc">${c.descricao}</div>
-        <div class="ctags">${statesStr}</div>
+  // States
+  const statesHTML = (d.estados||[]).sort((a,b)=>b.contagem-a.contagem).map(s =>
+    `<div class="state-pill">${s.uf} <span class="state-count">${s.contagem}</span></div>`
+  ).join('');
+
+  // Matrix
+  const matrixHTML = (d.matriz_sinais||[]).map((mx, i) => `
+    <div class="mitem">
+      <div class="mitem-head">
+        <span class="mitem-lbl">${mx.dimensao}</span>
+        <span class="mitem-score ${mx.score_classe}">${mx.score}</span>
       </div>
-    </div>`;
-  }).join('');
+      <div class="mitem-bar"><div class="mitem-fill" id="mx${i}" style="width:0%;background:${mx.cor}"></div></div>
+      <div class="mitem-desc">${mx.desc}</div>
+    </div>`).join('');
 
   // Objections
   const iconsSVG = [
@@ -885,12 +1061,51 @@ function buildDashboardHTML(d) {
     </div>`;
   }).join('');
 
+  // Tags exec
+  const tagsHTML = (d.tags_exec||[]).map(t => `<span class="etag ${t.tipo}">${t.texto}</span>`).join('');
+
   const dateLabel = getDateLabel();
   const relLabel = getRelativeLabel();
   const hasPrev = currentDateIndex < availableDates.length - 1;
   const hasNext = currentDateIndex > 0;
 
+  // Decide which sections to render based on data available
+  const hasNewSchema = !!d.briefing_executivo;
+  const hasRadarPortfolio = d.radar_portfolio && d.radar_portfolio.length > 0;
+  const hasLacunas = d.lacunas_portfolio && d.lacunas_portfolio.length > 0;
+  const hasDistribuidores = d.concorrentes_distribuidores && d.concorrentes_distribuidores.length > 0;
+
+  // Legacy brands fallback
+  const topBrands = (d.marcas||[]).slice(0,6);
+  const maxBrandMencoes = Math.max(...topBrands.map(b => b.mencoes), 1);
+  const brandColorsMap = { 'Concorr.': 'var(--red)', 'Saindo': 'var(--amber)', 'Lacuna': 'var(--amber)', 'Neutro': 'var(--muted)', 'Software': 'var(--blue)', 'Fotus': 'var(--green)', 'Exclusivo': 'var(--green)', 'Parceiro': 'var(--green)' };
+  const legacyBrandsHTML = topBrands.map((b, i) => {
+    const cor = b.cor || brandColorsMap[b.tipo] || 'var(--muted)';
+    const tagClass = b.tipo === 'Concorr.' || b.tipo === 'Saindo' ? 't-comp' : b.tipo === 'Fotus' || b.tipo === 'Exclusivo' ? 't-fotus' : b.tipo === 'Lacuna' ? 't-warn' : 't-neu';
+    return `<div class="brow">
+      <span class="bname">${b.nome}</span>
+      <div class="btrack"><div class="bfill" id="brand${i}" style="width:0%;background:${cor}"></div></div>
+      <span class="bcnt">${b.mencoes}</span>
+      <span class="btag ${tagClass}">${b.tipo}</span>
+    </div>`;
+  }).join('');
+
+  // Legacy competitors fallback
+  const legacyCompetitorsHTML = (d.concorrentes||[]).map((c, i) => {
+    const badgeHTML = c.badge_texto ? `<span class="ibadge" style="background:${c.badge_cor};color:${c.badge_txt_cor}">${c.badge_texto}</span>` : '';
+    const statesStr = (c.estados||[]).map(s => `<span class="cstate">${s}</span>`).join('');
+    return `<div class="citem">
+      <div class="crank">${String(i+1).padStart(2,'0')}</div>
+      <div class="cbody">
+        <div class="cname">${c.nome} ${badgeHTML}</div>
+        <div class="cdesc">${c.descricao}</div>
+        <div class="ctags">${statesStr}</div>
+      </div>
+    </div>`;
+  }).join('');
+
   return `
+  <!-- TOPBAR -->
   <div class="topbar">
     <div>
       <h1>Termômetro de Mercado</h1>
@@ -916,106 +1131,205 @@ function buildDashboardHTML(d) {
     </div>
   </div>
 
-  <!-- KPIs -->
-  <div class="g4">${kpisHTML}</div>
+  ${hasNewSchema
+    ? /* ── NOVO SCHEMA: briefing como hero ──── */ `
+      ${buildBriefingHTML(d.briefing_executivo)}
 
-  <!-- DELTA -->
-  ${buildDeltaCard(d.delta)}
+      <!-- KPIs -->
+      <div class="g4">${kpisHTML}</div>
 
-  <!-- EXEC -->
-  <div class="exec">
-    <div class="exec-grid">
-      <div>
-        <div class="exec-lbl">Tese executiva · ${m.data}</div>
-        <div class="exec-txt">${d.tese_executiva}</div>
-        <div class="exec-tags">${tagsHTML}</div>
-      </div>
-      <div class="exec-stats">${statsHTML}</div>
-    </div>
-  </div>
+      <!-- DELTA -->
+      ${buildDeltaCard(d.delta)}
 
-  <!-- GAUGE + BRANDS + MENTION -->
-  <div class="g21">
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="g2" style="margin-bottom:0">
+      <!-- GAUGE + RADAR PORTFÓLIO + MENÇÕES -->
+      <div class="g21">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="g2" style="margin-bottom:0">
 
-        <!-- Gauge -->
-        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
-          <div class="gauge-wrap">
-            <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
-              <canvas id="gaugeC" width="148" height="148"></canvas>
-              <div class="gauge-center">
-                <div class="gauge-num" id="gaugeNum">${score}</div>
-                <div class="gauge-den">/100</div>
+            <!-- Gauge -->
+            <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
+              <div class="gauge-wrap">
+                <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
+                  <canvas id="gaugeC" width="148" height="148"></canvas>
+                  <div class="gauge-center">
+                    <div class="gauge-num" id="gaugeNum">${score}</div>
+                    <div class="gauge-den">/100</div>
+                  </div>
+                </div>
+                <div class="gauge-label">${m.status_aquecimento.toLowerCase()}</div>
+                <div class="gauge-bar" style="width:170px">
+                  <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
+                  <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,#3B82F6 0%,#FFC20E 55%,#E24B4A 100%)"></div></div>
+                </div>
               </div>
+              ${statesHTML ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);width:100%">
+                <div class="card-ttl" style="margin-bottom:7px">Por estado</div>
+                <div class="states-grid">${statesHTML}</div>
+              </div>` : ''}
             </div>
-            <div class="gauge-label">${m.status_aquecimento.toLowerCase()}</div>
-            <div class="gauge-bar" style="width:170px">
-              <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
-              <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,#3B82F6 0%,#FFC20E 55%,#E24B4A 100%)"></div></div>
+
+            <!-- Radar Portfólio -->
+            <div class="card">
+              <div class="card-ttl">Radar do portfólio Fotus</div>
+              ${buildRadarPortfolioHTML(d.radar_portfolio)}
             </div>
+          </div>
+
+          <!-- Matriz -->
+          <div class="card">
+            <div class="card-ttl">Matriz de sinais estratégicos</div>
+            <div class="matrix-wrap">${matrixHTML}</div>
           </div>
         </div>
 
-        <!-- Brands -->
-        <div class="card">
-          <div class="card-ttl">Radar de marcas citadas</div>
-          <div class="brand-list">${brandsHTML}</div>
-          ${statesHTML ? `<div style="margin-top:12px;padding-top:11px;border-top:1px solid var(--border)">
-            <div class="card-ttl" style="margin-bottom:7px">Presença por estado</div>
-            <div class="states-grid">${statesHTML}</div>
+        <!-- Menções Fotus -->
+        <div class="mention-card">
+          <div class="card-ttl">Menções sobre a Fotus</div>
+          ${mentionsHTML}
+          ${d.oportunidade_fotus ? `<div class="opp-box">
+            <div class="opp-lbl">Oportunidade identificada</div>
+            <div class="opp-txt">${d.oportunidade_fotus}</div>
           </div>` : ''}
         </div>
       </div>
 
-      <!-- Matrix -->
-      <div class="card">
-        <div class="card-ttl">Matriz de sinais estratégicos</div>
-        <div class="matrix-wrap">${matrixHTML}</div>
+      <!-- CONCORRENTES DISTRIBUIDORES + LACUNAS -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-ttl">Inteligência competitiva · distribuidoras</div>
+          ${buildDistribuidoresHTML(d.concorrentes_distribuidores)}
+          ${d.risco_principal ? `<div class="risk-box" style="margin-top:12px">
+            <div class="risk-lbl">Risco identificado</div>
+            <div class="risk-txt">${d.risco_principal}</div>
+          </div>` : ''}
+        </div>
+
+        <div class="card">
+          <div class="card-ttl">Lacunas de portfólio · oportunidades</div>
+          ${buildLacunasHTML(d.lacunas_portfolio)}
+          ${d.insight_estrategico ? `<div class="insight-box" style="margin-top:12px">
+            <div class="insight-lbl">Oportunidade estratégica</div>
+            <div class="insight-txt">${d.insight_estrategico}</div>
+          </div>` : ''}
+        </div>
       </div>
-    </div>
 
-    <!-- Mentions -->
-    <div class="mention-card">
-      <div class="card-ttl">Menções sobre a Fotus</div>
-      ${mentionsHTML}
-      ${d.oportunidade_fotus ? `<div class="opp-box">
-        <div class="opp-lbl">Oportunidade identificada</div>
-        <div class="opp-txt">${d.oportunidade_fotus}</div>
-      </div>` : ''}
-    </div>
-  </div>
+      <!-- OBJEÇÕES + TAGS -->
+      <div class="g2">
+        <div class="card">
+          <div class="card-ttl">Objeções e dores recorrentes</div>
+          <div class="pain-list">${objecoesHTML}</div>
+          ${d.chart_objecoes && d.chart_objecoes.labels && d.chart_objecoes.labels.length > 0 ? `
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="card-ttl" style="margin-bottom:8px">Frequência por tipo</div>
+            <div style="position:relative;height:88px"><canvas id="objChart"></canvas></div>
+          </div>` : ''}
+        </div>
 
-  <!-- COMPETITORS + PAIN -->
-  <div class="g2">
-    <div class="card">
-      <div class="card-ttl">Concorrentes mencionados</div>
-      <div class="comp-list">${competitorsHTML}</div>
-      ${d.risco_principal ? `<div class="risk-box">
-        <div class="risk-lbl">Risco identificado</div>
-        <div class="risk-txt">${d.risco_principal}</div>
-      </div>` : ''}
-    </div>
+        <div class="exec" style="margin-bottom:0;border-radius:var(--r-card)">
+          <div class="exec-lbl" style="margin-bottom:10px">Síntese do dia · ${m.data}</div>
+          <div class="exec-txt">${d.tese_executiva || ''}</div>
+          ${tagsHTML ? `<div class="exec-tags" style="margin-top:14px">${tagsHTML}</div>` : ''}
+        </div>
+      </div>`
 
-    <div class="card">
-      <div class="card-ttl">Objeções e dores recorrentes</div>
-      <div class="pain-list">${objecoesHTML}</div>
-      ${d.chart_objecoes && d.chart_objecoes.labels && d.chart_objecoes.labels.length > 0 ? `
-      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-        <div class="card-ttl" style="margin-bottom:8px">Frequência de dores por tipo</div>
-        <div style="position:relative;height:88px"><canvas id="objChart"></canvas></div>
-      </div>` : ''}
-      ${d.insight_estrategico ? `<div class="insight-box">
-        <div class="insight-lbl">Oportunidade estratégica</div>
-        <div class="insight-txt">${d.insight_estrategico}</div>
-      </div>` : ''}
-    </div>
-  </div>
+    : /* ── LEGADO: schema antigo ──── */ `
+      <!-- KPIs -->
+      <div class="g4">${kpisHTML}</div>
+
+      <!-- DELTA -->
+      ${buildDeltaCard(d.delta)}
+
+      <!-- EXEC -->
+      <div class="exec">
+        <div class="exec-grid">
+          <div>
+            <div class="exec-lbl">Tese executiva · ${m.data}</div>
+            <div class="exec-txt">${d.tese_executiva}</div>
+            <div class="exec-tags">${tagsHTML}</div>
+          </div>
+          <div class="exec-stats">
+            <div class="estat-item" style="margin-bottom:6px"><div class="estat-n">${m.mensagens}</div><div class="estat-l">Mensagens</div></div>
+            <div class="estat-item" style="margin-bottom:6px"><div class="estat-n">${m.grupos}</div><div class="estat-l">Grupos</div></div>
+            <div class="estat-item"><div class="estat-n">${d.kpis.concorrentes.valor}</div><div class="estat-l">Concorrentes</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GAUGE + BRANDS + MENTION -->
+      <div class="g21">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="g2" style="margin-bottom:0">
+            <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
+              <div class="gauge-wrap">
+                <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
+                  <canvas id="gaugeC" width="148" height="148"></canvas>
+                  <div class="gauge-center">
+                    <div class="gauge-num" id="gaugeNum">${score}</div>
+                    <div class="gauge-den">/100</div>
+                  </div>
+                </div>
+                <div class="gauge-label">${m.status_aquecimento.toLowerCase()}</div>
+                <div class="gauge-bar" style="width:170px">
+                  <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
+                  <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,#3B82F6 0%,#FFC20E 55%,#E24B4A 100%)"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-ttl">Radar de marcas citadas</div>
+              <div class="brand-list">${legacyBrandsHTML}</div>
+              ${statesHTML ? `<div style="margin-top:12px;padding-top:11px;border-top:1px solid var(--border)">
+                <div class="card-ttl" style="margin-bottom:7px">Presença por estado</div>
+                <div class="states-grid">${statesHTML}</div>
+              </div>` : ''}
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-ttl">Matriz de sinais estratégicos</div>
+            <div class="matrix-wrap">${matrixHTML}</div>
+          </div>
+        </div>
+        <div class="mention-card">
+          <div class="card-ttl">Menções sobre a Fotus</div>
+          ${mentionsHTML}
+          ${d.oportunidade_fotus ? `<div class="opp-box">
+            <div class="opp-lbl">Oportunidade identificada</div>
+            <div class="opp-txt">${d.oportunidade_fotus}</div>
+          </div>` : ''}
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="card-ttl">Concorrentes mencionados</div>
+          <div class="comp-list">${legacyCompetitorsHTML}</div>
+          ${d.risco_principal ? `<div class="risk-box">
+            <div class="risk-lbl">Risco identificado</div>
+            <div class="risk-txt">${d.risco_principal}</div>
+          </div>` : ''}
+        </div>
+        <div class="card">
+          <div class="card-ttl">Objeções e dores recorrentes</div>
+          <div class="pain-list">${objecoesHTML}</div>
+          ${d.chart_objecoes && d.chart_objecoes.labels && d.chart_objecoes.labels.length > 0 ? `
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="card-ttl" style="margin-bottom:8px">Frequência de dores por tipo</div>
+            <div style="position:relative;height:88px"><canvas id="objChart"></canvas></div>
+          </div>` : ''}
+          ${d.insight_estrategico ? `<div class="insight-box">
+            <div class="insight-lbl">Oportunidade estratégica</div>
+            <div class="insight-txt">${d.insight_estrategico}</div>
+          </div>` : ''}
+        </div>
+      </div>`
+  }
 
   <!-- FOOTER -->
   <div class="page-foot">
-    <span class="foot-txt">termômetro do mercado solar · fotus distribuidora solar · ${m.data} · whatsapp-market-intel v1</span>
+    <span class="foot-txt">termômetro do mercado solar · fotus distribuidora solar · ${m.data} · whatsapp-market-intel v2</span>
     <button class="btn-primary" onclick="window.print()">
       <svg viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 7l4 4 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
       Exportar PDF
@@ -1047,15 +1361,17 @@ function animateDashboard(d) {
     if (gfill) gfill.style.width = score + '%';
   }, 350);
 
-  // Animate brand bars
-  const brands = d.marcas || [];
-  const maxM = Math.max(...brands.map(b => b.mencoes), 1);
-  setTimeout(() => {
-    brands.slice(0, 5).forEach((b, i) => {
-      const el = document.getElementById(`brand${i}`);
-      if (el) el.style.width = Math.round((b.mencoes / maxM) * 100) + '%';
-    });
-  }, 450);
+  // Animate brand bars (legacy schema)
+  if (!d.briefing_executivo) {
+    const brands = d.marcas || [];
+    const maxM = Math.max(...brands.map(b => b.mencoes), 1);
+    setTimeout(() => {
+      brands.slice(0, 6).forEach((b, i) => {
+        const el = document.getElementById(`brand${i}`);
+        if (el) el.style.width = Math.round((b.mencoes / maxM) * 100) + '%';
+      });
+    }, 450);
+  }
 
   // Animate matrix bars
   setTimeout(() => {
