@@ -1,4 +1,4 @@
-# Diário de Desenvolvimento — Cortex Fotus
+# Diário de Desenvolvimento — Termômetro do Mercado Solar
 ### Termômetro de Mercado Solar · 16/05/2026
 
 ---
@@ -82,13 +82,26 @@ O que foi implementado:
 
 ---
 
+---
+
+### Fase 7 — Navegação por data e card de delta (16/05/2026)
+
+Implementados os itens 2 e 3 da lista de próximos passos:
+
+- **Navegação por data no topbar**: setas `←` / `→` para navegar entre os dias disponíveis, com label de data em DD/MM/AAAA e sublabel relativo (hoje/ontem/anteontem/N dias atrás). Setas desabilitadas nos extremos.
+- **Card de delta "O que mudou hoje"**: aparece entre os KPIs e a tese executiva. Mostra variação de score (número colorido com ícone de seta, verde/vermelho), badge de tendência (Acelerando/Estável/Arrefecendo), resumo textual do Claude e listas de novos alertas/temas encerrados (quando presentes).
+- **Carregamento por data**: `loadLatestReport` agora busca todas as datas disponíveis (`data_referencia`) e carrega por data específica — não mais pelo `created_at`. Navegação entre dias não recarrega a página.
+- **Realtime atualizado**: quando um novo relatório chega, atualiza a lista de datas e vai direto para o mais recente.
+
+Deploy: `git push origin main` → Vercel auto-deploy ativo.
+
+---
+
 ## Próximos passos
 
-### Imediatos (esta semana)
+### Imediatos
 
-1. **Publicar o workflow diário no n8n** — clicar em "Publish" no "Cortex Fotus – Análise Diária" para ativar o agendamento automático das 06:00
-2. **Atualizar o frontend para navegação por data** — mostrar o dia mais recente por padrão, com setas para navegar para dias anteriores e um indicador de "ontem vs hoje"
-3. **Exibir o delta no dashboard** — um card de "O que mudou hoje" com as variações em relação ao dia anterior
+1. **Publicar o workflow diário no n8n** — clicar em "Publish" no "Termômetro – Análise Diária" para ativar o agendamento automático das 06:00
 
 ### Médio prazo
 

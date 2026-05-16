@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Termômetro de Mercado · Cortex Fotus</title>
+<title>Termômetro do Mercado Solar · Fotus</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -357,8 +357,8 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         </svg>
       </div>
       <div>
-        <div class="sb-name">CORTEX</div>
-        <div class="sb-sub">Fotus Solar</div>
+        <div class="sb-name">TERMÔMETRO</div>
+        <div class="sb-sub">Mercado Solar · Fotus</div>
       </div>
     </div>
   </div>
@@ -404,7 +404,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
       <div class="upload-title">Aguardando análise semanal</div>
-      <div class="upload-sub">O Cortex atualiza automaticamente toda segunda às 09:00 via n8n.<br>Nenhum relatório encontrado ainda.</div>
+      <div class="upload-sub">O Termômetro atualiza automaticamente todo dia às 06:00 via n8n.<br>Nenhum relatório encontrado ainda.</div>
       <button class="upload-btn" onclick="loadLatestReport()">
         <svg viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.5 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M13.5 4v4h-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
         Verificar novamente
@@ -432,7 +432,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
     <div class="loading-orb">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round"/></svg>
     </div>
-    <div class="loading-title">Carregando Cortex</div>
+    <div class="loading-title">Carregando Termômetro</div>
     <div class="loading-sub" id="loadingSub">Conectando ao banco de dados...</div>
     <div class="loading-steps">
       <div class="lstep active" id="step1"><div class="lstep-dot"></div>Conectando ao banco de dados</div>
@@ -454,7 +454,7 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:1
 
 <script>
 // ─── SYSTEM PROMPT ─────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Você é o motor analítico do Cortex Fotus — sistema de inteligência de mercado para a Fotus Distribuidora Solar (B2B, distribuidora de equipamentos fotovoltaicos para integradores de pequeno e médio porte).
+const SYSTEM_PROMPT = `Você é o motor analítico do Termômetro do Mercado Solar — sistema de inteligência de mercado da Fotus Distribuidora Solar (B2B, distribuidora de equipamentos fotovoltaicos para integradores de pequeno e médio porte).
 
 Você receberá o texto extraído de um PDF de resumo semanal gerado por um agente que monitora grupos de WhatsApp de integradores solares. Sua missão é extrair dados estruturados para montar um painel de inteligência.
 
@@ -1015,7 +1015,7 @@ function buildDashboardHTML(d) {
 
   <!-- FOOTER -->
   <div class="page-foot">
-    <span class="foot-txt">cortex · fotus distribuidora solar · ${m.data} · whatsapp-market-intel v1</span>
+    <span class="foot-txt">termômetro do mercado solar · fotus distribuidora solar · ${m.data} · whatsapp-market-intel v1</span>
     <button class="btn-primary" onclick="window.print()">
       <svg viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 7l4 4 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
       Exportar PDF

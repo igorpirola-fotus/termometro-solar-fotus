@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const SYSTEM_PROMPT = `Voce e o motor analitico do Cortex Fotus - sistema de inteligencia de mercado DIARIA para a Fotus Distribuidora Solar (B2B, distribuidora de equipamentos fotovoltaicos para integradores de pequeno e medio porte).
+const SYSTEM_PROMPT = `Voce e o motor analitico do Termometro do Mercado Solar - sistema de inteligencia de mercado DIARIA da Fotus Distribuidora Solar (B2B, distribuidora de equipamentos fotovoltaicos para integradores de pequeno e medio porte).
 
 Voce recebera mensagens de grupos de WhatsApp de integradores solares de UM DIA ESPECIFICO, e opcionalmente um resumo do dia anterior para comparacao.
 

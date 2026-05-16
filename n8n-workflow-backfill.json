@@ -1,5 +1,5 @@
 {
-  "name": "Cortex Fotus – Backfill Histórico",
+  "name": "Termômetro do Mercado Solar – Backfill Histórico",
   "nodes": [
     {
       "id": "node-manual",

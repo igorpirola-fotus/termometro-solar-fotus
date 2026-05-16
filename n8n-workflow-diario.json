@@ -1,5 +1,5 @@
 {
-  "name": "Cortex Fotus – Análise Diária",
+  "name": "Termômetro do Mercado Solar – Análise Diária",
   "nodes": [
     {
       "id": "node-schedule",

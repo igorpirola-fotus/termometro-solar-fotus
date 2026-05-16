@@ -1,5 +1,5 @@
 {
-  "name": "Termômetro Solar – Cortex Fotus v2",
+  "name": "Termômetro do Mercado Solar – Análise Diária v2",
   "nodes": [
     {
       "id": "node-schedule",
@@ -29,7 +29,7 @@
       "position": [480, 300],
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE message_timestamp >= NOW() - INTERVAL '7 days' AND content_text IS NOT NULL AND content_text <> '' ORDER BY message_timestamp ASC LIMIT 2000",
+        "query": "WITH ranked AS (SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text, ROW_NUMBER() OVER (PARTITION BY group_jid ORDER BY message_timestamp ASC) AS rn FROM public.messages WHERE message_timestamp >= NOW() - INTERVAL '7 days' AND content_text IS NOT NULL AND content_text <> '' AND group_jid LIKE '%@g.us' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%') SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM ranked WHERE rn <= 100 ORDER BY group_jid, message_timestamp ASC",
         "options": {}
       },
       "credentials": {
