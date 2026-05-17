@@ -9,1034 +9,720 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
-/* ── IMPECCABLE AUDIT v2 ─────────────────────────────────────────────────── */
-:root{
-  /* Palette */
-  --navy:#0B2559;
-  --blue:#164194;
-  --yellow:#FFC20E;
-  --green:#12B54A;
-  --red:#E24B4A;
-  --amber:#EF9F27;
-  --bg:#F0F2F5;
-  --surface:#fff;
-  --s2:#F7F8FA;
-  --border:rgba(22,65,148,.10);
-  --border2:rgba(22,65,148,.20);
-  --text:#1A1D20;
-  --muted:#6B7280;
-  --hint:#717A8A; /* P0: era #A0A8B4 — contraste 2.6:1, agora ~4.6:1 */
+/* ── DESIGN SYSTEM — DARK MODE ───────────────────────────────────────────── */
+:root {
+  --bg:       #0F1117;
+  --surface:  #161B27;
+  --surface2: #1E2536;
+  --surface3: #242D42;
+  --border:   rgba(255,255,255,.06);
+  --border2:  rgba(255,255,255,.12);
+  --border3:  rgba(255,255,255,.18);
 
-  /* Type scale — 6 steps (P1) */
-  --t-xs:10px;    /* micro labels, all-caps apenas */
-  --t-sm:12px;    /* labels secundários */
-  --t-base:13px;  /* corpo */
-  --t-md:15px;    /* sub-headings */
-  --t-lg:18px;    /* page heading */
-  --t-xl:28px;    /* display / KPI */
+  --text:   #E8ECF2;
+  --muted:  #8B95A6;
+  --hint:   #5C6478;
 
-  /* Radius scale — 4 tokens (P1) */
-  --r-chip:6px;   /* chips, tags, badges */
-  --r-ctrl:8px;   /* botões, inputs, controles */
-  --r-card:12px;  /* cards */
-  --r-lg:16px;    /* painéis grandes */
-  --r:10px;--rl:12px; /* compat */
+  --amber:      #F59E0B;
+  --amber-dim:  rgba(245,158,11,.15);
+  --amber-glow: rgba(245,158,11,.08);
+  --green:      #10B981;
+  --green-dim:  rgba(16,185,129,.15);
+  --red:        #EF4444;
+  --red-dim:    rgba(239,68,68,.15);
+  --blue:       #3B82F6;
+  --blue-dim:   rgba(59,130,246,.15);
 
-  /* Fonts */
-  --mono:'IBM Plex Mono',monospace;
-  --sans:'IBM Plex Sans',sans-serif;
+  --navy:   #0B2559;
+  --yellow: #FFC20E;
+
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'IBM Plex Sans', sans-serif;
+
+  --r-chip: 5px;
+  --r-ctrl: 8px;
+  --r-card: 12px;
+  --r-lg:   16px;
+
+  --topbar-h: 56px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;font-size:var(--t-base);-webkit-font-smoothing:antialiased}
 
-/* P3: focus-visible para acessibilidade via teclado */
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
-
-/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
-.sidebar{position:fixed;top:0;left:0;bottom:0;width:208px;background:var(--navy);display:flex;flex-direction:column;z-index:100;border-right:1px solid rgba(255,255,255,.04)}
-.sb-logo{padding:20px 16px 14px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:4px}
-.sb-mark{display:flex;align-items:center;gap:8px}
-.sb-sun{width:30px;height:30px;border-radius:var(--r-ctrl);background:var(--yellow);display:grid;place-items:center;flex-shrink:0}
-.sb-sun svg{width:15px;height:15px}
-.sb-name{font-family:var(--mono);font-size:var(--t-base);font-weight:600;color:#fff;letter-spacing:.06em;line-height:1}
-/* P0+P1: era 9px rgba(.25) — fonte mínima + contraste + sans */
-.sb-sub{font-size:var(--t-xs);color:rgba(255,255,255,.55);letter-spacing:.08em;text-transform:uppercase;margin-top:3px;font-family:var(--sans);font-weight:400}
-.nav{padding:0 8px;margin-bottom:2px}
-/* P0+P1: era 8.5px rgba(.18) mono — abaixo do mínimo, baixo contraste */
-.nav-lbl{font-size:var(--t-xs);font-weight:600;color:rgba(255,255,255,.50);text-transform:uppercase;letter-spacing:.10em;padding:10px 8px 4px;font-family:var(--sans)}
-/* P2: transition:all → específico */
-.nav-a{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--r-ctrl);color:rgba(255,255,255,.60);font-size:var(--t-sm);cursor:pointer;margin-bottom:1px;text-decoration:none;transition:background-color .12s,color .12s;font-weight:400}
-.nav-a:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88)}
-.nav-a.on{background:rgba(255,194,14,.11);color:var(--yellow);font-weight:500}
-.nav-a svg{width:13px;height:13px;flex-shrink:0;opacity:.8}
-.nav-a.on svg{opacity:1}
-.sb-foot{margin-top:auto;padding:12px 16px;border-top:1px solid rgba(255,255,255,.05)}
-/* P0: era rgba(.22) — contraste ~2.2:1 */
-.sb-date{font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.58);margin-bottom:6px;letter-spacing:.02em}
-.sb-badge{display:flex;align-items:center;gap:6px;font-size:11px;color:rgba(255,255,255,.58);font-family:var(--sans)}
-.pulse{width:5px;height:5px;border-radius:50%;background:var(--green);animation:blink 2.5s infinite;flex-shrink:0}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
-
-/* ── MAIN ────────────────────────────────────────────────────────────────── */
-.main{margin-left:208px;padding:24px 26px 40px;min-height:100vh}
-
-/* ── UPLOAD SCREEN ───────────────────────────────────────────────────────── */
-#uploadScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 88px);text-align:center;padding:40px}
-/* P2: transition:all → específico */
-.upload-zone{border:1.5px dashed var(--border2);border-radius:var(--r-lg);padding:48px 40px;background:var(--surface);cursor:pointer;transition:border-color .2s,background-color .2s;max-width:480px;width:100%}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:#F4F7FD}
-.upload-zone.drag{border-style:solid}
-.upload-icon{width:48px;height:48px;border-radius:var(--r-card);background:var(--s2);border:1px solid var(--border2);display:grid;place-items:center;margin:0 auto 16px}
-.upload-icon svg{width:22px;height:22px;color:var(--blue)}
-/* P1: título em sans — heading não usa mono */
-.upload-title{font-family:var(--sans);font-size:var(--t-md);font-weight:600;color:var(--text);margin-bottom:6px;letter-spacing:-.01em}
-.upload-sub{font-size:var(--t-sm);color:var(--muted);line-height:1.6;font-weight:300;margin-bottom:20px}
-.upload-btn{display:inline-flex;align-items:center;gap:6px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-ctrl);padding:10px 20px;font-size:var(--t-sm);font-weight:500;cursor:pointer;font-family:var(--sans);transition:background-color .12s}
-.upload-btn:hover{background:#0D2E6E}
-.upload-btn svg{width:13px;height:13px}
-/* P0+P1: era 9.5px mono — abaixo do mínimo */
-.upload-hint{font-family:var(--sans);font-size:11px;color:var(--hint);margin-top:14px;letter-spacing:.01em}
-.upload-info{margin-top:32px;display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
-.upload-info-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);font-weight:300}
-.upload-info-item svg{width:14px;height:14px;color:var(--green);flex-shrink:0}
-#fileInput{display:none}
-
-/* ── LOADING SCREEN ──────────────────────────────────────────────────────── */
-#loadingScreen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 88px);text-align:center;padding:40px}
-/* P2: removido gradiente decorativo + animation mais limpa */
-.loading-orb{width:56px;height:56px;border-radius:50%;background:var(--navy);display:grid;place-items:center;margin:0 auto 20px;animation:orbPulse 2.4s ease-in-out infinite}
-@keyframes orbPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.65;transform:scale(1.07)}}
-.loading-orb svg{width:24px;height:24px;color:#fff}
-/* P1: heading em sans */
-.loading-title{font-family:var(--sans);font-size:var(--t-md);font-weight:600;color:var(--text);margin-bottom:6px}
-.loading-sub{font-size:var(--t-sm);color:var(--muted);font-weight:300;margin-bottom:24px}
-.loading-steps{display:flex;flex-direction:column;gap:6px;max-width:320px;width:100%;text-align:left}
-/* P1+P2: sans + transition específico */
-.lstep{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--r-ctrl);background:var(--s2);border:1px solid var(--border);font-size:11px;color:var(--hint);font-family:var(--sans);transition:background-color .3s,border-color .3s,color .3s}
-.lstep.active{background:#F0F6FF;border-color:var(--border2);color:var(--blue)}
-.lstep.done{background:#EAFBF0;border-color:rgba(18,181,74,.2);color:#0A7C35}
-.lstep-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
-.lstep.active .lstep-dot{animation:blink 1s infinite}
-.loading-bar-wrap{width:320px;margin-top:20px}
-.loading-bar-track{height:3px;background:#EEF0F3;border-radius:2px;overflow:hidden}
-/* P2: removido gradiente hue-jump azul→amarelo */
-.loading-bar-fill{height:100%;background:var(--blue);border-radius:2px;width:0%;transition:width .6s ease}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { color-scheme: dark; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 13px; -webkit-font-smoothing: antialiased; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 
 /* ── TOPBAR ──────────────────────────────────────────────────────────────── */
-.topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
-/* P1+P3: heading em sans — mono em display é anti-padrão */
-.topbar h1{font-family:var(--sans);font-size:var(--t-lg);font-weight:600;letter-spacing:-.02em;line-height:1;color:var(--text)}
-.topbar p{font-size:var(--t-sm);color:var(--muted);margin-top:5px;font-weight:300}
-.topbar-r{display:flex;align-items:center;gap:8px}
-/* P1: heat pill em sans */
-.heat-pill{display:flex;align-items:center;gap:6px;background:var(--navy);border-radius:var(--r-ctrl);padding:7px 13px;font-size:var(--t-sm);font-weight:500;color:#fff;font-family:var(--sans);letter-spacing:.01em}
-.heat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-/* P2: transition específico + hover com background (P3) */
-.btn-ghost{border:1px solid var(--border2);background:var(--surface);border-radius:var(--r-ctrl);padding:7px 12px;font-size:var(--t-sm);font-weight:400;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;font-family:var(--sans);transition:background-color .12s,border-color .12s,color .12s}
-.btn-ghost:hover{border-color:var(--blue);color:var(--blue);background:#EEF4FF}
-.btn-ghost svg{width:12px;height:12px}
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--topbar-h);
+  background: #0D1220; border-bottom: 1px solid var(--border2);
+  display: flex; align-items: center; gap: 0; z-index: 200;
+  padding: 0 20px;
+}
+.topbar-menu { width: 36px; height: 36px; border-radius: var(--r-ctrl); background: none; border: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; flex-shrink: 0; transition: background .12s, color .12s; }
+.topbar-menu:hover { background: var(--surface2); color: var(--text); }
+.topbar-menu svg { width: 16px; height: 16px; }
 
-/* ── GRID ────────────────────────────────────────────────────────────────── */
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-.g21{display:grid;grid-template-columns:1fr 260px;gap:12px;margin-bottom:16px}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.topbar-brand { display: flex; align-items: center; gap: 10px; margin-left: 10px; flex-shrink: 0; }
+.topbar-sun { width: 28px; height: 28px; border-radius: var(--r-ctrl); background: var(--yellow); display: grid; place-items: center; flex-shrink: 0; }
+.topbar-sun svg { width: 14px; height: 14px; }
+.topbar-title { font-family: var(--mono); font-size: 13px; font-weight: 600; color: #fff; letter-spacing: .06em; line-height: 1; }
+.topbar-sub { font-size: 10px; color: rgba(255,255,255,.4); letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
 
-/* ── CARD ────────────────────────────────────────────────────────────────── */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:18px}
-/* P0+P1: era 9px mono — abaixo do mínimo, monocultura */
-.card-ttl{font-family:var(--sans);font-size:11px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px}
+.topbar-nav { display: flex; align-items: center; gap: 2px; margin-left: 24px; }
+.topbar-nav-btn { padding: 6px 14px; border-radius: var(--r-ctrl); background: none; border: none; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans); transition: background .12s, color .12s; letter-spacing: .01em; }
+.topbar-nav-btn:hover { background: var(--surface2); color: var(--text); }
+.topbar-nav-btn.on { background: var(--amber-dim); color: var(--amber); }
 
-/* ── KPI ─────────────────────────────────────────────────────────────────── */
-.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:16px 16px 14px;position:relative;overflow:hidden;animation:fadeUp .3s ease both}
-/* P2: stagger individual por posição */
-.kpi:nth-child(1){animation-delay:.04s}
-.kpi:nth-child(2){animation-delay:.09s}
-.kpi:nth-child(3){animation-delay:.14s}
-.kpi:nth-child(4){animation-delay:.19s}
-.kpi-accent{position:absolute;top:0;left:0;right:0;height:2px;border-radius:var(--r-card) var(--r-card) 0 0}
-/* P0+P1: era 9.5px mono — mínimo + sans para label */
-.kpi-lbl{font-size:11px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;font-family:var(--sans)}
-/* Mono preservado: valor numérico */
-.kpi-val{font-family:var(--mono);font-size:var(--t-xl);font-weight:600;letter-spacing:-.03em;line-height:1}
-.kpi-sub{font-size:var(--t-sm);color:var(--muted);margin-top:8px;display:flex;align-items:center;gap:5px;font-weight:300}
-/* P0+P1: era 9px — mínimo + radius chip */
-.tag-up{background:#EAFBF0;color:#0A7C35;font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-chip);font-family:var(--mono)}
-.tag-dn{background:#FEF0F0;color:#B91C1C;font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-chip);font-family:var(--mono)}
-.tag-neu{background:#F0F2F5;color:var(--muted);font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-chip);font-family:var(--mono)}
-.tag-pos{background:#EAFBF0;color:#0A7C35;font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-chip);font-family:var(--mono)}
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.topbar-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--hint); }
+.pulse { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: blink 2.5s infinite; flex-shrink: 0; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
-/* ── EXEC ────────────────────────────────────────────────────────────────── */
-/* P2: stagger após KPIs */
-.exec{background:var(--navy);border-radius:var(--r-card);padding:20px 22px;margin-bottom:16px;position:relative;overflow:hidden;animation:fadeUp .3s .24s ease both}
-.exec-grid{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start}
-/* P0+P1: era 8.5px rgba(.25) mono — abaixo do mínimo + contraste crítico */
-.exec-lbl{font-family:var(--sans);font-size:var(--t-xs);font-weight:600;color:rgba(255,255,255,.58);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}
-/* P2: opacidade de corpo era .82 — texto analítico crítico */
-.exec-txt{font-size:var(--t-base);color:rgba(255,255,255,.92);line-height:1.65;font-weight:300;max-width:620px}
-.exec-txt strong{color:var(--yellow);font-weight:500}
-.exec-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
-/* P0+P1: era 9px rgba(.42) mono — contraste baixo + chip radius */
-.etag{font-size:10px;padding:2px 9px;border-radius:var(--r-chip);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.68);font-family:var(--sans)}
-.etag.hot{border-color:rgba(255,194,14,.38);color:rgba(255,194,14,.95)}
-.etag.warn{border-color:rgba(226,75,74,.38);color:#F5A0A0}
-.exec-stats{display:flex;flex-direction:column;gap:6px;min-width:120px}
-.estat-item{padding:10px 14px;background:rgba(255,255,255,.06);border-radius:var(--r-ctrl);border:1px solid rgba(255,255,255,.08);text-align:center}
-/* Mono preservado: número */
-.estat-n{font-family:var(--mono);font-size:20px;font-weight:600;color:#fff;letter-spacing:-.02em;line-height:1}
-/* P0+P1: era 8.5px rgba(.28) mono — contraste crítico */
-.estat-l{font-size:var(--t-xs);color:rgba(255,255,255,.58);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;font-family:var(--sans)}
+.btn-subscribe { display: flex; align-items: center; gap: 6px; background: var(--amber); color: #000; border: none; border-radius: var(--r-ctrl); padding: 7px 14px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--sans); transition: background .12s, opacity .12s; letter-spacing: .01em; }
+.btn-subscribe:hover { background: #FBBF24; }
+.btn-subscribe svg { width: 13px; height: 13px; }
 
-/* ── GAUGE ───────────────────────────────────────────────────────────────── */
-.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:4px 0 0}
-.gauge-canvas{position:relative;width:148px;height:148px}
-.gauge-canvas canvas{position:absolute;top:0;left:0}
-.gauge-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-38%);text-align:center}
-/* Mono preservado: número do gauge */
-.gauge-num{font-family:var(--mono);font-size:32px;font-weight:600;color:var(--navy);letter-spacing:-.04em;line-height:1}
-/* P1: sans — denominador não é dado numérico */
-.gauge-den{font-size:11px;color:var(--hint);font-weight:400;font-family:var(--sans)}
-/* P0+P1: era 9px mono */
-.gauge-label{font-family:var(--sans);font-size:var(--t-xs);font-weight:600;color:var(--muted);margin-top:10px;letter-spacing:.08em;text-transform:uppercase}
-.gauge-bar{width:100%;margin-top:12px}
-.gbar-track{height:4px;background:#EEF0F3;border-radius:2px;overflow:hidden;margin:5px 0 3px}
-.gbar-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(.4,0,.2,1)}
-/* P0+P1: era 8.5px mono */
-.gbar-lbl{display:flex;justify-content:space-between;font-size:var(--t-xs);color:var(--hint);text-transform:uppercase;letter-spacing:.04em;font-family:var(--sans)}
+/* ── DRAWER ──────────────────────────────────────────────────────────────── */
+.drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 300; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.drawer-overlay.open { opacity: 1; pointer-events: all; }
+.drawer { position: fixed; top: 0; left: -260px; bottom: 0; width: 240px; background: #0D1220; border-right: 1px solid var(--border2); z-index: 301; display: flex; flex-direction: column; transition: left .22s cubic-bezier(.4,0,.2,1); }
+.drawer.open { left: 0; }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); height: var(--topbar-h); }
+.drawer-close { width: 30px; height: 30px; border-radius: var(--r-ctrl); background: none; border: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; transition: background .12s, color .12s; }
+.drawer-close:hover { background: var(--surface2); color: var(--text); }
+.drawer-close svg { width: 14px; height: 14px; }
+.drawer-section { padding: 8px; }
+.drawer-lbl { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .10em; padding: 8px 8px 4px; }
+.drawer-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--r-ctrl); color: var(--muted); font-size: 12px; cursor: pointer; margin-bottom: 1px; background: none; border: none; width: 100%; text-align: left; font-family: var(--sans); transition: background .12s, color .12s; }
+.drawer-item:hover { background: var(--surface2); color: var(--text); }
+.drawer-item.on { background: var(--amber-dim); color: var(--amber); }
+.drawer-item svg { width: 13px; height: 13px; flex-shrink: 0; }
+.drawer-foot { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--border); }
+.drawer-date { font-family: var(--mono); font-size: 11px; color: var(--hint); margin-bottom: 6px; }
 
-/* ── BRANDS ──────────────────────────────────────────────────────────────── */
-.brand-list{display:flex;flex-direction:column;gap:8px}
-.brow{display:flex;align-items:center;gap:8px}
-/* P1: sans — nome de marca não é dado numérico */
-.bname{font-size:var(--t-sm);font-weight:500;color:var(--text);width:70px;flex-shrink:0;font-family:var(--sans)}
-.btrack{flex:1;height:4px;background:#EEF0F3;border-radius:2px;overflow:hidden}
-.bfill{height:100%;border-radius:2px;transition:width .9s cubic-bezier(.4,0,.2,1)}
-/* Mono preservado: contagem numérica */
-.bcnt{font-size:10px;color:var(--muted);width:18px;text-align:right;flex-shrink:0;font-family:var(--mono)}
-/* P0+P1: era 8px mono — abaixo do mínimo absoluto */
-.btag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-chip);flex-shrink:0;letter-spacing:.02em;text-transform:uppercase;font-family:var(--sans)}
-.t-fotus{background:#E6EEF9;color:#0C3A85}.t-comp{background:#FEF0F0;color:#B91C1C}
-.t-warn{background:#FEF3E2;color:#92510D}.t-neu{background:#F0F2F5;color:var(--muted)}
+/* ── MAIN ────────────────────────────────────────────────────────────────── */
+.main { padding: calc(var(--topbar-h) + 24px) 24px 48px; max-width: 1600px; margin: 0 auto; }
 
-/* ── PAIN ────────────────────────────────────────────────────────────────── */
-.pain-list{display:flex;flex-direction:column;gap:6px}
-.pitem{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:var(--r-ctrl);background:var(--s2);border:1px solid transparent;transition:border-color .12s;cursor:default}
-.pitem:hover{border-color:var(--border2)}
-.pico{width:26px;height:26px;border-radius:var(--r-ctrl);display:grid;place-items:center;flex-shrink:0;margin-top:1px}
-.pico svg{width:13px;height:13px}
-.pbody{flex:1;min-width:0}
-.pttl{font-size:var(--t-sm);font-weight:500;color:var(--text);margin-bottom:2px}
-.pdesc{font-size:11px;color:var(--muted);line-height:1.55;font-weight:300}
-/* P0+P1: era 8.5px mono */
-.pbadge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r-chip);flex-shrink:0;white-space:nowrap;align-self:flex-start;font-family:var(--sans)}
-.ph{background:#FEF0F0;color:#B91C1C}.pm{background:#FEF3E2;color:#92510D}.pl{background:#EAFBF0;color:#0A7C35}
+/* ── PAGE SECTIONS ───────────────────────────────────────────────────────── */
+#dashPage { display: none; }
+#igPage   { display: none; }
 
-/* ── COMPETITORS ─────────────────────────────────────────────────────────── */
-.comp-list{display:flex;flex-direction:column;gap:0}
-.citem{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
-.citem:last-child{border-bottom:none;padding-bottom:0}
-.citem:first-child{padding-top:0}
-/* Mono preservado: rank número */
-.crank{font-family:var(--mono);font-size:11px;font-weight:300;color:rgba(22,65,148,.28);width:20px;flex-shrink:0;line-height:1;padding-top:2px}
-.cbody{flex:1;min-width:0}
-.cname{font-size:var(--t-sm);font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.cdesc{font-size:11px;color:var(--muted);line-height:1.55;font-weight:300}
-.ctags{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
-/* P0+P1: era 8.5px mono */
-.cstate{font-size:10px;padding:2px 6px;border-radius:var(--r-chip);background:var(--s2);color:var(--muted);border:1px solid var(--border);font-family:var(--sans)}
-.ibadge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-chip);vertical-align:middle;font-family:var(--sans)}
-
-/* ── MENTION CARD ────────────────────────────────────────────────────────── */
-.mention-card{background:linear-gradient(145deg,#164194 0%,#0B2559 100%);border-radius:var(--r-card);padding:18px;color:#fff;border:1px solid rgba(255,255,255,.06)}
-/* P0: era rgba(.32) — contraste ~2.4:1 */
-.mention-card .card-ttl{color:rgba(255,255,255,.62);font-family:var(--sans)}
-.mention-item{padding:12px;background:rgba(255,255,255,.07);border-radius:var(--r-ctrl);border:1px solid rgba(255,255,255,.10);margin-bottom:10px}
-/* P0+P1: era 8.5px mono rgba(.18) — mínimo + sans */
-.mention-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r-chip);background:rgba(18,181,74,.20);color:#4DD980;letter-spacing:.04em;text-transform:uppercase;margin-bottom:7px;display:inline-flex;align-items:center;gap:4px;font-family:var(--sans)}
-/* P2: opacidade corpo era .78 */
-.mention-txt{font-size:var(--t-sm);line-height:1.6;color:rgba(255,255,255,.90);font-weight:300}
-/* P0+P1: era 9.5px rgba(.28) mono — contraste crítico */
-.mention-group{font-size:11px;color:rgba(255,255,255,.60);margin-top:6px;font-family:var(--sans)}
-.mention-empty{padding:16px;background:rgba(255,255,255,.05);border-radius:var(--r-ctrl);border:1px solid rgba(255,255,255,.07);font-size:11px;color:rgba(255,255,255,.50);font-weight:300;text-align:center}
-.opp-box{padding:12px;background:rgba(255,194,14,.08);border-radius:var(--r-ctrl);border:1px solid rgba(255,194,14,.22)}
-/* P0+P1: era 8.5px rgba(.6) mono */
-.opp-lbl{font-size:var(--t-xs);color:rgba(255,194,14,.85);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-family:var(--sans);font-weight:600}
-/* P2: opacidade era .7 */
-.opp-txt{font-size:11px;color:rgba(255,255,255,.88);line-height:1.6;font-weight:300}
-
-/* ── STATES ──────────────────────────────────────────────────────────────── */
-.states-grid{display:flex;flex-wrap:wrap;gap:6px}
-/* P1: sans — nome de estado não é dado numérico puro */
-.state-pill{padding:4px 10px;border-radius:var(--r-ctrl);font-size:11px;font-weight:400;border:1px solid var(--border);background:var(--s2);color:var(--text);display:flex;align-items:center;gap:5px;font-family:var(--sans)}
-/* Mono preservado: contagem numérica */
-.state-count{font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;background:var(--blue);color:#fff;font-family:var(--mono)}
-
-/* ── MATRIX ──────────────────────────────────────────────────────────────── */
-.matrix-wrap{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.mitem{padding:10px 12px;border-radius:var(--r-ctrl);border:1px solid var(--border);background:var(--s2)}
-.mitem-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.mitem-lbl{font-size:var(--t-sm);font-weight:500;color:var(--text)}
-/* Mono preservado: score é dado */
-.mitem-score{font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 6px;border-radius:var(--r-chip)}
-.ms-high{background:#FEF0F0;color:#B91C1C}.ms-mid{background:#FEF3E2;color:#92510D}.ms-low{background:#EAFBF0;color:#0A7C35}
-.mitem-bar{height:3px;background:#EEF0F3;border-radius:2px;overflow:hidden;margin-bottom:4px}
-.mitem-fill{height:100%;border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)}
-/* P0: era 9.5px */
-.mitem-desc{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300}
-
-/* ── INSIGHT / RISK ──────────────────────────────────────────────────────── */
-.insight-box{padding:12px 14px;border-radius:var(--r-ctrl);border-left:3px solid var(--yellow);background:#FFFBF0;margin-top:12px}
-/* P0+P1: era 8.5px mono */
-.insight-lbl{font-size:var(--t-xs);font-weight:600;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;font-family:var(--sans)}
-.insight-txt{font-size:var(--t-sm);color:#5C4A0A;line-height:1.55}
-.risk-box{padding:12px 14px;border-radius:var(--r-ctrl);border-left:3px solid var(--red);background:#FFF5F5;margin-top:8px}
-.risk-lbl{font-size:var(--t-xs);font-weight:600;color:var(--red);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;font-family:var(--sans)}
-.risk-txt{font-size:var(--t-sm);color:#7F1D1D;line-height:1.55}
-
-/* ── FOOTER ──────────────────────────────────────────────────────────────── */
-.page-foot{display:flex;align-items:center;justify-content:space-between;padding:16px 0 0;border-top:1px solid var(--border);margin-top:4px}
-/* P0+P1: era 9.5px mono */
-.foot-txt{font-size:11px;color:var(--hint);font-family:var(--sans)}
-.btn-primary{background:var(--blue);color:#fff;border:none;border-radius:var(--r-ctrl);padding:8px 16px;font-size:var(--t-sm);font-weight:500;cursor:pointer;font-family:var(--sans);display:flex;align-items:center;gap:5px;transition:background-color .12s}
-.btn-primary:hover{background:#0D2E6E}
-.btn-primary svg{width:12px;height:12px}
-
-/* ── BRIEFING EXECUTIVO ──────────────────────────────────────────────────── */
-.briefing-section{margin-bottom:16px;animation:fadeUp .3s .05s ease both}
-.briefing-hdr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.briefing-hdr-ttl{font-family:var(--sans);font-size:var(--t-xs);font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.10em}
-.briefing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.briefing-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:18px 18px 16px 21px;position:relative;overflow:hidden;animation:fadeUp .3s ease both;display:flex;flex-direction:column;gap:0}
-.briefing-card::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
-.bc-critica::before{background:var(--red)}
-.bc-alta::before{background:var(--amber)}
-.bc-media::before{background:var(--blue)}
-.briefing-top{display:flex;align-items:center;gap:7px;margin-bottom:9px}
-.briefing-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--r-chip);text-transform:uppercase;letter-spacing:.05em;font-family:var(--sans);flex-shrink:0}
-.bb-critica{background:#FEF0F0;color:#B91C1C}
-.bb-alta{background:#FEF3E2;color:#92510D}
-.bb-media{background:#EEF4FF;color:#1D4ED8}
-.briefing-title{font-size:var(--t-md);font-weight:600;color:var(--text);letter-spacing:-.01em;line-height:1.2;margin-bottom:10px}
-.briefing-blk{margin-bottom:8px}
-.briefing-blk-lbl{font-size:var(--t-xs);font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;font-family:var(--sans)}
-.briefing-blk-txt{font-size:var(--t-sm);color:var(--muted);line-height:1.55;font-weight:300}
-.briefing-acao{margin-top:auto;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:flex-start;gap:8px}
-.briefing-acao-icon{width:18px;height:18px;border-radius:50%;background:var(--blue);display:grid;place-items:center;flex-shrink:0;margin-top:1px}
-.briefing-acao-icon svg{width:9px;height:9px;color:#fff}
-.briefing-acao-txt{font-size:var(--t-sm);color:var(--navy);font-weight:500;line-height:1.4}
-
-/* ── RADAR PORTFÓLIO ─────────────────────────────────────────────────────── */
-.radar-list{display:flex;flex-direction:column;gap:0}
-.radar-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
-.radar-item:last-child{border-bottom:none;padding-bottom:0}
-.radar-item:first-child{padding-top:0}
-.radar-body{flex:1;min-width:0}
-.radar-head{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
-.radar-name{font-size:var(--t-sm);font-weight:500;color:var(--text)}
-.radar-ctx{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300}
-.radar-alerta{padding:5px 9px;background:#FEF0F0;border-radius:var(--r-ctrl);border:1px solid rgba(226,75,74,.18);margin-top:6px;font-size:11px;color:#B91C1C;line-height:1.5}
-.radar-stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:44px}
-.radar-n{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
-.radar-n-lbl{font-size:10px;color:var(--hint);font-family:var(--sans)}
-.st-pos{background:#EAFBF0;color:#0A7C35}
-.st-neg{background:#FEF0F0;color:#B91C1C}
-.st-neu{background:#F0F2F5;color:var(--muted)}
-.st-mix{background:#FEF3E2;color:#92510D}
-
-/* ── LACUNAS ─────────────────────────────────────────────────────────────── */
-.lacuna-list{display:flex;flex-direction:column;gap:0}
-.lacuna-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
-.lacuna-item:last-child{border-bottom:none;padding-bottom:0}
-.lacuna-item:first-child{padding-top:0}
-.lacuna-body{flex:1;min-width:0}
-.lacuna-head{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
-.lacuna-name{font-size:var(--t-sm);font-weight:500;color:var(--text)}
-.lacuna-ctx{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300;margin-bottom:4px}
-.lacuna-impl{font-size:11px;color:#5C4A0A;line-height:1.5;font-weight:400;background:#FFFBF0;border-radius:var(--r-chip);padding:4px 8px;display:block}
-.lacuna-stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:44px}
-.lacuna-n{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
-.lacuna-n-lbl{font-size:10px;color:var(--hint);font-family:var(--sans)}
-.dem-alta{background:#FEF0F0;color:#B91C1C}
-.dem-media{background:#FEF3E2;color:#92510D}
-.dem-baixa{background:#F0F2F5;color:var(--muted)}
-
-/* ── DISTRIBUIDORES ──────────────────────────────────────────────────────── */
-.dist-list{display:flex;flex-direction:column;gap:0}
-.dist-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
-.dist-item:last-child{border-bottom:none;padding-bottom:0}
-.dist-item:first-child{padding-top:0}
-.dist-tier-badge{width:32px;height:32px;border-radius:var(--r-ctrl);display:grid;place-items:center;flex-shrink:0;font-family:var(--mono);font-size:11px;font-weight:700}
-.dt-1{background:rgba(226,75,74,.1);color:var(--red)}
-.dt-2{background:rgba(239,159,39,.1);color:var(--amber)}
-.dt-3{background:var(--s2);color:var(--muted)}
-.dist-body{flex:1;min-width:0}
-.dist-name{font-size:var(--t-sm);font-weight:500;color:var(--text);margin-bottom:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.dist-ctx{font-size:11px;color:var(--muted);line-height:1.5;font-weight:300}
-.dist-alerta{padding:5px 9px;background:#FEF0F0;border-radius:var(--r-ctrl);border:1px solid rgba(226,75,74,.18);margin-top:6px;font-size:11px;color:#B91C1C;line-height:1.5}
-.dist-stat{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;min-width:44px}
-.dist-n{font-family:var(--mono);font-size:18px;font-weight:600;color:var(--navy);letter-spacing:-.03em;line-height:1}
-.dist-n-lbl{font-size:10px;color:var(--hint);font-family:var(--sans)}
-.sent-pos-dist{background:#EAFBF0;color:#0A7C35}
-.sent-neg-dist{background:#FEF0F0;color:#B91C1C}
-.sent-neu-dist{background:#F0F2F5;color:var(--muted)}
-
-/* ── DELTA CARD ──────────────────────────────────────────────────────────── */
-.delta-card{display:flex;align-items:center;gap:20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:14px 18px;margin-bottom:16px;animation:fadeUp .3s .22s ease both}
-.delta-score{display:flex;align-items:center;gap:8px;min-width:90px}
-.delta-icon{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;flex-shrink:0}
-.delta-icon svg{width:12px;height:12px}
-.delta-num{font-family:var(--mono);font-size:28px;font-weight:600;letter-spacing:-.04em;line-height:1}
-.delta-pts{font-size:10px;color:var(--hint);font-family:var(--sans);text-transform:uppercase;letter-spacing:.06em;margin-top:2px}
-.delta-divider{width:1px;background:var(--border);align-self:stretch;flex-shrink:0}
-.delta-body{flex:1;min-width:0}
-.delta-lbl{font-size:var(--t-xs);font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;font-family:var(--sans);display:flex;align-items:center;gap:8px}
-.delta-resumo{font-size:var(--t-sm);color:var(--text);line-height:1.55;font-weight:300}
-.delta-lists{display:flex;gap:20px;min-width:180px;flex-shrink:0}
-.delta-list-col{flex:1}
-.delta-list-ttl{font-size:var(--t-xs);font-weight:600;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px;font-family:var(--sans)}
-.delta-list-col ul{list-style:none;display:flex;flex-direction:column;gap:3px}
-.delta-list-col li{font-size:11px;color:var(--muted);line-height:1.4;font-weight:300;padding-left:10px;position:relative}
-.delta-list-col li::before{content:'';position:absolute;left:2px;top:5px;width:4px;height:4px;border-radius:50%;background:currentColor}
-
-/* ── DATE NAV ────────────────────────────────────────────────────────────── */
-.date-nav{display:flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border2);border-radius:var(--r-ctrl);padding:4px 6px}
-.date-nav-btn{width:26px;height:26px;border:none;background:transparent;border-radius:6px;cursor:pointer;display:grid;place-items:center;color:var(--muted);transition:background-color .12s,color .12s}
-.date-nav-btn:hover:not(:disabled){background:var(--surface);color:var(--blue)}
-.date-nav-btn:disabled{opacity:.3;cursor:default}
-.date-nav-btn svg{width:11px;height:11px}
-.date-nav-center{text-align:center;min-width:76px}
-.date-nav-lbl{font-family:var(--mono);font-size:12px;color:var(--text);font-weight:500;letter-spacing:.01em;line-height:1}
-.date-nav-rel{font-size:10px;color:var(--hint);font-family:var(--sans);margin-top:2px}
+/* ── LOADING / EMPTY ─────────────────────────────────────────────────────── */
+#loadingScreen { display: none; flex-direction: column; align-items: center; justify-content: center; min-height: calc(100vh - var(--topbar-h)); text-align: center; padding: 40px; }
+.loading-orb { width: 52px; height: 52px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border2); display: grid; place-items: center; margin: 0 auto 20px; animation: orbPulse 2.4s ease-in-out infinite; }
+@keyframes orbPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.07)} }
+.loading-orb svg { width: 22px; height: 22px; color: var(--amber); }
+.loading-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; letter-spacing: -.01em; }
+.loading-sub { font-size: 12px; color: var(--muted); font-weight: 300; margin-bottom: 24px; }
+.loading-steps { display: flex; flex-direction: column; gap: 6px; max-width: 300px; width: 100%; text-align: left; }
+.lstep { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: var(--r-ctrl); background: var(--surface); border: 1px solid var(--border); font-size: 11px; color: var(--hint); transition: background .3s, border-color .3s, color .3s; }
+.lstep.active { background: var(--blue-dim); border-color: rgba(59,130,246,.3); color: #93C5FD; }
+.lstep.done   { background: var(--green-dim); border-color: rgba(16,185,129,.3); color: #6EE7B7; }
+.lstep-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.lstep.active .lstep-dot { animation: blink 1s infinite; }
+.loading-bar-wrap { width: 300px; margin-top: 20px; }
+.loading-bar-track { height: 2px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.loading-bar-fill  { height: 100%; background: var(--blue); border-radius: 2px; width: 0%; transition: width .6s ease; }
 
 /* ── ANIMATIONS ──────────────────────────────────────────────────────────── */
-/* P2: translateY reduzido de 8→6px — entrada mais sutil */
-@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-/* P2: stagger individual em vez de delay fixo para todos */
-.card{animation:fadeUp .3s ease both;animation-delay:.30s}
-.mention-card{animation:fadeUp .3s ease both;animation-delay:.36s}
-#dashboard{display:none}
+@keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+.fade-up { animation: fadeUp .3s ease both; }
+
+/* ── SECTION HEADER ──────────────────────────────────────────────────────── */
+.section-label { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .10em; margin-bottom: 12px; margin-top: 28px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* ── DATE NAV ────────────────────────────────────────────────────────────── */
+.date-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.date-bar-left { display: flex; flex-direction: column; gap: 2px; }
+.date-bar-h1 { font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -.02em; line-height: 1; }
+.date-bar-sub { font-size: 12px; color: var(--muted); font-weight: 300; }
+.date-nav { display: flex; align-items: center; gap: 6px; }
+.date-nav-btn { width: 30px; height: 30px; border-radius: var(--r-ctrl); background: var(--surface); border: 1px solid var(--border2); color: var(--muted); cursor: pointer; display: grid; place-items: center; transition: background .12s, color .12s; }
+.date-nav-btn:hover:not(:disabled) { background: var(--surface2); color: var(--text); }
+.date-nav-btn:disabled { opacity: .3; cursor: default; }
+.date-nav-btn svg { width: 12px; height: 12px; }
+.date-nav-center { text-align: center; padding: 0 8px; }
+.date-nav-lbl { font-family: var(--mono); font-size: 13px; font-weight: 500; color: var(--text); }
+.date-nav-rel { font-size: 10px; color: var(--hint); margin-top: 1px; }
+
+/* ── HEAT PILL ───────────────────────────────────────────────────────────── */
+.heat-pill { display: flex; align-items: center; gap: 7px; padding: 7px 13px; border-radius: var(--r-ctrl); border: 1px solid var(--border2); background: var(--surface); font-size: 12px; font-weight: 500; color: var(--text); }
+.heat-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── KPI GRID ────────────────────────────────────────────────────────────── */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+
+.kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 18px 18px 16px; position: relative; overflow: hidden; animation: fadeUp .3s ease both; }
+.kpi:nth-child(1) { animation-delay: .04s; }
+.kpi:nth-child(2) { animation-delay: .08s; }
+.kpi:nth-child(3) { animation-delay: .12s; }
+.kpi:nth-child(4) { animation-delay: .16s; }
+.kpi-accent { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+.kpi-lbl { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 12px; }
+.kpi-val { font-family: var(--mono); font-size: 32px; font-weight: 600; letter-spacing: -.04em; line-height: 1; color: var(--text); }
+.kpi-sub { font-size: 12px; color: var(--muted); margin-top: 8px; display: flex; align-items: center; gap: 6px; font-weight: 300; }
+.tag-up  { background: var(--green-dim); color: #6EE7B7; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: var(--r-chip); font-family: var(--mono); }
+.tag-dn  { background: var(--red-dim);   color: #FCA5A5; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: var(--r-chip); font-family: var(--mono); }
+.tag-neu { background: var(--surface3);  color: var(--muted); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: var(--r-chip); font-family: var(--mono); }
+
+/* ── BRIEFING CARDS ──────────────────────────────────────────────────────── */
+.briefing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+.briefing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 18px; position: relative; overflow: hidden; animation: fadeUp .3s ease both; border-left: 3px solid var(--border2); }
+.briefing-card.prio-critica { border-left-color: var(--red); background: linear-gradient(135deg, rgba(239,68,68,.04) 0%, var(--surface) 60%); }
+.briefing-card.prio-alta    { border-left-color: var(--amber); background: linear-gradient(135deg, rgba(245,158,11,.04) 0%, var(--surface) 60%); }
+.briefing-card.prio-media   { border-left-color: var(--blue); background: linear-gradient(135deg, rgba(59,130,246,.04) 0%, var(--surface) 60%); }
+.briefing-card:nth-child(1) { animation-delay: .05s; }
+.briefing-card:nth-child(2) { animation-delay: .10s; }
+.briefing-card:nth-child(3) { animation-delay: .15s; }
+
+.briefing-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.briefing-badge { font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: var(--r-chip); text-transform: uppercase; letter-spacing: .08em; flex-shrink: 0; }
+.badge-critica { background: var(--red-dim);   color: #FCA5A5; }
+.badge-alta    { background: var(--amber-dim); color: #FCD34D; }
+.badge-media   { background: var(--blue-dim);  color: #93C5FD; }
+
+.briefing-titulo { font-size: 14px; font-weight: 600; color: var(--text); line-height: 1.3; letter-spacing: -.01em; }
+.briefing-contexto { font-size: 12px; color: var(--muted); line-height: 1.6; font-weight: 300; margin-bottom: 8px; }
+.briefing-implicacao { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 10px; }
+.briefing-acao { font-size: 11px; color: var(--amber); font-weight: 500; display: flex; align-items: center; gap: 5px; padding-top: 10px; border-top: 1px solid var(--border); }
+.briefing-acao svg { width: 11px; height: 11px; flex-shrink: 0; }
+
+/* ── CARD BASE ───────────────────────────────────────────────────────────── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 18px; }
+.card-ttl { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .09em; margin-bottom: 14px; }
+
+/* ── 2-COL / 3-COL GRIDS ─────────────────────────────────────────────────── */
+.g2  { display: grid; grid-template-columns: 1fr 1fr;       gap: 12px; margin-bottom: 16px; }
+.g3  { display: grid; grid-template-columns: 1fr 1fr 1fr;   gap: 12px; margin-bottom: 16px; }
+.g21 { display: grid; grid-template-columns: 1fr 280px;     gap: 12px; margin-bottom: 16px; }
+
+/* ── GAUGE ───────────────────────────────────────────────────────────────── */
+.gauge-wrap { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
+.gauge-canvas { position: relative; width: 148px; height: 148px; }
+.gauge-canvas canvas { position: absolute; top: 0; left: 0; }
+.gauge-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -38%); text-align: center; }
+.gauge-num { font-family: var(--mono); font-size: 36px; font-weight: 600; letter-spacing: -.04em; line-height: 1; }
+.gauge-den { font-size: 11px; color: var(--hint); font-weight: 400; }
+.gauge-label { font-size: 10px; font-weight: 600; color: var(--muted); margin-top: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.gauge-bar { width: 100%; margin-top: 12px; }
+.gbar-lbl { display: flex; justify-content: space-between; font-size: 9px; color: var(--hint); text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.gbar-track { height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; margin-bottom: 3px; }
+.gbar-fill  { height: 100%; border-radius: 2px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+
+/* ── BRANDS ──────────────────────────────────────────────────────────────── */
+.brand-list { display: flex; flex-direction: column; gap: 8px; }
+.brow { display: flex; align-items: center; gap: 8px; }
+.bname  { font-size: 12px; font-weight: 500; color: var(--text); width: 70px; flex-shrink: 0; }
+.btrack { flex: 1; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
+.bfill  { height: 100%; border-radius: 2px; transition: width .9s cubic-bezier(.4,0,.2,1); }
+.bcnt   { font-size: 10px; color: var(--muted); width: 18px; text-align: right; flex-shrink: 0; font-family: var(--mono); }
+.btag   { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: var(--r-chip); flex-shrink: 0; text-transform: uppercase; letter-spacing: .02em; }
+.t-fotus { background: rgba(59,130,246,.18); color: #93C5FD; }
+.t-comp  { background: var(--red-dim);       color: #FCA5A5; }
+.t-warn  { background: var(--amber-dim);     color: #FCD34D; }
+.t-neu   { background: var(--surface3);      color: var(--muted); }
+
+/* ── RADAR PORTFOLIO ─────────────────────────────────────────────────────── */
+.radar-list { display: flex; flex-direction: column; gap: 6px; }
+.radar-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--r-ctrl); background: var(--surface2); border: 1px solid transparent; transition: border-color .12s; }
+.radar-item:hover { border-color: var(--border2); }
+.radar-item.has-alert { border-color: rgba(239,68,68,.25); background: rgba(239,68,68,.05); }
+.radar-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.radar-name { font-size: 12px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; }
+.radar-cat  { font-size: 10px; color: var(--hint); }
+.radar-cnt  { font-family: var(--mono); font-size: 10px; color: var(--muted); width: 20px; text-align: right; }
+.radar-badge { font-size: 9px; font-weight: 600; padding: 2px 6px; border-radius: var(--r-chip); text-transform: uppercase; }
+.radar-alert-icon { color: var(--red); flex-shrink: 0; }
+.radar-alert-icon svg { width: 12px; height: 12px; }
+
+/* ── LACUNAS ─────────────────────────────────────────────────────────────── */
+.lacuna-list { display: flex; flex-direction: column; gap: 6px; }
+.lacuna-item { display: flex; align-items: flex-start; gap: 8px; padding: 9px 10px; border-radius: var(--r-ctrl); background: var(--surface2); border: 1px solid transparent; }
+.lacuna-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--amber); flex-shrink: 0; margin-top: 5px; }
+.lacuna-body { flex: 1; min-width: 0; }
+.lacuna-name { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.lacuna-ctx  { font-size: 11px; color: var(--muted); line-height: 1.5; font-weight: 300; }
+.lacuna-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: var(--r-chip); flex-shrink: 0; align-self: flex-start; }
+.dem-alta  { background: var(--red-dim);   color: #FCA5A5; }
+.dem-media { background: var(--amber-dim); color: #FCD34D; }
+.dem-baixa { background: var(--surface3);  color: var(--muted); }
+
+/* ── DISTRIBUIDORES ──────────────────────────────────────────────────────── */
+.distrib-list { display: flex; flex-direction: column; gap: 0; }
+.distrib-item { display: flex; gap: 10px; padding: 11px 0; border-bottom: 1px solid var(--border); }
+.distrib-item:last-child { border-bottom: none; padding-bottom: 0; }
+.distrib-item:first-child { padding-top: 0; }
+.distrib-tier { font-family: var(--mono); font-size: 10px; color: var(--hint); width: 18px; flex-shrink: 0; padding-top: 2px; }
+.distrib-body { flex: 1; min-width: 0; }
+.distrib-name { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.distrib-ctx  { font-size: 11px; color: var(--muted); line-height: 1.5; font-weight: 300; }
+.distrib-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.distrib-region { font-size: 10px; padding: 2px 6px; border-radius: var(--r-chip); background: var(--surface3); color: var(--muted); border: 1px solid var(--border); }
+.tier-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: var(--r-chip); }
+.tier-1 { background: rgba(239,68,68,.2); color: #FCA5A5; }
+.tier-2 { background: rgba(245,158,11,.2); color: #FCD34D; }
+.tier-3 { background: var(--surface3); color: var(--muted); }
+.alert-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--red); animation: blink 1.8s infinite; flex-shrink: 0; }
+
+/* ── MENTIONS ────────────────────────────────────────────────────────────── */
+.mention-panel { background: linear-gradient(145deg, #112059 0%, #0B1A3E 100%); border: 1px solid rgba(255,255,255,.07); border-radius: var(--r-card); padding: 18px; }
+.mention-panel .card-ttl { color: rgba(255,255,255,.5); }
+.mention-item { padding: 12px; background: rgba(255,255,255,.06); border-radius: var(--r-ctrl); border: 1px solid rgba(255,255,255,.08); margin-bottom: 8px; }
+.mention-tag { font-size: 9px; font-weight: 600; padding: 2px 7px; border-radius: var(--r-chip); margin-bottom: 6px; display: inline-flex; align-items: center; gap: 4px; text-transform: uppercase; letter-spacing: .05em; }
+.mtag-pos  { background: rgba(16,185,129,.2); color: #6EE7B7; }
+.mtag-neg  { background: rgba(239,68,68,.2);  color: #FCA5A5; }
+.mtag-neu  { background: rgba(255,255,255,.08); color: rgba(255,255,255,.55); }
+.mention-txt { font-size: 12px; line-height: 1.6; color: rgba(255,255,255,.88); font-weight: 300; }
+.mention-group { font-size: 11px; color: rgba(255,255,255,.45); margin-top: 5px; }
+.mention-empty { padding: 14px; text-align: center; font-size: 11px; color: rgba(255,255,255,.35); background: rgba(255,255,255,.04); border-radius: var(--r-ctrl); border: 1px solid rgba(255,255,255,.06); }
+.opp-box { padding: 12px; background: rgba(245,158,11,.08); border-radius: var(--r-ctrl); border: 1px solid rgba(245,158,11,.2); margin-top: 10px; }
+.opp-lbl { font-size: 10px; font-weight: 600; color: rgba(245,158,11,.9); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+.opp-txt  { font-size: 11px; color: rgba(255,255,255,.8); line-height: 1.6; font-weight: 300; }
+
+/* ── MATRIX ──────────────────────────────────────────────────────────────── */
+.matrix-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.mitem { padding: 10px 12px; border-radius: var(--r-ctrl); border: 1px solid var(--border); background: var(--surface2); }
+.mitem-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+.mitem-lbl  { font-size: 12px; font-weight: 500; color: var(--text); }
+.mitem-score { font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: var(--r-chip); }
+.ms-high { background: var(--red-dim);   color: #FCA5A5; }
+.ms-mid  { background: var(--amber-dim); color: #FCD34D; }
+.ms-low  { background: var(--green-dim); color: #6EE7B7; }
+.mitem-bar  { height: 2px; background: var(--surface3); border-radius: 2px; overflow: hidden; margin-bottom: 5px; }
+.mitem-fill { height: 100%; border-radius: 2px; transition: width .8s cubic-bezier(.4,0,.2,1); }
+.mitem-desc { font-size: 11px; color: var(--muted); line-height: 1.5; font-weight: 300; }
+
+/* ── PAIN / OBJECTIONS ───────────────────────────────────────────────────── */
+.pain-list { display: flex; flex-direction: column; gap: 6px; }
+.pitem { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: var(--r-ctrl); background: var(--surface2); border: 1px solid transparent; transition: border-color .12s; }
+.pitem:hover { border-color: var(--border2); }
+.pico { width: 26px; height: 26px; border-radius: var(--r-ctrl); display: grid; place-items: center; flex-shrink: 0; margin-top: 1px; }
+.pico svg { width: 13px; height: 13px; }
+.pbody { flex: 1; min-width: 0; }
+.pttl  { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.pdesc { font-size: 11px; color: var(--muted); line-height: 1.55; font-weight: 300; }
+.pbadge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: var(--r-chip); flex-shrink: 0; white-space: nowrap; align-self: flex-start; }
+.ph { background: var(--red-dim);   color: #FCA5A5; }
+.pm { background: var(--amber-dim); color: #FCD34D; }
+.pl { background: var(--green-dim); color: #6EE7B7; }
+
+/* ── STATES ──────────────────────────────────────────────────────────────── */
+.states-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+.state-pill  { padding: 3px 9px; border-radius: var(--r-ctrl); font-size: 11px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text); display: flex; align-items: center; gap: 5px; }
+.state-count { font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px; background: var(--blue); color: #fff; font-family: var(--mono); }
+
+/* ── DELTA ───────────────────────────────────────────────────────────────── */
+.delta-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 14px 18px; margin-bottom: 16px; display: flex; align-items: center; gap: 16px; }
+.delta-badge { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: var(--r-chip); flex-shrink: 0; }
+.delta-text  { font-size: 12px; color: var(--muted); line-height: 1.5; flex: 1; }
+.delta-tend  { font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: var(--r-chip); background: var(--surface2); color: var(--muted); text-transform: uppercase; letter-spacing: .05em; flex-shrink: 0; }
+
+/* ── EXEC / TESE ─────────────────────────────────────────────────────────── */
+.exec-card { background: linear-gradient(135deg, #112059 0%, #0B1A3E 100%); border-radius: var(--r-card); padding: 20px 22px; border: 1px solid rgba(255,255,255,.07); }
+.exec-lbl { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 8px; }
+.exec-txt { font-size: 13px; color: rgba(255,255,255,.88); line-height: 1.7; font-weight: 300; max-width: 700px; }
+.exec-txt strong { color: var(--yellow); font-weight: 500; }
+.exec-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
+.etag { font-size: 10px; padding: 2px 9px; border-radius: var(--r-chip); border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.6); }
+.etag.hot  { border-color: rgba(255,194,14,.35); color: #FCD34D; }
+.etag.warn { border-color: rgba(239,68,68,.35);  color: #FCA5A5; }
+
+/* ── INSIGHT / RISK BOXES ────────────────────────────────────────────────── */
+.insight-box { padding: 12px 14px; border-radius: var(--r-ctrl); border-left: 3px solid var(--amber); background: rgba(245,158,11,.06); margin-top: 12px; }
+.insight-lbl { font-size: 10px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+.insight-txt { font-size: 12px; color: var(--muted); line-height: 1.55; }
+.risk-box    { padding: 12px 14px; border-radius: var(--r-ctrl); border-left: 3px solid var(--red); background: rgba(239,68,68,.06); margin-top: 8px; }
+.risk-lbl    { font-size: 10px; font-weight: 600; color: var(--red); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+.risk-txt    { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+/* ── INSTAGRAM PAGE ──────────────────────────────────────────────────────── */
+.ig-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--hint); font-size: 12px; text-align: center; gap: 8px; }
+.ig-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); margin-bottom: 12px; overflow: hidden; animation: fadeUp .3s ease both; }
+.ig-card-header { padding: 18px; cursor: pointer; }
+.ig-header-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.ig-tier { font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: var(--r-chip); text-transform: uppercase; letter-spacing: .06em; margin-right: 8px; }
+.ig-tier-1 { background: rgba(239,68,68,.2); color: #FCA5A5; }
+.ig-tier-2 { background: rgba(245,158,11,.2); color: #FCD34D; }
+.ig-tier-3 { background: var(--surface3); color: var(--muted); }
+.ig-handle { font-size: 14px; font-weight: 600; color: var(--text); font-family: var(--mono); }
+.ig-score-display { font-family: var(--mono); font-size: 28px; font-weight: 600; letter-spacing: -.04em; line-height: 1; }
+.ig-score-high { color: var(--red); }
+.ig-score-mid  { color: var(--amber); }
+.ig-score-low  { color: var(--green); }
+.ig-score-lbl  { font-size: 10px; color: var(--hint); text-align: right; margin-top: 2px; }
+.ig-score-bar  { height: 2px; background: var(--surface3); border-radius: 2px; overflow: hidden; margin-bottom: 12px; }
+.ig-score-fill { height: 100%; width: 0%; border-radius: 2px; transition: width .9s cubic-bezier(.4,0,.2,1); }
+.ig-stats { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.ig-stat  { font-size: 12px; color: var(--muted); font-weight: 300; }
+.ig-stat strong { color: var(--text); font-weight: 500; margin-right: 3px; }
+.ig-tags  { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.ig-tag-alerta      { font-size: 10px; padding: 2px 7px; border-radius: var(--r-chip); background: var(--red-dim);   color: #FCA5A5; }
+.ig-tag-oportunidade{ font-size: 10px; padding: 2px 7px; border-radius: var(--r-chip); background: var(--green-dim); color: #6EE7B7; }
+.ig-tag-neutro      { font-size: 10px; padding: 2px 7px; border-radius: var(--r-chip); background: var(--surface3); color: var(--muted); }
+.ig-briefing-line { font-size: 12px; color: var(--muted); line-height: 1.55; margin-top: 8px; font-weight: 300; font-style: italic; }
+.ig-expand-btn { margin-top: 12px; background: none; border: 1px solid var(--border2); border-radius: var(--r-ctrl); padding: 6px 12px; font-size: 11px; color: var(--muted); cursor: pointer; font-family: var(--sans); display: flex; align-items: center; gap: 5px; transition: background .12s, color .12s; }
+.ig-expand-btn:hover { background: var(--surface2); color: var(--text); }
+.ig-expand-btn svg { width: 10px; height: 10px; transition: transform .2s; }
+.ig-expand-btn.expanded svg { transform: rotate(180deg); }
+.ig-card-body  { display: none; padding: 0 18px 18px; border-top: 1px solid var(--border); }
+.ig-card-body.open { display: block; }
+.ig-section-ttl { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .09em; margin: 14px 0 8px; }
+.ig-comm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ig-comm-item { background: var(--surface2); border-radius: var(--r-ctrl); padding: 8px 10px; }
+.ig-comm-lbl  { font-size: 10px; color: var(--hint); margin-bottom: 3px; }
+.ig-comm-val  { font-size: 12px; color: var(--text); font-weight: 400; }
+.ig-prod-item { padding: 8px 10px; background: var(--surface2); border-radius: var(--r-ctrl); margin-bottom: 5px; }
+.ig-prod-brand { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
+.ig-prod-ctx   { font-size: 11px; color: var(--muted); line-height: 1.5; }
+.ig-voz-grid   { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ig-voz-col    { background: var(--surface2); border-radius: var(--r-ctrl); padding: 8px 10px; }
+.ig-voz-col.pos { border-left: 2px solid var(--green); }
+.ig-voz-col.neg { border-left: 2px solid var(--red); }
+.ig-voz-col-lbl { font-size: 10px; font-weight: 600; color: var(--green); margin-bottom: 6px; }
+.ig-voz-item { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 3px; }
+.ig-opp { padding: 12px; background: rgba(245,158,11,.06); border-radius: var(--r-ctrl); border: 1px solid rgba(245,158,11,.18); }
+.ig-opp-lbl { font-size: 10px; font-weight: 600; color: var(--amber); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; }
+.ig-opp-txt { font-size: 12px; color: var(--muted); line-height: 1.6; font-weight: 300; }
+.ig-post-item   { padding: 10px; background: var(--surface2); border-radius: var(--r-ctrl); margin-bottom: 5px; }
+.ig-post-caption{ font-size: 12px; color: var(--text); line-height: 1.5; margin-bottom: 4px; }
+.ig-post-why    { font-size: 11px; color: var(--muted); font-weight: 300; flex: 1; }
+.ig-post-eng    { font-family: var(--mono); font-size: 10px; color: var(--hint); }
+.ig-no-data     { font-size: 11px; color: var(--hint); padding: 8px 10px; background: var(--surface2); border-radius: var(--r-ctrl); }
+.ig-no-posts    { font-size: 11px; color: var(--hint); padding: 8px 10px; }
+
+/* ── MODAL ───────────────────────────────────────────────────────────────── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 500; display: none; place-items: center; }
+.modal-overlay.open { display: grid; }
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r-lg); padding: 28px; width: 100%; max-width: 400px; margin: 20px; position: relative; }
+.modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; color: var(--muted); cursor: pointer; width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--r-ctrl); transition: background .12s, color .12s; }
+.modal-close:hover { background: var(--surface2); color: var(--text); }
+.modal-close svg { width: 14px; height: 14px; }
+.modal-icon { width: 44px; height: 44px; border-radius: var(--r-card); background: var(--amber-dim); display: grid; place-items: center; margin-bottom: 16px; }
+.modal-icon svg { width: 20px; height: 20px; color: var(--amber); }
+.modal-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; letter-spacing: -.01em; }
+.modal-sub   { font-size: 13px; color: var(--muted); line-height: 1.6; font-weight: 300; margin-bottom: 20px; }
+.modal-input-wrap { position: relative; margin-bottom: 8px; }
+.modal-input { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r-ctrl); padding: 10px 14px; font-size: 13px; color: var(--text); font-family: var(--sans); outline: none; transition: border-color .15s; }
+.modal-input:focus { border-color: var(--amber); }
+.modal-input::placeholder { color: var(--hint); }
+.modal-error   { font-size: 11px; color: #FCA5A5; margin-bottom: 12px; min-height: 16px; }
+.modal-success { display: none; text-align: center; padding: 20px 0; }
+.modal-success-icon { font-size: 32px; margin-bottom: 12px; }
+.modal-success-title { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.modal-success-sub   { font-size: 12px; color: var(--muted); }
+.btn-modal-submit { width: 100%; background: var(--amber); color: #000; border: none; border-radius: var(--r-ctrl); padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--sans); transition: background .12s, opacity .12s; }
+.btn-modal-submit:hover { background: #FBBF24; }
+.btn-modal-submit:disabled { opacity: .5; cursor: default; }
+
+/* ── SCROLLBAR ───────────────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-  <div class="sb-logo">
-    <div class="sb-mark">
-      <div class="sb-sun">
-        <svg viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="3" fill="#0B2559"/>
-          <line x1="8" y1="1.5" x2="8" y2="3.5" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="8" y1="12.5" x2="8" y2="14.5" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="1.5" y1="8" x2="3.5" y2="8" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="12.5" y1="8" x2="14.5" y2="8" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="3.4" y1="3.4" x2="4.8" y2="4.8" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="11.2" y1="11.2" x2="12.6" y2="12.6" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="12.6" y1="3.4" x2="11.2" y2="4.8" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="4.8" y1="11.2" x2="3.4" y2="12.6" stroke="#0B2559" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div>
-        <div class="sb-name">TERMÔMETRO</div>
-        <div class="sb-sub">Mercado Solar · Fotus</div>
-      </div>
+<!-- ── TOPBAR ──────────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <button class="topbar-menu" onclick="toggleDrawer()" aria-label="Menu">
+    <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+  </button>
+
+  <div class="topbar-brand">
+    <div class="topbar-sun">
+      <svg viewBox="0 0 15 15" fill="none">
+        <circle cx="7.5" cy="7.5" r="3" fill="#0B2559"/>
+        <path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M3.2 3.2l1 1M10.8 10.8l1 1M10.8 3.2l-1 1M3.2 10.8l1-1" stroke="#0B2559" stroke-width="1.3" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div>
+      <div class="topbar-title">TERMÔMETRO SOLAR</div>
+      <div class="topbar-sub">Fotus · Inteligência de Mercado</div>
     </div>
   </div>
-  <div class="nav">
-    <div class="nav-lbl">Inteligência</div>
-    <a class="nav-a on">
-      <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v5l3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.3"/></svg>
-      Termômetro
-    </a>
-    <a class="nav-a">
-      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="9" width="3" height="5" rx="1" fill="currentColor" opacity=".5"/><rect x="6.5" y="5" width="3" height="9" rx="1" fill="currentColor" opacity=".7"/><rect x="11" y="2" width="3" height="12" rx="1" fill="currentColor" opacity=".9"/></svg>
-      Relatórios
-    </a>
-    <a class="nav-a">
-      <svg viewBox="0 0 16 16" fill="none"><circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 9.5L14 14" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Radar de Marcas
-    </a>
+
+  <nav class="topbar-nav">
+    <button class="topbar-nav-btn on" id="navTermometro" onclick="showPage('termometro',this)">Termômetro</button>
+    <button class="topbar-nav-btn" id="navInstagram" onclick="showPage('instagram',this)">Instagram</button>
+  </nav>
+
+  <div class="topbar-right">
+    <div class="topbar-status">
+      <div class="pulse"></div>
+      <span id="topbarStatus">Carregando...</span>
+    </div>
+    <button class="btn-subscribe" onclick="openSubscribeModal()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M1 4l6 4 6-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><rect x="1" y="2.5" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>
+      Receber newsletter
+    </button>
   </div>
-  <div class="nav">
-    <div class="nav-lbl">Operações</div>
-    <a class="nav-a">
-      <svg viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h8M2 12h10" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-      Grupos
-    </a>
-    <a class="nav-a">
-      <svg viewBox="0 0 16 16" fill="none"><rect x="3" y="2" width="10" height="13" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M6 6h4M6 9h4M6 12h2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
-      Histórico
-    </a>
+</header>
+
+<!-- ── DRAWER ──────────────────────────────────────────────────────────── -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div class="topbar-sun" style="width:24px;height:24px">
+        <svg viewBox="0 0 15 15" fill="none" style="width:12px;height:12px">
+          <circle cx="7.5" cy="7.5" r="3" fill="#0B2559"/>
+          <path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M3.2 3.2l1 1M10.8 10.8l1 1M10.8 3.2l-1 1M3.2 10.8l1-1" stroke="#0B2559" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span style="font-family:var(--mono);font-size:12px;font-weight:600;color:#fff;letter-spacing:.05em">FOTUS</span>
+    </div>
+    <button class="drawer-close" onclick="closeDrawer()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </button>
   </div>
-  <div class="sb-foot">
-    <div class="sb-date" id="sbDate">—</div>
-    <div class="sb-badge"><div class="pulse"></div><span id="sbStatus">Aguardando extração</span></div>
+
+  <div class="drawer-section">
+    <div class="drawer-lbl">Páginas</div>
+    <button class="drawer-item on" id="drawerTermometro" onclick="showPage('termometro',null);closeDrawer()">
+      <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="8" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M7 1v2M7 5V3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+      Termômetro de Mercado
+    </button>
+    <button class="drawer-item" id="drawerInstagram" onclick="showPage('instagram',null);closeDrawer()">
+      <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="2" width="10" height="10" rx="3" stroke="currentColor" stroke-width="1.3"/><circle cx="7" cy="7" r="2.2" stroke="currentColor" stroke-width="1.3"/><circle cx="10.2" cy="3.8" r=".7" fill="currentColor"/></svg>
+      Instagram · Concorrentes
+    </button>
+  </div>
+
+  <div class="drawer-foot">
+    <div class="drawer-date" id="drawerDate">—</div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--hint)">
+      <div class="pulse"></div>
+      <span id="drawerStatus">Aguardando dados</span>
+    </div>
   </div>
 </aside>
 
-<!-- MAIN -->
-<main class="main">
+<!-- ── NEWSLETTER MODAL ─────────────────────────────────────────────────── -->
+<div class="modal-overlay" id="subscribeModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeSubscribeModal()">
+      <svg viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </button>
 
-  <!-- EMPTY STATE (shown when no report exists yet) -->
-  <div id="uploadScreen">
-    <div class="upload-zone">
-      <div class="upload-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div id="modalForm">
+      <div class="modal-icon">
+        <svg viewBox="0 0 20 20" fill="none"><path d="M2 6l8 5 8-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="4" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
       </div>
-      <div class="upload-title">Aguardando análise semanal</div>
-      <div class="upload-sub">O Termômetro atualiza automaticamente todo dia às 06:00 via n8n.<br>Nenhum relatório encontrado ainda.</div>
-      <button class="upload-btn" onclick="loadLatestReport()">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M13.5 8A5.5 5.5 0 112.5 8" stroke="white" stroke-width="1.5" stroke-linecap="round"/><path d="M13.5 4v4h-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Verificar novamente
-      </button>
-      <div class="upload-hint">atualização automática via n8n · toda segunda às 09:00</div>
+      <div class="modal-title">Receber O Termômetro</div>
+      <div class="modal-sub">Toda manhã às 7h50, os insights do mercado solar direto no seu email — antes de começar o dia.</div>
+      <div class="modal-input-wrap">
+        <input type="email" class="modal-input" id="subscribeEmail" placeholder="seu.nome@fotus.com.br" autocomplete="email">
+      </div>
+      <div class="modal-error" id="subscribeError"></div>
+      <button class="btn-modal-submit" id="subscribeBtn" onclick="submitSubscription()">Quero receber</button>
     </div>
-    <div class="upload-info">
-      <div class="upload-info-item">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M13 6l-5 5-5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Análise automática por Claude Sonnet
-      </div>
-      <div class="upload-info-item">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M13 6l-5 5-5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Atualização em tempo real via Supabase
-      </div>
-      <div class="upload-info-item">
-        <svg viewBox="0 0 16 16" fill="none"><path d="M13 6l-5 5-5-5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Radar de concorrentes e marcas
-      </div>
+
+    <div class="modal-success" id="modalSuccess">
+      <div class="modal-success-icon">✅</div>
+      <div class="modal-success-title">Tudo certo!</div>
+      <div class="modal-success-sub">Você vai receber O Termômetro às 7h50 de segunda a sexta.<br>Verifique sua caixa de entrada amanhã.</div>
     </div>
   </div>
+</div>
 
-  <!-- LOADING SCREEN -->
-  <div id="loadingScreen">
+<!-- ── MAIN CONTENT ─────────────────────────────────────────────────────── -->
+<main class="main">
+
+  <!-- LOADING -->
+  <div id="loadingScreen" style="display:flex">
     <div class="loading-orb">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round"/>
+      </svg>
     </div>
-    <div class="loading-title">Carregando Termômetro</div>
-    <div class="loading-sub" id="loadingSub">Conectando ao banco de dados...</div>
+    <div class="loading-title">Carregando inteligência de mercado</div>
+    <div class="loading-sub">Conectando ao Supabase e buscando relatórios...</div>
     <div class="loading-steps">
-      <div class="lstep active" id="step1"><div class="lstep-dot"></div>Conectando ao banco de dados</div>
-      <div class="lstep" id="step2"><div class="lstep-dot"></div>Buscando análise mais recente</div>
-      <div class="lstep" id="step3"><div class="lstep-dot"></div>Processando dados</div>
-      <div class="lstep" id="step4"><div class="lstep-dot"></div>Montando painel</div>
+      <div class="lstep active" id="step1"><div class="lstep-dot"></div> Conectando ao banco de dados</div>
+      <div class="lstep" id="step2"><div class="lstep-dot"></div> Buscando datas disponíveis</div>
+      <div class="lstep" id="step3"><div class="lstep-dot"></div> Carregando relatório mais recente</div>
+      <div class="lstep" id="step4"><div class="lstep-dot"></div> Renderizando dashboard</div>
     </div>
     <div class="loading-bar-wrap">
       <div class="loading-bar-track"><div class="loading-bar-fill" id="loadingBar"></div></div>
     </div>
   </div>
 
-  <!-- DASHBOARD (rendered after analysis) -->
-  <div id="dashboard">
-    <!-- injected dynamically -->
-  </div>
+  <!-- TERMÔMETRO PAGE -->
+  <div id="dashPage"></div>
+
+  <!-- INSTAGRAM PAGE -->
+  <div id="igPage"></div>
 
 </main>
 
 <script>
-// ─── SYSTEM PROMPT ─────────────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Você é o motor analítico do Termômetro do Mercado Solar — sistema de inteligência de mercado da Fotus Distribuidora Solar (B2B, distribuidora de equipamentos fotovoltaicos para integradores de pequeno e médio porte).
-
-Você receberá o texto extraído de um PDF de resumo semanal gerado por um agente que monitora grupos de WhatsApp de integradores solares. Sua missão é extrair dados estruturados para montar um painel de inteligência.
-
-RETORNE APENAS JSON VÁLIDO, sem markdown, sem explicações, sem texto fora do JSON.
-
-Estrutura exata:
-{
-  "meta": {
-    "data": "DD/MM/AAAA",
-    "mensagens": <número>,
-    "grupos": <número>,
-    "modelo": "<string>",
-    "score_aquecimento": <0-100>,
-    "status_aquecimento": "<Volume Reduzido|Volume Moderado|Volume Alto|Mercado Quente>",
-    "status_cor": "<#3B82F6|#EF9F27|#FFC20E|#E24B4A>"
-  },
-  "tese_executiva": "<2-3 frases densas com os principais achados, use HTML: <strong>texto</strong> para destaques>",
-  "tags_exec": [
-    {"texto": "<label curto>", "tipo": "<hot|warn|neu>"}
-  ],
-  "kpis": {
-    "score": {"valor": <n>, "sub": "<texto curto>", "tag": "<texto>", "tag_tipo": "<up|dn|neu>"},
-    "mensagens": {"valor": <n>, "sub": "<contexto>", "tag": "<variação>", "tag_tipo": "<up|dn|neu>"},
-    "grupos": {"valor": <n>, "sub": "<contexto>", "tag": "<status>", "tag_tipo": "<up|dn|neu>"},
-    "concorrentes": {"valor": <n>, "sub": "<contexto>", "tag": "<avaliação>", "tag_tipo": "<up|dn|neu>"}
-  },
-  "mencoes_fotus": [
-    {
-      "tipo": "<Positivo|Negativo|Neutro>",
-      "categoria": "<Suporte|Comercial|Produto|Relacionamento>",
-      "texto": "<descrição da menção>",
-      "grupo": "<nome do grupo · estado>"
-    }
-  ],
-  "oportunidade_fotus": "<insight estratégico sobre as menções>",
-  "concorrentes": [
-    {
-      "rank": <n>,
-      "nome": "<nome>",
-      "mencoes": <número ou null>,
-      "alerta": <true|false>,
-      "badge_texto": "<X menções|Alerta|texto>",
-      "badge_cor": "<hex background>",
-      "badge_txt_cor": "<hex text>",
-      "descricao": "<análise estratégica>",
-      "estados": ["<UF ×N>"]
-    }
-  ],
-  "marcas": [
-    {
-      "nome": "<nome>",
-      "mencoes": <n>,
-      "tipo": "<Software|Fotus|Neutro|Concorr.|Saindo|Parceiro>",
-      "cor": "<hex>",
-      "estados": ["<UF ×N>"]
-    }
-  ],
-  "estados": [
-    {"uf": "<UF>", "contagem": <n>}
-  ],
-  "objecoes": [
-    {
-      "titulo": "<título curto>",
-      "descricao": "<análise com implicação estratégica para a Fotus>",
-      "prioridade": "<Alta|Média|Baixa|Oport.>",
-      "badge_extra": "<UF ×N>",
-      "icon_cor": "<hex background>",
-      "icon_stroke": "<hex stroke>"
-    }
-  ],
-  "matriz_sinais": [
-    {
-      "dimensao": "<Suporte técnico|Competição|Financiamento|Garantia/Pós-venda|Reputação Fotus|Oportunidade>",
-      "score": "<ALTO|MÉDIO|POS.|BAIXO>",
-      "score_classe": "<ms-high|ms-mid|ms-low>",
-      "intensidade": <0-100>,
-      "cor": "<#E24B4A|#EF9F27|#12B54A>",
-      "desc": "<síntese em 1 linha>"
-    }
-  ],
-  "insight_estrategico": "<análise de oportunidade 2-3 linhas>",
-  "risco_principal": "<análise de risco 2-3 linhas>",
-  "chart_objecoes": {
-    "labels": ["<label>"],
-    "valores": [<n>],
-    "cores": ["<hex>"]
-  }
-}
-
-Regras:
-- score_aquecimento: calcule com base em volume (mensagens/grupos), diversidade de sinais e urgência das dores. Menos de 100 msgs = máx 40. 100-300 = 40-65. 300+ = 65-100.
-- Seja estratégico, não descritivo. Cada campo deve ter valor analítico para tomada de decisão.
-- Mencões vazias da Fotus: retorne array vazio.
-- Sempre extraia insights sobre oportunidades para a Fotus converter dores de mercado.`;
-
-// ─── STATE ──────────────────────────────────────────────────────────────────
-let gaugeChart = null;
-let objChart = null;
-let availableDates = []; // ['YYYY-MM-DD', ...] sorted desc
-let currentDateIndex = 0; // 0 = most recent
-
-// ─── SUPABASE CONFIG ─────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://wttmlnhzvevtabjetsqz.supabase.co';
+// ── SUPABASE ──────────────────────────────────────────────────────────────────
+const SUPABASE_URL     = 'https://wttmlnhzvevtabjetsqz.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ─── PROGRESS ───────────────────────────────────────────────────────────────
-function setStep(n, progress) {
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let gaugeChart = null;
+let objChart   = null;
+let availableDates   = [];
+let currentDateIndex = 0;
+let igDates    = [];
+let igDateIndex = 0;
+let currentPage = 'termometro';
+
+// ── LOADING PROGRESS ──────────────────────────────────────────────────────────
+function setStep(n, pct) {
   for (let i = 1; i <= 4; i++) {
     const el = document.getElementById(`step${i}`);
-    if (i < n) { el.className = 'lstep done'; }
-    else if (i === n) { el.className = 'lstep active'; }
-    else { el.className = 'lstep'; }
+    if (!el) continue;
+    el.className = i < n ? 'lstep done' : i === n ? 'lstep active' : 'lstep';
   }
-  document.getElementById('loadingBar').style.width = progress + '%';
+  const bar = document.getElementById('loadingBar');
+  if (bar) bar.style.width = pct + '%';
 }
 
-// ─── DATE HELPERS ────────────────────────────────────────────────────────────
+// ── DATE HELPERS ──────────────────────────────────────────────────────────────
 async function loadAvailableDates() {
-  const { data } = await sb
-    .from('relatorios')
-    .select('data_referencia')
-    .order('data_referencia', { ascending: false });
+  const { data } = await sb.from('relatorios').select('data_referencia').order('data_referencia', { ascending: false });
   availableDates = (data || []).map(r => r.data_referencia).filter(Boolean);
 }
 
 async function loadReportByDate(dateStr) {
-  const { data: rows, error } = await sb
-    .from('relatorios')
-    .select('*')
-    .eq('data_referencia', dateStr)
-    .limit(1);
+  const { data: rows, error } = await sb.from('relatorios').select('*').eq('data_referencia', dateStr).limit(1);
   if (error || !rows || rows.length === 0) return null;
   return rows[0];
 }
 
-async function navigateDate(direction) {
-  const newIndex = currentDateIndex + direction;
-  if (newIndex < 0 || newIndex >= availableDates.length) return;
-  currentDateIndex = newIndex;
+async function navigateDate(dir) {
+  const newIdx = currentDateIndex + dir;
+  if (newIdx < 0 || newIdx >= availableDates.length) return;
+  currentDateIndex = newIdx;
   const report = await loadReportByDate(availableDates[currentDateIndex]);
   if (report) renderDashboard(report.payload);
 }
 
-// ─── MAIN FLOW ───────────────────────────────────────────────────────────────
-async function loadLatestReport() {
-  document.getElementById('uploadScreen').style.display = 'none';
-  document.getElementById('loadingScreen').style.display = 'flex';
-  document.getElementById('dashboard').style.display = 'none';
-
-  try {
-    setStep(1, 20);
-    document.getElementById('loadingSub').textContent = 'Conectando ao banco de dados...';
-
-    await loadAvailableDates();
-
-    setStep(2, 50);
-    document.getElementById('loadingSub').textContent = 'Buscando análise mais recente...';
-
-    if (availableDates.length === 0) {
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('uploadScreen').style.display = 'flex';
-      return;
-    }
-
-    currentDateIndex = 0;
-    const report = await loadReportByDate(availableDates[0]);
-
-    if (!report) {
-      document.getElementById('loadingScreen').style.display = 'none';
-      document.getElementById('uploadScreen').style.display = 'flex';
-      return;
-    }
-
-    setStep(3, 80);
-    document.getElementById('loadingSub').textContent = 'Processando dados...';
-    await delay(300);
-
-    setStep(4, 100);
-    document.getElementById('loadingSub').textContent = 'Montando painel...';
-    renderDashboard(report.payload);
-
-  } catch (err) {
-    document.getElementById('loadingScreen').style.display = 'none';
-    document.getElementById('uploadScreen').style.display = 'flex';
-    console.error('Erro ao carregar relatório:', err.message);
-  }
-}
-
-// ─── SUPABASE REALTIME ───────────────────────────────────────────────────────
-function initRealtime() {
-  try {
-    sb.channel('relatorios-live')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'relatorios' },
-        async (payload) => {
-          if (payload.new && payload.new.payload) {
-            await loadAvailableDates();
-            currentDateIndex = 0;
-            renderDashboard(payload.new.payload);
-          }
-        }
-      )
-      .subscribe();
-  } catch (e) {
-    console.warn('Realtime não disponível:', e.message);
-  }
-}
-
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// ─── DATE LABEL HELPERS ──────────────────────────────────────────────────────
 function getDateLabel() {
-  const dateStr = availableDates[currentDateIndex];
-  if (!dateStr) return '';
-  const [y, mo, d] = dateStr.split('-');
+  const ds = availableDates[currentDateIndex];
+  if (!ds) return '—';
+  const [y, mo, d] = ds.split('-');
   return `${d}/${mo}/${y}`;
 }
 
 function getRelativeLabel() {
-  const dateStr = availableDates[currentDateIndex];
-  if (!dateStr) return '';
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const ref = new Date(dateStr + 'T12:00:00');
-  ref.setHours(0, 0, 0, 0);
-  const diff = Math.round((today - ref) / (1000 * 60 * 60 * 24));
+  const ds = availableDates[currentDateIndex];
+  if (!ds) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const ref = new Date(ds + 'T12:00:00'); ref.setHours(0,0,0,0);
+  const diff = Math.round((today - ref) / 86400000);
   if (diff === 0) return 'hoje';
   if (diff === 1) return 'ontem';
   if (diff === 2) return 'anteontem';
   return `${diff} dias atrás`;
 }
 
-// ─── DELTA CARD ───────────────────────────────────────────────────────────────
-function buildDeltaCard(delta) {
-  if (!delta) return '';
+// ── MAIN FLOW ─────────────────────────────────────────────────────────────────
+async function loadLatestReport() {
+  document.getElementById('loadingScreen').style.display = 'flex';
+  document.getElementById('dashPage').style.display = 'none';
 
-  const hasScore = delta.score_delta !== null && delta.score_delta !== undefined;
-  const isUp = hasScore && delta.score_delta > 0;
-  const isDown = hasScore && delta.score_delta < 0;
+  setStep(1, 15);
+  await new Promise(r => setTimeout(r, 200));
 
-  const scoreColor = isUp ? 'var(--green)' : isDown ? 'var(--red)' : 'var(--muted)';
-  const scorePrefix = isUp ? '+' : '';
-  const scoreVal = hasScore ? `${scorePrefix}${delta.score_delta}` : '—';
+  setStep(2, 40);
+  await loadAvailableDates();
 
-  const upSVG = `<svg viewBox="0 0 12 12" fill="none"><path d="M6 9V3M3 6l3-3 3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const downSVG = `<svg viewBox="0 0 12 12" fill="none"><path d="M6 3v6M3 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-  const flatSVG = `<svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
-  const arrowSVG = isUp ? upSVG : isDown ? downSVG : flatSVG;
-  const iconBg = isUp ? '#EAFBF0' : isDown ? '#FEF0F0' : 'var(--s2)';
-
-  const tendMap = {
-    'acelerando': { label: 'Acelerando', cls: 'tag-up' },
-    'estavel': { label: 'Estável', cls: 'tag-neu' },
-    'arrefecendo': { label: 'Arrefecendo', cls: 'tag-dn' }
-  };
-  const tend = tendMap[delta.tendencia] || { label: delta.tendencia || 'Estável', cls: 'tag-neu' };
-
-  const novos = (delta.novos_alertas || []);
-  const encerrados = (delta.temas_encerrados || []);
-  const hasLists = novos.length > 0 || encerrados.length > 0;
-
-  const novosHTML = novos.length > 0 ? `
-    <div class="delta-list-col">
-      <div class="delta-list-ttl" style="color:var(--red)">+ Novos</div>
-      <ul>${novos.map(a => `<li style="color:var(--red)">${a}</li>`).join('')}</ul>
-    </div>` : '';
-
-  const encerradosHTML = encerrados.length > 0 ? `
-    <div class="delta-list-col">
-      <div class="delta-list-ttl" style="color:var(--muted)">− Encerrados</div>
-      <ul>${encerrados.map(t => `<li>${t}</li>`).join('')}</ul>
-    </div>` : '';
-
-  return `<div class="delta-card">
-    <div class="delta-score">
-      <div class="delta-icon" style="background:${iconBg};color:${scoreColor}">${arrowSVG}</div>
-      <div>
-        <div class="delta-num" style="color:${scoreColor}">${scoreVal}</div>
-        <div class="delta-pts">pts score</div>
-      </div>
-    </div>
-    <div class="delta-divider"></div>
-    <div class="delta-body">
-      <div class="delta-lbl">O que mudou hoje <span class="${tend.cls}">${tend.label}</span></div>
-      <div class="delta-resumo">${delta.resumo || ''}</div>
-    </div>
-    ${hasLists ? `<div class="delta-divider"></div><div class="delta-lists">${novosHTML}${encerradosHTML}</div>` : ''}
-  </div>`;
-}
-
-// ─── BRIEFING EXECUTIVO ───────────────────────────────────────────────────────
-function buildBriefingHTML(briefing) {
-  if (!briefing || briefing.length === 0) return '';
-
-  const prioMap = {
-    'critica': { badge: 'bb-critica', card: 'bc-critica', label: 'Crítica' },
-    'alta':    { badge: 'bb-alta',    card: 'bc-alta',    label: 'Alta' },
-    'media':   { badge: 'bb-media',   card: 'bc-media',   label: 'Moderada' }
-  };
-
-  const arrowSVG = `<svg viewBox="0 0 10 10" fill="none"><path d="M2 5h6M5 2l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-
-  const cards = briefing.slice(0, 3).map((b, i) => {
-    const prio = prioMap[b.prioridade] || prioMap['media'];
-    return `<div class="briefing-card ${prio.card}" style="animation-delay:${0.05 + i*0.06}s">
-      <div class="briefing-top">
-        <span class="briefing-badge ${prio.badge}">${prio.label}</span>
-      </div>
-      <div class="briefing-title">${b.titulo}</div>
-      ${b.contexto ? `<div class="briefing-blk">
-        <div class="briefing-blk-lbl">Contexto</div>
-        <div class="briefing-blk-txt">${b.contexto}</div>
-      </div>` : ''}
-      ${b.implicacao ? `<div class="briefing-blk">
-        <div class="briefing-blk-lbl">Implicação para a Fotus</div>
-        <div class="briefing-blk-txt">${b.implicacao}</div>
-      </div>` : ''}
-      ${b.acao ? `<div class="briefing-acao">
-        <div class="briefing-acao-icon">${arrowSVG}</div>
-        <div class="briefing-acao-txt">${b.acao}</div>
-      </div>` : ''}
+  if (availableDates.length === 0) {
+    document.getElementById('loadingScreen').style.display = 'none';
+    document.getElementById('dashPage').style.display = 'block';
+    document.getElementById('dashPage').innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--hint);text-align:center">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/></svg>
+      <div style="font-size:15px;font-weight:600;color:var(--text)">Nenhum relatório encontrado</div>
+      <div style="font-size:12px">O workflow diário roda às 06:00 BRT. Tente novamente mais tarde.</div>
     </div>`;
-  }).join('');
-
-  return `<div class="briefing-section">
-    <div class="briefing-hdr">
-      <div class="briefing-hdr-ttl">Briefing executivo · leitura em 60 segundos</div>
-    </div>
-    <div class="briefing-grid">${cards}</div>
-  </div>`;
-}
-
-// ─── RADAR PORTFÓLIO ──────────────────────────────────────────────────────────
-function buildRadarPortfolioHTML(radar) {
-  if (!radar || radar.length === 0) {
-    return `<div style="padding:12px;background:var(--s2);border-radius:var(--r-ctrl);font-size:11px;color:var(--hint);text-align:center">Nenhuma marca do portfólio Fotus mencionada hoje.</div>`;
+    return;
   }
 
-  const sentMap = { positivo:'st-pos', negativo:'st-neg', neutro:'st-neu', misto:'st-mix' };
-  const sentLabel = { positivo:'Positivo', negativo:'Negativo', neutro:'Neutro', misto:'Misto' };
-  const catLabel = { inversor_string:'String', inversor_hibrido:'Híbrido', microinversor:'Micro', modulo:'Módulo', bateria:'Bateria' };
+  setStep(3, 70);
+  const report = await loadReportByDate(availableDates[0]);
 
-  return `<div class="radar-list">` + radar.map(r => {
-    const sc = sentMap[r.sentimento] || 'st-neu';
-    const sl = sentLabel[r.sentimento] || r.sentimento || '';
-    const cl = catLabel[r.categoria] || r.categoria || '';
-    return `<div class="radar-item">
-      <div class="radar-body">
-        <div class="radar-head">
-          <span class="radar-name">${r.marca}</span>
-          ${r.exclusivo ? `<span class="btag t-fotus">Exclusivo</span>` : `<span class="btag t-fotus">Fotus</span>`}
-          ${cl ? `<span class="cstate">${cl}</span>` : ''}
-          <span class="btag ${sc}">${sl}</span>
-        </div>
-        ${r.contexto ? `<div class="radar-ctx">${r.contexto}</div>` : ''}
-        ${r.alerta && r.alerta_descricao ? `<div class="radar-alerta">⚠ ${r.alerta_descricao}</div>` : ''}
-      </div>
-      <div class="radar-stat">
-        <div class="radar-n">${r.mencoes}</div>
-        <div class="radar-n-lbl">menções</div>
-      </div>
-    </div>`;
-  }).join('') + `</div>`;
-}
+  setStep(4, 90);
+  await new Promise(r => setTimeout(r, 150));
 
-// ─── LACUNAS DE PORTFÓLIO ─────────────────────────────────────────────────────
-function buildLacunasHTML(lacunas) {
-  if (!lacunas || lacunas.length === 0) {
-    return `<div style="padding:12px;background:var(--s2);border-radius:var(--r-ctrl);font-size:11px;color:var(--hint);text-align:center">Nenhuma marca fora do portfólio com demanda relevante hoje.</div>`;
-  }
-
-  const demMap = { alta:'dem-alta', media:'dem-media', baixa:'dem-baixa' };
-  const demLabel = { alta:'Demanda Alta', media:'Demanda Média', baixa:'Demanda Baixa' };
-  const catLabel = { inversor_string:'String', inversor_hibrido:'Híbrido', microinversor:'Micro', modulo:'Módulo', bateria:'Bateria' };
-
-  return `<div class="lacuna-list">` + lacunas.map(l => {
-    const dc = demMap[l.demanda] || 'dem-baixa';
-    const dl = demLabel[l.demanda] || l.demanda || '';
-    const cl = catLabel[l.categoria] || l.categoria || '';
-    return `<div class="lacuna-item">
-      <div class="lacuna-body">
-        <div class="lacuna-head">
-          <span class="lacuna-name">${l.marca}</span>
-          <span class="btag t-warn">${dl}</span>
-          ${cl ? `<span class="cstate">${cl}</span>` : ''}
-        </div>
-        ${l.contexto ? `<div class="lacuna-ctx">${l.contexto}</div>` : ''}
-        ${l.implicacao ? `<div class="lacuna-impl">${l.implicacao}</div>` : ''}
-      </div>
-      <div class="lacuna-stat">
-        <div class="lacuna-n">${l.mencoes}</div>
-        <div class="lacuna-n-lbl">menções</div>
-      </div>
-    </div>`;
-  }).join('') + `</div>`;
-}
-
-// ─── CONCORRENTES DISTRIBUIDORES ──────────────────────────────────────────────
-function buildDistribuidoresHTML(distribuidores) {
-  if (!distribuidores || distribuidores.length === 0) {
-    return `<div style="padding:12px;background:var(--s2);border-radius:var(--r-ctrl);font-size:11px;color:var(--hint);text-align:center">Nenhuma distribuidora concorrente mencionada hoje.</div>`;
-  }
-
-  const sentDistMap = { positivo:'sent-pos-dist', negativo:'sent-neg-dist', neutro:'sent-neu-dist' };
-  const sentDistLabel = { positivo:'Positivo', negativo:'Negativo', neutro:'Neutro' };
-
-  return `<div class="dist-list">` + distribuidores.map(d => {
-    const tierClass = d.tier === 1 ? 'dt-1' : d.tier === 2 ? 'dt-2' : 'dt-3';
-    const sc = sentDistMap[d.sentimento] || 'sent-neu-dist';
-    const sl = sentDistLabel[d.sentimento] || d.sentimento || '';
-    const regioesHTML = (d.regioes || []).map(r => `<span class="cstate">${r}</span>`).join('');
-    return `<div class="dist-item">
-      <div class="dist-tier-badge ${tierClass}">T${d.tier || '?'}</div>
-      <div class="dist-body">
-        <div class="dist-name">
-          ${d.nome}
-          ${sl ? `<span class="btag ${sc}">${sl}</span>` : ''}
-          ${regioesHTML}
-        </div>
-        ${d.contexto ? `<div class="dist-ctx">${d.contexto}</div>` : ''}
-        ${d.alerta && d.contexto ? `<div class="dist-alerta">⚠ ${d.contexto}</div>` : ''}
-      </div>
-      <div class="dist-stat">
-        <div class="dist-n">${d.mencoes}</div>
-        <div class="dist-n-lbl">menções</div>
-      </div>
-    </div>`;
-  }).join('') + `</div>`;
-}
-
-// ─── RENDER ──────────────────────────────────────────────────────────────────
-function renderDashboard(d) {
-  const m = d.meta;
-
-  // Update sidebar
-  document.getElementById('sbDate').textContent = m.data;
-  document.getElementById('sbStatus').textContent = m.status_aquecimento;
-
-  // Build HTML
-  const html = buildDashboardHTML(d);
-  const dash = document.getElementById('dashboard');
-  dash.innerHTML = html;
-
-  // Show dashboard
   document.getElementById('loadingScreen').style.display = 'none';
-  dash.style.display = 'block';
+  document.getElementById('dashPage').style.display = 'block';
 
-  // Animate after render
-  requestAnimationFrame(() => {
-    setTimeout(() => {
-      animateDashboard(d);
-    }, 100);
-  });
+  if (report) {
+    renderDashboard(report.payload);
+    updateTopbarStatus(report);
+  }
+}
+
+function updateTopbarStatus(report) {
+  const meta = report?.payload?.meta || report?.meta || {};
+  const ts = report?.created_at ? new Date(report.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+  document.getElementById('topbarStatus').textContent = ts ? `Atualizado ${ts}` : 'Dados carregados';
+  document.getElementById('drawerDate').textContent = getDateLabel();
+  document.getElementById('drawerStatus').textContent = 'Ao vivo';
+}
+
+// ── RENDER DASHBOARD ──────────────────────────────────────────────────────────
+function renderDashboard(d) {
+  if (!d) return;
+  const page = document.getElementById('dashPage');
+  page.innerHTML = buildDashboardHTML(d);
+  animateDashboard(d);
+  document.getElementById('drawerDate').textContent = getDateLabel();
 }
 
 function buildDashboardHTML(d) {
-  const m = d.meta;
-  const score = m.score_aquecimento;
+  const m = d.meta || {};
+  const score = m.score_aquecimento || 0;
+  const hasNewSchema = !!d.briefing_executivo;
+  const hasPrev = currentDateIndex < availableDates.length - 1;
+  const hasNext = currentDateIndex > 0;
+
+  // Score color
+  const scoreColor = score >= 70 ? 'var(--red)' : score >= 45 ? 'var(--amber)' : score >= 25 ? 'var(--blue)' : 'var(--muted)';
+  const scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 45 ? 'MORNO' : score >= 25 ? 'ESFRIADO' : 'BAIXO';
 
   // KPIs
-  const kpiColors = { score: 'var(--yellow)', mensagens: 'var(--blue)', grupos: 'var(--green)', concorrentes: 'var(--red)' };
-  const kpiKeys = ['score', 'mensagens', 'grupos', 'concorrentes'];
-  const kpiLabels = { score: 'Score de aquecimento', mensagens: 'Mensagens analisadas', grupos: 'Grupos monitorados', concorrentes: 'Concorrentes detectados' };
-
-  const kpisHTML = kpiKeys.map((k, i) => {
-    const kpi = d.kpis[k];
-    const tagClass = kpi.tag_tipo === 'up' ? 'tag-up' : kpi.tag_tipo === 'dn' ? 'tag-dn' : 'tag-neu';
-    const suffix = k === 'score' ? `<span style="font-size:13px;font-weight:300;color:var(--hint)">/100</span>` : '';
-    return `<div class="kpi" style="animation-delay:${0.04 + i*0.04}s">
-      <div class="kpi-accent" style="background:${kpiColors[k]}"></div>
-      <div class="kpi-lbl">${kpiLabels[k]}</div>
-      <div class="kpi-val" style="color:${kpiColors[k]}">${kpi.valor}${suffix}</div>
-      <div class="kpi-sub"><span class="${tagClass}">${kpi.tag}</span> ${kpi.sub}</div>
+  const kpis = d.kpis || {};
+  const kpisHTML = ['score','mensagens','grupos','concorrentes'].map(k => {
+    const kpi = kpis[k] || {};
+    const tagCls = kpi.tag_tipo === 'up' ? 'tag-up' : kpi.tag_tipo === 'dn' ? 'tag-dn' : 'tag-neu';
+    const accentColor = k === 'score' ? scoreColor : k === 'concorrentes' ? 'var(--red)' : 'var(--blue)';
+    return `<div class="kpi">
+      <div class="kpi-accent" style="background:${accentColor}"></div>
+      <div class="kpi-lbl">${k.charAt(0).toUpperCase() + k.slice(1)}</div>
+      <div class="kpi-val" style="color:${k === 'score' ? scoreColor : 'var(--text)'}">${kpi.valor ?? (k === 'score' ? score : '—')}</div>
+      <div class="kpi-sub">${kpi.sub || ''} ${kpi.tag ? `<span class="${tagCls}">${kpi.tag}</span>` : ''}</div>
     </div>`;
   }).join('');
 
-  // Mentions Fotus
-  const mentionsHTML = d.mencoes_fotus && d.mencoes_fotus.length > 0
-    ? d.mencoes_fotus.map(mn => {
-        const tagColor = mn.tipo === 'Positivo' ? 'background:rgba(18,181,74,.18);color:#5EE699' : mn.tipo === 'Negativo' ? 'background:rgba(226,75,74,.18);color:#F09595' : 'background:rgba(255,255,255,.1);color:rgba(255,255,255,.5)';
-        const checkIcon = mn.tipo === 'Positivo'
-          ? `<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4l2 2 3-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`
-          : mn.tipo === 'Negativo' ? `<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 2l4 4M6 2l-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>` : '';
-        return `<div class="mention-item">
-          <div class="mention-tag" style="${tagColor}">${checkIcon} ${mn.tipo} · ${mn.categoria}</div>
-          <div class="mention-txt">${mn.texto}</div>
-          <div class="mention-group">📍 ${mn.grupo}</div>
-        </div>`;
-      }).join('')
-    : `<div class="mention-empty">Sem menções diretas à Fotus nesta extração.</div>`;
-
   // States
-  const statesHTML = (d.estados||[]).sort((a,b)=>b.contagem-a.contagem).map(s =>
-    `<div class="state-pill">${s.uf} <span class="state-count">${s.contagem}</span></div>`
-  ).join('');
+  const statesHTML = (d.estados||[]).map(s => `<span class="state-pill">${s.uf}<span class="state-count">${s.contagem}</span></span>`).join('');
+
+  // Mentions
+  const mentionsHTML = (() => {
+    const items = d.mencoes_fotus || [];
+    if (!items.length) return `<div class="mention-empty">Nenhuma menção à Fotus detectada hoje.</div>`;
+    return items.slice(0,3).map(m2 => {
+      const tagCls = m2.tipo === 'Positivo' ? 'mtag-pos' : m2.tipo === 'Negativo' ? 'mtag-neg' : 'mtag-neu';
+      return `<div class="mention-item">
+        <span class="mention-tag ${tagCls}">${m2.tipo} · ${m2.categoria||''}</span>
+        <div class="mention-txt">${m2.texto}</div>
+        <div class="mention-group">${m2.grupo||''}</div>
+      </div>`;
+    }).join('');
+  })();
 
   // Matrix
   const matrixHTML = (d.matriz_sinais||[]).map((mx, i) => `
     <div class="mitem">
-      <div class="mitem-head">
-        <span class="mitem-lbl">${mx.dimensao}</span>
-        <span class="mitem-score ${mx.score_classe}">${mx.score}</span>
-      </div>
+      <div class="mitem-head"><span class="mitem-lbl">${mx.dimensao}</span><span class="mitem-score ${mx.score_classe}">${mx.score}</span></div>
       <div class="mitem-bar"><div class="mitem-fill" id="mx${i}" style="width:0%;background:${mx.cor}"></div></div>
       <div class="mitem-desc">${mx.desc}</div>
     </div>`).join('');
@@ -1049,360 +735,320 @@ function buildDashboardHTML(d) {
     `<svg viewBox="0 0 14 14" fill="none"><path d="M7 2.5v4l2.5 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.3"/></svg>`,
   ];
   const objecoesHTML = (d.objecoes||[]).map((o, i) => {
-    const prioClass = o.prioridade === 'Alta' ? 'ph' : o.prioridade === 'Média' ? 'pm' : o.prioridade === 'Oport.' ? 'pl' : 'pl';
-    const icon = iconsSVG[i % iconsSVG.length];
+    const prioClass = o.prioridade === 'Alta' ? 'ph' : o.prioridade === 'Média' ? 'pm' : 'pl';
     return `<div class="pitem">
-      <div class="pico" style="background:${o.icon_cor};color:${o.icon_stroke}">${icon}</div>
-      <div class="pbody">
-        <div class="pttl">${o.titulo}</div>
-        <div class="pdesc">${o.descricao}</div>
-      </div>
-      <span class="pbadge ${prioClass}">${o.prioridade}${o.badge_extra ? ' · ' + o.badge_extra : ''}</span>
+      <div class="pico" style="background:${o.icon_cor};color:${o.icon_stroke}">${iconsSVG[i%iconsSVG.length]}</div>
+      <div class="pbody"><div class="pttl">${o.titulo}</div><div class="pdesc">${o.descricao}</div></div>
+      <span class="pbadge ${prioClass}">${o.prioridade}${o.badge_extra?' · '+o.badge_extra:''}</span>
     </div>`;
   }).join('');
 
   // Tags exec
   const tagsHTML = (d.tags_exec||[]).map(t => `<span class="etag ${t.tipo}">${t.texto}</span>`).join('');
 
-  const dateLabel = getDateLabel();
-  const relLabel = getRelativeLabel();
-  const hasPrev = currentDateIndex < availableDates.length - 1;
-  const hasNext = currentDateIndex > 0;
-
-  // Decide which sections to render based on data available
-  const hasNewSchema = !!d.briefing_executivo;
-  const hasRadarPortfolio = d.radar_portfolio && d.radar_portfolio.length > 0;
-  const hasLacunas = d.lacunas_portfolio && d.lacunas_portfolio.length > 0;
-  const hasDistribuidores = d.concorrentes_distribuidores && d.concorrentes_distribuidores.length > 0;
-
-  // Legacy brands fallback
-  const topBrands = (d.marcas||[]).slice(0,6);
-  const maxBrandMencoes = Math.max(...topBrands.map(b => b.mencoes), 1);
-  const brandColorsMap = { 'Concorr.': 'var(--red)', 'Saindo': 'var(--amber)', 'Lacuna': 'var(--amber)', 'Neutro': 'var(--muted)', 'Software': 'var(--blue)', 'Fotus': 'var(--green)', 'Exclusivo': 'var(--green)', 'Parceiro': 'var(--green)' };
-  const legacyBrandsHTML = topBrands.map((b, i) => {
-    const cor = b.cor || brandColorsMap[b.tipo] || 'var(--muted)';
-    const tagClass = b.tipo === 'Concorr.' || b.tipo === 'Saindo' ? 't-comp' : b.tipo === 'Fotus' || b.tipo === 'Exclusivo' ? 't-fotus' : b.tipo === 'Lacuna' ? 't-warn' : 't-neu';
-    return `<div class="brow">
+  // Legacy brands
+  const topBrands = (d.marcas||[]).slice(0,8);
+  const maxM = Math.max(...topBrands.map(b=>b.mencoes), 1);
+  const brandMap = {'Concorr.':'t-comp','Saindo':'t-comp','Lacuna':'t-warn','Neutro':'t-neu','Software':'t-neu','Fotus':'t-fotus','Exclusivo':'t-fotus','Parceiro':'t-fotus'};
+  const brandColorMap = {'Concorr.':'var(--red)','Saindo':'var(--amber)','Lacuna':'var(--amber)','Neutro':'var(--muted)','Software':'var(--blue)','Fotus':'var(--green)','Exclusivo':'var(--green)'};
+  const legacyBrandsHTML = topBrands.map((b,i)=>`
+    <div class="brow">
       <span class="bname">${b.nome}</span>
-      <div class="btrack"><div class="bfill" id="brand${i}" style="width:0%;background:${cor}"></div></div>
+      <div class="btrack"><div class="bfill" id="brand${i}" style="width:0%;background:${b.cor||brandColorMap[b.tipo]||'var(--muted)'}"></div></div>
       <span class="bcnt">${b.mencoes}</span>
-      <span class="btag ${tagClass}">${b.tipo}</span>
-    </div>`;
-  }).join('');
-
-  // Legacy competitors fallback
-  const legacyCompetitorsHTML = (d.concorrentes||[]).map((c, i) => {
-    const badgeHTML = c.badge_texto ? `<span class="ibadge" style="background:${c.badge_cor};color:${c.badge_txt_cor}">${c.badge_texto}</span>` : '';
-    const statesStr = (c.estados||[]).map(s => `<span class="cstate">${s}</span>`).join('');
-    return `<div class="citem">
-      <div class="crank">${String(i+1).padStart(2,'0')}</div>
-      <div class="cbody">
-        <div class="cname">${c.nome} ${badgeHTML}</div>
-        <div class="cdesc">${c.descricao}</div>
-        <div class="ctags">${statesStr}</div>
-      </div>
-    </div>`;
-  }).join('');
+      <span class="btag ${brandMap[b.tipo]||'t-neu'}">${b.tipo}</span>
+    </div>`).join('');
 
   return `
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <div>
-      <h1>Termômetro de Mercado</h1>
-      <p>Dia ${m.data} · ${m.grupos} grupos · ${m.mensagens} mensagens · ${m.modelo||'Claude'}</p>
+  <!-- DATE BAR -->
+  <div class="date-bar">
+    <div class="date-bar-left">
+      <div class="date-bar-h1">Termômetro de Mercado</div>
+      <div class="date-bar-sub">Dia ${m.data||'—'} · ${m.grupos||0} grupos · ${m.mensagens||0} mensagens · ${m.modelo||'Claude'}</div>
     </div>
-    <div class="topbar-r">
+    <div style="display:flex;align-items:center;gap:8px">
       <div class="date-nav">
-        <button class="date-nav-btn" onclick="navigateDate(1)" ${!hasPrev ? 'disabled' : ''} title="Dia anterior">
+        <button class="date-nav-btn" onclick="navigateDate(1)" ${!hasPrev?'disabled':''} title="Dia anterior">
           <svg viewBox="0 0 12 12" fill="none"><path d="M7.5 2l-4 4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
         <div class="date-nav-center">
-          <div class="date-nav-lbl">${dateLabel}</div>
-          <div class="date-nav-rel">${relLabel}</div>
+          <div class="date-nav-lbl">${getDateLabel()}</div>
+          <div class="date-nav-rel">${getRelativeLabel()}</div>
         </div>
-        <button class="date-nav-btn" onclick="navigateDate(-1)" ${!hasNext ? 'disabled' : ''} title="Próximo dia">
+        <button class="date-nav-btn" onclick="navigateDate(-1)" ${!hasNext?'disabled':''} title="Próximo dia">
           <svg viewBox="0 0 12 12" fill="none"><path d="M4.5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
         </button>
       </div>
       <div class="heat-pill">
-        <div class="heat-dot" style="background:${m.status_cor}"></div>
-        ${m.status_aquecimento}
+        <div class="heat-dot" style="background:${m.status_cor||scoreColor}"></div>
+        ${m.status_aquecimento||scoreLabel}
       </div>
     </div>
   </div>
 
-  ${hasNewSchema
-    ? /* ── NOVO SCHEMA: briefing como hero ──── */ `
-      ${buildBriefingHTML(d.briefing_executivo)}
+  ${hasNewSchema ? `
+  <!-- ZONA 1: O QUÊ ─ KPIs -->
+  <div class="section-label">O quê · Temperatura do dia</div>
+  <div class="kpi-grid">${kpisHTML}</div>
 
-      <!-- KPIs -->
-      <div class="g4">${kpisHTML}</div>
+  <!-- ZONA 2: POR QUÊ ─ Briefing -->
+  <div class="section-label">Por quê · Insights críticos</div>
+  <div class="briefing-grid">${buildBriefingHTML(d.briefing_executivo)}</div>
 
-      <!-- DELTA -->
-      ${buildDeltaCard(d.delta)}
+  <!-- Delta -->
+  ${buildDeltaCard(d.delta)}
 
-      <!-- GAUGE + RADAR PORTFÓLIO + MENÇÕES -->
-      <div class="g21">
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="g2" style="margin-bottom:0">
+  <!-- ZONA 3: COMO AGIR ─ Portfólio / Lacunas / Concorrentes -->
+  <div class="section-label">Como agir · Inteligência de portfólio</div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-ttl">Radar do portfólio Fotus</div>
+      ${buildRadarPortfolioHTML(d.radar_portfolio)}
+    </div>
+    <div class="card">
+      <div class="card-ttl">Lacunas · oportunidades</div>
+      ${buildLacunasHTML(d.lacunas_portfolio)}
+      ${d.insight_estrategico?`<div class="insight-box"><div class="insight-lbl">Oportunidade</div><div class="insight-txt">${d.insight_estrategico}</div></div>`:''}
+    </div>
+    <div class="card">
+      <div class="card-ttl">Distribuidoras concorrentes</div>
+      ${buildDistribuidoresHTML(d.concorrentes_distribuidores)}
+      ${d.risco_principal?`<div class="risk-box"><div class="risk-lbl">Risco</div><div class="risk-txt">${d.risco_principal}</div></div>`:''}
+    </div>
+  </div>
 
-            <!-- Gauge -->
-            <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
-              <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
-              <div class="gauge-wrap">
-                <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
-                  <canvas id="gaugeC" width="148" height="148"></canvas>
-                  <div class="gauge-center">
-                    <div class="gauge-num" id="gaugeNum">${score}</div>
-                    <div class="gauge-den">/100</div>
-                  </div>
-                </div>
-                <div class="gauge-label">${m.status_aquecimento.toLowerCase()}</div>
-                <div class="gauge-bar" style="width:170px">
-                  <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
-                  <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,#3B82F6 0%,#FFC20E 55%,#E24B4A 100%)"></div></div>
-                </div>
+  <!-- ZONA 4: DADOS COMPLEMENTARES -->
+  <div class="section-label">Dados complementares</div>
+  <div class="g21">
+    <div style="display:flex;flex-direction:column;gap:12px">
+
+      <!-- Gauge + Marcas -->
+      <div class="g2" style="margin-bottom:0">
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
+          <div class="gauge-wrap">
+            <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
+              <canvas id="gaugeC" width="148" height="148"></canvas>
+              <div class="gauge-center">
+                <div class="gauge-num" id="gaugeNum" style="color:${scoreColor}">${score}</div>
+                <div class="gauge-den">/100</div>
               </div>
-              ${statesHTML ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);width:100%">
-                <div class="card-ttl" style="margin-bottom:7px">Por estado</div>
-                <div class="states-grid">${statesHTML}</div>
-              </div>` : ''}
             </div>
-
-            <!-- Radar Portfólio -->
-            <div class="card">
-              <div class="card-ttl">Radar do portfólio Fotus</div>
-              ${buildRadarPortfolioHTML(d.radar_portfolio)}
+            <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
+            <div class="gauge-bar" style="width:170px">
+              <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
+              <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,var(--blue) 0%,var(--amber) 55%,var(--red) 100%)"></div></div>
             </div>
           </div>
-
-          <!-- Matriz -->
-          <div class="card">
-            <div class="card-ttl">Matriz de sinais estratégicos</div>
-            <div class="matrix-wrap">${matrixHTML}</div>
-          </div>
-        </div>
-
-        <!-- Menções Fotus -->
-        <div class="mention-card">
-          <div class="card-ttl">Menções sobre a Fotus</div>
-          ${mentionsHTML}
-          ${d.oportunidade_fotus ? `<div class="opp-box">
-            <div class="opp-lbl">Oportunidade identificada</div>
-            <div class="opp-txt">${d.oportunidade_fotus}</div>
-          </div>` : ''}
-        </div>
-      </div>
-
-      <!-- CONCORRENTES DISTRIBUIDORES + LACUNAS -->
-      <div class="g2">
-        <div class="card">
-          <div class="card-ttl">Inteligência competitiva · distribuidoras</div>
-          ${buildDistribuidoresHTML(d.concorrentes_distribuidores)}
-          ${d.risco_principal ? `<div class="risk-box" style="margin-top:12px">
-            <div class="risk-lbl">Risco identificado</div>
-            <div class="risk-txt">${d.risco_principal}</div>
-          </div>` : ''}
+          ${statesHTML?`<div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);width:100%">
+            <div class="card-ttl" style="margin-bottom:7px">Por estado</div>
+            <div class="states-grid">${statesHTML}</div>
+          </div>`:''}
         </div>
 
         <div class="card">
-          <div class="card-ttl">Lacunas de portfólio · oportunidades</div>
-          ${buildLacunasHTML(d.lacunas_portfolio)}
-          ${d.insight_estrategico ? `<div class="insight-box" style="margin-top:12px">
-            <div class="insight-lbl">Oportunidade estratégica</div>
-            <div class="insight-txt">${d.insight_estrategico}</div>
-          </div>` : ''}
+          <div class="card-ttl">Matriz de sinais</div>
+          <div class="matrix-wrap">${matrixHTML}</div>
         </div>
       </div>
 
-      <!-- OBJEÇÕES + TAGS -->
-      <div class="g2">
+      <!-- Objeções -->
+      <div class="g2" style="margin-bottom:0">
         <div class="card">
           <div class="card-ttl">Objeções e dores recorrentes</div>
           <div class="pain-list">${objecoesHTML}</div>
-          ${d.chart_objecoes && d.chart_objecoes.labels && d.chart_objecoes.labels.length > 0 ? `
+          ${d.chart_objecoes?.labels?.length?`
           <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-            <div class="card-ttl" style="margin-bottom:8px">Frequência por tipo</div>
-            <div style="position:relative;height:88px"><canvas id="objChart"></canvas></div>
-          </div>` : ''}
+            <div class="card-ttl" style="margin-bottom:8px">Frequência</div>
+            <div style="position:relative;height:90px"><canvas id="objChart"></canvas></div>
+          </div>`:''}
         </div>
 
-        <div class="exec" style="margin-bottom:0;border-radius:var(--r-card)">
-          <div class="exec-lbl" style="margin-bottom:10px">Síntese do dia · ${m.data}</div>
-          <div class="exec-txt">${d.tese_executiva || ''}</div>
-          ${tagsHTML ? `<div class="exec-tags" style="margin-top:14px">${tagsHTML}</div>` : ''}
-        </div>
-      </div>`
-
-    : /* ── LEGADO: schema antigo ──── */ `
-      <!-- KPIs -->
-      <div class="g4">${kpisHTML}</div>
-
-      <!-- DELTA -->
-      ${buildDeltaCard(d.delta)}
-
-      <!-- EXEC -->
-      <div class="exec">
-        <div class="exec-grid">
-          <div>
-            <div class="exec-lbl">Tese executiva · ${m.data}</div>
-            <div class="exec-txt">${d.tese_executiva}</div>
-            <div class="exec-tags">${tagsHTML}</div>
-          </div>
-          <div class="exec-stats">
-            <div class="estat-item" style="margin-bottom:6px"><div class="estat-n">${m.mensagens}</div><div class="estat-l">Mensagens</div></div>
-            <div class="estat-item" style="margin-bottom:6px"><div class="estat-n">${m.grupos}</div><div class="estat-l">Grupos</div></div>
-            <div class="estat-item"><div class="estat-n">${d.kpis.concorrentes.valor}</div><div class="estat-l">Concorrentes</div></div>
-          </div>
+        <!-- Tese executiva -->
+        <div class="exec-card">
+          <div class="exec-lbl">Síntese do dia · ${m.data||''}</div>
+          <div class="exec-txt">${d.tese_executiva||''}</div>
+          <div class="exec-tags">${tagsHTML}</div>
         </div>
       </div>
 
-      <!-- GAUGE + BRANDS + MENTION -->
-      <div class="g21">
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div class="g2" style="margin-bottom:0">
-            <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
-              <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
-              <div class="gauge-wrap">
-                <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
-                  <canvas id="gaugeC" width="148" height="148"></canvas>
-                  <div class="gauge-center">
-                    <div class="gauge-num" id="gaugeNum">${score}</div>
-                    <div class="gauge-den">/100</div>
-                  </div>
-                </div>
-                <div class="gauge-label">${m.status_aquecimento.toLowerCase()}</div>
-                <div class="gauge-bar" style="width:170px">
-                  <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
-                  <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,#3B82F6 0%,#FFC20E 55%,#E24B4A 100%)"></div></div>
-                </div>
+      <!-- Marcas -->
+      ${topBrands.length?`<div class="card">
+        <div class="card-ttl">Todas as marcas mencionadas</div>
+        <div class="brand-list">${legacyBrandsHTML}</div>
+      </div>`:''}
+    </div>
+
+    <!-- Menções Fotus -->
+    <div class="mention-panel">
+      <div class="card-ttl">Menções sobre a Fotus</div>
+      ${mentionsHTML}
+      ${d.oportunidade_fotus?`<div class="opp-box"><div class="opp-lbl">Oportunidade identificada</div><div class="opp-txt">${d.oportunidade_fotus}</div></div>`:''}
+    </div>
+  </div>
+
+  ` : /* LEGACY SCHEMA */ `
+  <!-- KPIs simples -->
+  <div class="kpi-grid">${kpisHTML}</div>
+  <div class="g21">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="g2" style="margin-bottom:0">
+        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
+          <div class="gauge-wrap">
+            <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
+              <canvas id="gaugeC" width="148" height="148"></canvas>
+              <div class="gauge-center">
+                <div class="gauge-num" style="color:${scoreColor}">${score}</div>
+                <div class="gauge-den">/100</div>
               </div>
             </div>
-            <div class="card">
-              <div class="card-ttl">Radar de marcas citadas</div>
-              <div class="brand-list">${legacyBrandsHTML}</div>
-              ${statesHTML ? `<div style="margin-top:12px;padding-top:11px;border-top:1px solid var(--border)">
-                <div class="card-ttl" style="margin-bottom:7px">Presença por estado</div>
-                <div class="states-grid">${statesHTML}</div>
-              </div>` : ''}
-            </div>
-          </div>
-          <div class="card">
-            <div class="card-ttl">Matriz de sinais estratégicos</div>
-            <div class="matrix-wrap">${matrixHTML}</div>
+            <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
           </div>
         </div>
-        <div class="mention-card">
-          <div class="card-ttl">Menções sobre a Fotus</div>
-          ${mentionsHTML}
-          ${d.oportunidade_fotus ? `<div class="opp-box">
-            <div class="opp-lbl">Oportunidade identificada</div>
-            <div class="opp-txt">${d.oportunidade_fotus}</div>
-          </div>` : ''}
-        </div>
+        <div class="card"><div class="card-ttl">Marcas mencionadas</div><div class="brand-list">${legacyBrandsHTML}</div></div>
       </div>
+      <div class="card"><div class="card-ttl">Matriz de sinais</div><div class="matrix-wrap">${matrixHTML}</div></div>
+      <div class="card"><div class="card-ttl">Objeções recorrentes</div><div class="pain-list">${objecoesHTML}</div></div>
+    </div>
+    <div class="mention-panel">
+      <div class="card-ttl">Menções sobre a Fotus</div>
+      ${mentionsHTML}
+      ${d.oportunidade_fotus?`<div class="opp-box"><div class="opp-lbl">Oportunidade</div><div class="opp-txt">${d.oportunidade_fotus}</div></div>`:''}
+    </div>
+  </div>
+  `}`;
+}
 
-      <div class="g2">
-        <div class="card">
-          <div class="card-ttl">Concorrentes mencionados</div>
-          <div class="comp-list">${legacyCompetitorsHTML}</div>
-          ${d.risco_principal ? `<div class="risk-box">
-            <div class="risk-lbl">Risco identificado</div>
-            <div class="risk-txt">${d.risco_principal}</div>
-          </div>` : ''}
-        </div>
-        <div class="card">
-          <div class="card-ttl">Objeções e dores recorrentes</div>
-          <div class="pain-list">${objecoesHTML}</div>
-          ${d.chart_objecoes && d.chart_objecoes.labels && d.chart_objecoes.labels.length > 0 ? `
-          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-            <div class="card-ttl" style="margin-bottom:8px">Frequência de dores por tipo</div>
-            <div style="position:relative;height:88px"><canvas id="objChart"></canvas></div>
-          </div>` : ''}
-          ${d.insight_estrategico ? `<div class="insight-box">
-            <div class="insight-lbl">Oportunidade estratégica</div>
-            <div class="insight-txt">${d.insight_estrategico}</div>
-          </div>` : ''}
-        </div>
-      </div>`
-  }
+// ── BUILDERS ──────────────────────────────────────────────────────────────────
+function buildBriefingHTML(items) {
+  if (!items || !items.length) return '<div style="color:var(--hint);font-size:12px">Nenhum briefing disponível.</div>';
+  return items.map((b, i) => {
+    const prio = (b.prioridade||'media').toLowerCase();
+    const badgeCls = prio === 'critica' ? 'badge-critica' : prio === 'alta' ? 'badge-alta' : 'badge-media';
+    const badgeLabel = prio === 'critica' ? 'Crítico' : prio === 'alta' ? 'Alta' : 'Média';
+    return `<div class="briefing-card prio-${prio}" style="animation-delay:${.05+i*.05}s">
+      <div class="briefing-top">
+        <div class="briefing-titulo">${b.titulo||''}</div>
+        <span class="briefing-badge ${badgeCls}">${badgeLabel}</span>
+      </div>
+      <div class="briefing-contexto">${b.contexto||''}</div>
+      <div class="briefing-implicacao">${b.implicacao||''}</div>
+      <div class="briefing-acao">
+        <svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        ${b.acao||''}
+      </div>
+    </div>`;
+  }).join('');
+}
 
-  <!-- FOOTER -->
-  <div class="page-foot">
-    <span class="foot-txt">termômetro do mercado solar · fotus distribuidora solar · ${m.data} · whatsapp-market-intel v2</span>
-    <button class="btn-primary" onclick="window.print()">
-      <svg viewBox="0 0 16 16" fill="none"><path d="M8 1v10M4 7l4 4 4-4" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-      Exportar PDF
-    </button>
+function buildDeltaCard(delta) {
+  if (!delta || !delta.resumo) return '';
+  const tend = delta.tendencia || 'estavel';
+  const tendLabel = tend === 'acelerando' ? '↑ Acelerando' : tend === 'arrefecendo' ? '↓ Arrefecendo' : '→ Estável';
+  const tendColor = tend === 'acelerando' ? 'var(--amber)' : tend === 'arrefecendo' ? 'var(--blue)' : 'var(--muted)';
+  const deltaVal = delta.score_delta != null ? (delta.score_delta > 0 ? `+${delta.score_delta}` : `${delta.score_delta}`) : '—';
+  const deltaCls = delta.score_delta > 0 ? 'tag-up' : delta.score_delta < 0 ? 'tag-dn' : 'tag-neu';
+  return `<div class="delta-card">
+    <span class="delta-badge ${deltaCls}">${deltaVal} pts</span>
+    <div class="delta-text">${delta.resumo}</div>
+    <span class="delta-tend" style="color:${tendColor}">${tendLabel}</span>
   </div>`;
 }
 
+function buildRadarPortfolioHTML(items) {
+  if (!items || !items.length) return '<div style="color:var(--hint);font-size:12px;padding:8px 0">Nenhuma marca do portfólio detectada.</div>';
+  const sentimColor = s => s === 'positivo' ? 'var(--green)' : s === 'negativo' ? 'var(--red)' : s === 'misto' ? 'var(--amber)' : 'var(--hint)';
+  const catMap = { 'inversor_string':'Inv. String', 'inversor_hibrido':'Inv. Híbrido', 'microinversor':'Microinv.', 'modulo':'Módulo', 'bateria':'Bateria' };
+  return `<div class="radar-list">${items.map(item => `
+    <div class="radar-item${item.alerta?' has-alert':''}">
+      <div class="radar-dot" style="background:${sentimColor(item.sentimento)}"></div>
+      <div style="flex:1;min-width:0">
+        <div class="radar-name">${item.marca}</div>
+        <div class="radar-cat">${catMap[item.categoria]||item.categoria||''} ${item.exclusivo?'· Exclusivo':''}</div>
+      </div>
+      <div class="radar-cnt">${item.mencoes}</div>
+      ${item.alerta?`<div class="radar-alert-icon" title="${item.alerta_descricao||'Alerta'}"><svg viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"/><line x1="6" y1="4" x2="6" y2="6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6" cy="8.2" r=".5" fill="currentColor"/></svg></div>`:''}
+    </div>`).join('')}</div>`;
+}
+
+function buildLacunasHTML(items) {
+  if (!items || !items.length) return '<div style="color:var(--hint);font-size:12px;padding:8px 0">Nenhuma lacuna identificada.</div>';
+  const demCls = d => d === 'alta' ? 'dem-alta' : d === 'media' ? 'dem-media' : 'dem-baixa';
+  return `<div class="lacuna-list">${items.map(item => `
+    <div class="lacuna-item">
+      <div class="lacuna-dot"></div>
+      <div class="lacuna-body">
+        <div class="lacuna-name">${item.marca}</div>
+        <div class="lacuna-ctx">${item.contexto||''}</div>
+      </div>
+      <span class="lacuna-badge ${demCls(item.demanda)}">${item.demanda||'—'}</span>
+    </div>`).join('')}</div>`;
+}
+
+function buildDistribuidoresHTML(items) {
+  if (!items || !items.length) return '<div style="color:var(--hint);font-size:12px;padding:8px 0">Nenhuma distribuidora concorrente detectada.</div>';
+  return `<div class="distrib-list">${items.map(item => {
+    const regs = (item.regioes||[]).map(r=>`<span class="distrib-region">${r}</span>`).join('');
+    return `<div class="distrib-item">
+      <div class="distrib-tier"><span class="tier-badge tier-${item.tier}">${item.tier}</span></div>
+      <div class="distrib-body">
+        <div class="distrib-name">${item.nome} ${item.alerta?'<span class="alert-dot"></span>':''}</div>
+        <div class="distrib-ctx">${item.contexto||''}</div>
+        ${regs?`<div class="distrib-tags">${regs}</div>`:''}
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ── ANIMATE CHARTS ────────────────────────────────────────────────────────────
 function animateDashboard(d) {
-  const score = d.meta.score_aquecimento;
-
-  // Destroy old charts if they exist
+  const score = d.meta?.score_aquecimento || 0;
   if (gaugeChart) { gaugeChart.destroy(); gaugeChart = null; }
-  if (objChart) { objChart.destroy(); objChart = null; }
+  if (objChart)   { objChart.destroy();   objChart = null; }
 
-  // Gauge
   const gaugeCanvas = document.getElementById('gaugeC');
   if (gaugeCanvas) {
-    const gaugeColor = score < 35 ? '#3B82F6' : score < 65 ? '#FFC20E' : '#E24B4A';
+    const gc = score >= 70 ? '#EF4444' : score >= 45 ? '#F59E0B' : score >= 25 ? '#3B82F6' : '#5C6478';
     gaugeChart = new Chart(gaugeCanvas.getContext('2d'), {
       type: 'doughnut',
-      data: { datasets: [{ data: [score, 100-score], backgroundColor: [gaugeColor, '#EEF0F3'], borderWidth: 0, circumference: 240, rotation: -120 }] },
+      data: { datasets: [{ data: [score, 100-score], backgroundColor: [gc, 'rgba(255,255,255,.06)'], borderWidth: 0, circumference: 240, rotation: -120 }] },
       options: { responsive: false, cutout: '74%', plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: { duration: 1100, easing: 'easeOutQuart' } }
     });
   }
 
-  // Animate gauge bar
   setTimeout(() => {
     const gfill = document.getElementById('gfill');
     if (gfill) gfill.style.width = score + '%';
+    (d.matriz_sinais||[]).forEach((mx, i) => {
+      const el = document.getElementById(`mx${i}`);
+      if (el) { el.style.width = mx.intensidade + '%'; el.style.background = mx.cor; }
+    });
   }, 350);
 
-  // Animate brand bars (legacy schema)
   if (!d.briefing_executivo) {
     const brands = d.marcas || [];
-    const maxM = Math.max(...brands.map(b => b.mencoes), 1);
+    const maxBM = Math.max(...brands.map(b=>b.mencoes), 1);
     setTimeout(() => {
-      brands.slice(0, 6).forEach((b, i) => {
+      brands.slice(0,8).forEach((b,i) => {
         const el = document.getElementById(`brand${i}`);
-        if (el) el.style.width = Math.round((b.mencoes / maxM) * 100) + '%';
+        if (el) el.style.width = Math.round((b.mencoes/maxBM)*100) + '%';
       });
     }, 450);
   }
 
-  // Animate matrix bars
-  setTimeout(() => {
-    (d.matriz_sinais || []).forEach((mx, i) => {
-      const el = document.getElementById(`mx${i}`);
-      if (el) { el.style.width = mx.intensidade + '%'; el.style.background = mx.cor; }
-    });
-  }, 500);
-
-  // Objection chart
   const oc = d.chart_objecoes;
   const objCanvas = document.getElementById('objChart');
-  if (oc && objCanvas && oc.labels && oc.labels.length > 0) {
+  if (oc && objCanvas && oc.labels?.length) {
     objChart = new Chart(objCanvas.getContext('2d'), {
       type: 'bar',
-      data: {
-        labels: oc.labels,
-        datasets: [{ data: oc.valores, backgroundColor: oc.cores || oc.valores.map(() => 'rgba(226,75,74,.8)'), borderRadius: 3, borderSkipped: false }]
-      },
+      data: { labels: oc.labels, datasets: [{ data: oc.valores, backgroundColor: oc.cores || oc.valores.map(()=>'rgba(239,68,68,.7)'), borderRadius: 3, borderSkipped: false }] },
       options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: {
-            callbacks: { label: c => `${c.parsed.y} ocorrências` },
-            backgroundColor: 'rgba(11,37,89,.9)', titleColor: 'rgba(255,255,255,.6)', bodyColor: '#fff', padding: 8, cornerRadius: 6
-          }
-        },
+        responsive: true, maintainAspectRatio: false, indexAxis: 'y',
+        plugins: { legend:{display:false}, tooltip:{backgroundColor:'rgba(22,27,39,.95)',titleColor:'rgba(255,255,255,.6)',bodyColor:'#fff',padding:8,cornerRadius:6} },
         scales: {
-          x: { ticks: { font: { size: 9.5, family: 'IBM Plex Mono' }, color: '#A0A8B4' }, grid: { display: false }, border: { display: false } },
-          y: { ticks: { font: { size: 9.5, family: 'IBM Plex Mono' }, color: '#A0A8B4', stepSize: 2 }, grid: { color: 'rgba(0,0,0,0.03)' }, border: { display: false } }
+          x: { ticks:{font:{size:10,family:'IBM Plex Mono'},color:'#5C6478'}, grid:{color:'rgba(255,255,255,.04)'}, border:{display:false} },
+          y: { ticks:{font:{size:10,family:'IBM Plex Mono'},color:'#8B95A6'}, grid:{display:false}, border:{display:false} }
         },
         animation: { duration: 800, easing: 'easeOutQuart' }
       }
@@ -1410,21 +1056,292 @@ function animateDashboard(d) {
   }
 }
 
-function resetToUpload() {
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('dashboard').innerHTML = '';
-  document.getElementById('uploadScreen').style.display = 'flex';
-  document.getElementById('sbDate').textContent = '—';
-  document.getElementById('sbStatus').textContent = 'Aguardando extração';
-  if (gaugeChart) { gaugeChart.destroy(); gaugeChart = null; }
-  if (objChart) { objChart.destroy(); objChart = null; }
+// ── PAGE SWITCHING ────────────────────────────────────────────────────────────
+function showPage(name, el) {
+  currentPage = name;
+  ['dashPage','igPage'].forEach(id => {
+    const node = document.getElementById(id);
+    if (node) node.style.display = 'none';
+  });
+  document.querySelectorAll('.topbar-nav-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.drawer-item').forEach(b => b.classList.remove('on'));
+
+  if (name === 'termometro') {
+    document.getElementById('dashPage').style.display = 'block';
+    document.getElementById('navTermometro').classList.add('on');
+    document.getElementById('drawerTermometro').classList.add('on');
+  } else if (name === 'instagram') {
+    document.getElementById('igPage').style.display = 'block';
+    document.getElementById('navInstagram').classList.add('on');
+    document.getElementById('drawerInstagram').classList.add('on');
+    loadIgPage();
+  }
 }
 
-// ─── INIT ────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  loadLatestReport();
-  initRealtime();
+// ── DRAWER ────────────────────────────────────────────────────────────────────
+function toggleDrawer() {
+  const d = document.getElementById('drawer');
+  const o = document.getElementById('drawerOverlay');
+  d.classList.toggle('open');
+  o.classList.toggle('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeSubscribeModal(); } });
+
+// ── NEWSLETTER SUBSCRIPTION ───────────────────────────────────────────────────
+function openSubscribeModal() {
+  document.getElementById('subscribeModal').classList.add('open');
+  document.getElementById('subscribeEmail').focus();
+}
+function closeSubscribeModal() {
+  document.getElementById('subscribeModal').classList.remove('open');
+  document.getElementById('subscribeError').textContent = '';
+}
+
+async function submitSubscription() {
+  const emailEl = document.getElementById('subscribeEmail');
+  const errorEl = document.getElementById('subscribeError');
+  const btn     = document.getElementById('subscribeBtn');
+  const email   = emailEl.value.trim().toLowerCase();
+
+  errorEl.textContent = '';
+  if (!email) { errorEl.textContent = 'Digite seu email corporativo.'; return; }
+  if (!email.endsWith('@fotus.com.br')) {
+    errorEl.textContent = 'Use seu email corporativo @fotus.com.br';
+    emailEl.focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Inscrevendo...';
+
+  const { error } = await sb.from('newsletter_subscribers').upsert({ email }, { onConflict: 'email' });
+
+  if (error && error.code !== '23505') {
+    errorEl.textContent = 'Erro ao inscrever. Tente novamente.';
+    btn.disabled = false;
+    btn.textContent = 'Quero receber';
+    return;
+  }
+
+  document.getElementById('modalForm').style.display = 'none';
+  document.getElementById('modalSuccess').style.display = 'block';
+  setTimeout(closeSubscribeModal, 4000);
+}
+
+// Close modal clicking outside
+document.getElementById('subscribeModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSubscribeModal();
 });
+
+// ── INSTAGRAM DATA LAYER ──────────────────────────────────────────────────────
+async function loadIgDates() {
+  const { data } = await sb.from('ig_relatorios').select('data_referencia').order('data_referencia', { ascending: false });
+  const seen = new Set();
+  igDates = (data||[]).map(r=>r.data_referencia).filter(d => d && !seen.has(d) && seen.add(d));
+}
+
+async function loadIgByDate(dateStr) {
+  const { data, error } = await sb.from('ig_relatorios').select('competitor_handle,data_referencia,payload,posts_analisados,comentarios_analisados').eq('data_referencia', dateStr);
+  if (error || !data) return [];
+  return data.sort((a,b) => ((b.payload?.atividade?.score_ameaca)||0) - ((a.payload?.atividade?.score_ameaca)||0));
+}
+
+async function loadIgPage() {
+  const page = document.getElementById('igPage');
+  page.innerHTML = `<div class="ig-empty">
+    <div class="loading-orb" style="margin:0 auto 16px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="20" rx="6" stroke-linecap="round"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg></div>
+    Carregando análise Instagram...
+  </div>`;
+
+  await loadIgDates();
+  if (igDates.length === 0) {
+    page.innerHTML = `<div class="ig-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" style="width:32px;height:32px;margin:0 auto 12px;display:block;color:var(--hint)"><rect x="2" y="2" width="20" height="20" rx="6"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1.2" fill="currentColor" stroke="none"/></svg>
+      <div style="font-weight:500;color:var(--text);margin-bottom:6px">Sem análises Instagram ainda</div>
+      <div>O workflow roda todo dia às 08:00 UTC.</div>
+    </div>`;
+    return;
+  }
+  igDateIndex = 0;
+  await renderIgPage();
+}
+
+async function igNavigateDate(dir) {
+  const newIdx = igDateIndex + dir;
+  if (newIdx < 0 || newIdx >= igDates.length) return;
+  igDateIndex = newIdx;
+  await renderIgPage();
+}
+
+async function renderIgPage() {
+  const page = document.getElementById('igPage');
+  const dateStr = igDates[igDateIndex];
+  const rows = await loadIgByDate(dateStr);
+  page.innerHTML = buildIgPageHTML(rows, dateStr);
+  setTimeout(() => {
+    document.querySelectorAll('.ig-score-fill[data-score]').forEach(el => { el.style.width = el.dataset.score + '%'; });
+  }, 80);
+}
+
+function igGetDateLabel() {
+  const ds = igDates[igDateIndex]; if (!ds) return '';
+  const [y,mo,d] = ds.split('-'); return `${d}/${mo}/${y}`;
+}
+function igGetRelativeLabel() {
+  const ds = igDates[igDateIndex]; if (!ds) return '';
+  const today = new Date(); today.setHours(0,0,0,0);
+  const ref = new Date(ds+'T12:00:00'); ref.setHours(0,0,0,0);
+  const diff = Math.round((today-ref)/86400000);
+  return diff === 0 ? 'hoje' : diff === 1 ? 'ontem' : diff === 2 ? 'anteontem' : `${diff} dias atrás`;
+}
+
+function buildIgPageHTML(rows, dateStr) {
+  const totalPosts = rows.reduce((s,r)=>s+(r.posts_analisados||0),0);
+  const totalComents = rows.reduce((s,r)=>s+(r.comentarios_analisados||0),0);
+  const canPrev = igDateIndex < igDates.length - 1;
+  const canNext = igDateIndex > 0;
+  const cardsHTML = rows.length === 0
+    ? `<div class="ig-empty">Nenhum concorrente analisado nesta data.</div>`
+    : rows.map((r,i) => buildIgCardHTML(r,i)).join('');
+  return `
+    <div class="date-bar">
+      <div class="date-bar-left">
+        <div class="date-bar-h1">Instagram · Concorrentes</div>
+        <div class="date-bar-sub">${rows.length} concorrentes · ${totalPosts} posts · ${totalComents} comentários</div>
+      </div>
+      <div class="date-nav">
+        <button class="date-nav-btn" onclick="igNavigateDate(1)" ${!canPrev?'disabled':''}>
+          <svg viewBox="0 0 12 12" fill="none"><path d="M7.5 2l-4 4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="date-nav-center">
+          <div class="date-nav-lbl">${igGetDateLabel()}</div>
+          <div class="date-nav-rel">${igGetRelativeLabel()}</div>
+        </div>
+        <button class="date-nav-btn" onclick="igNavigateDate(-1)" ${!canNext?'disabled':''}>
+          <svg viewBox="0 0 12 12" fill="none"><path d="M4.5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+    ${cardsHTML}`;
+}
+
+function buildIgCardHTML(row, idx) {
+  const p = row.payload || {};
+  const ativ = p.atividade || {};
+  const conc = p.concorrente || {};
+  const comm = p.estrategia_comunicacao || {};
+  const voz  = p.voz_do_mercado || {};
+  const alertas = p.alertas || [];
+  const postsDestaque = p.posts_destaque || [];
+  const prods = comm.produtos_em_destaque || p.produtos_em_destaque || [];
+  const tags  = p.tags || [];
+
+  const handle = conc.handle || row.competitor_handle || '—';
+  const nome   = conc.nome || handle;
+  const tier   = conc.tier || 3;
+  const score  = ativ.score_ameaca || 0;
+  const posts  = row.posts_analisados || ativ.posts_analisados || 0;
+  const coments = row.comentarios_analisados || 0;
+  const engaj  = ativ.engajamento_medio_por_post || 0;
+  const sentim = voz.sentimento_geral || '—';
+  const briefing = p.briefing || '';
+  const scoreCls = score >= 70 ? 'ig-score-high' : score >= 40 ? 'ig-score-mid' : 'ig-score-low';
+  const scoreColor = score >= 70 ? 'var(--red)' : score >= 40 ? 'var(--amber)' : 'var(--green)';
+  const tierLabel = `TIER ${tier}`;
+
+  const tagsHTML = tags.length ? `<div class="ig-tags">${tags.map(t=>`<span class="${t.tipo==='alerta'?'ig-tag-alerta':t.tipo==='oportunidade'?'ig-tag-oportunidade':'ig-tag-neutro'}">${t.texto}</span>`).join('')}</div>` : '';
+
+  const vozPos = Array.isArray(voz.temas_positivos) ? voz.temas_positivos : [];
+  const vozNeg = Array.isArray(voz.temas_negativos) ? voz.temas_negativos : [];
+  const vozPergs = Array.isArray(voz.perguntas_recorrentes) ? voz.perguntas_recorrentes : [];
+
+  return `
+  <div class="ig-card" style="animation-delay:${idx*.06}s">
+    <div class="ig-card-header" onclick="igToggleCard(this,${idx})">
+      <div class="ig-header-row">
+        <div style="display:flex;align-items:center;gap:0">
+          <span class="ig-tier ig-tier-${tier}">${tierLabel}</span>
+          <span class="ig-handle">@${handle}</span>
+          ${nome!==handle?`<span style="font-size:12px;color:var(--muted);font-weight:300;margin-left:8px">${nome}</span>`:''}
+        </div>
+        <div style="text-align:right">
+          <div class="ig-score-display ${scoreCls}">${score}</div>
+          <div class="ig-score-lbl">score ameaça</div>
+        </div>
+      </div>
+      <div class="ig-score-bar"><div class="ig-score-fill" data-score="${score}" style="background:${scoreColor}"></div></div>
+      <div class="ig-stats">
+        <div class="ig-stat"><strong>${posts}</strong> posts</div>
+        <div class="ig-stat"><strong>${coments}</strong> comentários</div>
+        <div class="ig-stat"><strong>${engaj}</strong> eng. médio</div>
+        <div class="ig-stat"><strong>${sentim}</strong></div>
+      </div>
+      ${tagsHTML}
+      ${briefing?`<div class="ig-briefing-line">${briefing}</div>`:''}
+      <button class="ig-expand-btn" id="igBtn_${idx}">
+        Ver análise completa
+        <svg viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="ig-card-body" id="igBody_${idx}">
+      ${briefing?`<div class="ig-opp" style="margin-top:16px;margin-bottom:0"><div class="ig-opp-lbl">Briefing do dia</div><div class="ig-opp-txt">${briefing}</div></div>`:''}
+      <div class="ig-section-ttl">Estratégia de comunicação</div>
+      <div class="ig-comm-grid">
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Foco principal</div><div class="ig-comm-val">${comm.foco_principal||'—'}</div></div>
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Tom</div><div class="ig-comm-val">${comm.tom||'—'}</div></div>
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Frequência</div><div class="ig-comm-val">${comm.frequencia||comm.frequência||'—'}</div></div>
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Formatos</div><div class="ig-comm-val">${Array.isArray(comm.formatos_dominantes)?comm.formatos_dominantes.join(', '):(comm.formatos_dominantes||'—')}</div></div>
+      </div>
+      ${prods.length?`<div class="ig-section-ttl">Produtos em destaque</div><div>${prods.map(pr=>`<div class="ig-prod-item"><div class="ig-prod-brand">${pr.marca||pr}</div><div class="ig-prod-ctx">${pr.contexto||''}</div></div>`).join('')}</div>`:''}
+      <div class="ig-section-ttl">Voz do mercado · comentários</div>
+      <div class="ig-voz-grid" style="margin-bottom:8px">
+        <div class="ig-voz-col pos">
+          <div class="ig-voz-col-lbl">Positivos</div>
+          ${vozPos.length?vozPos.map(t=>`<div class="ig-voz-item">${t}</div>`).join(''):'<div class="ig-voz-item" style="color:var(--hint)">—</div>'}
+        </div>
+        <div class="ig-voz-col neg">
+          <div class="ig-voz-col-lbl" style="color:var(--red)">Negativos</div>
+          ${vozNeg.length?vozNeg.map(t=>`<div class="ig-voz-item">${t}</div>`).join(''):'<div class="ig-voz-item" style="color:var(--hint)">—</div>'}
+        </div>
+      </div>
+      ${vozPergs.length?`<div class="ig-no-data" style="margin-top:0">💬 Perguntas: ${vozPergs.join(' · ')}</div>`:''}
+      <div class="ig-section-ttl">Alertas</div>
+      ${alertas.length===0?`<div class="ig-no-data">Nenhum alerta detectado.</div>`:alertas.map(a=>`
+        <div class="pitem" style="margin-bottom:6px">
+          <div class="pico" style="background:var(--red-dim);color:var(--red)"><svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="4.5" x2="7" y2="7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="9.5" r=".6" fill="currentColor"/></svg></div>
+          <div class="pbody"><div class="pttl">${a.tipo||'Alerta'}</div><div class="pdesc">${a.descricao||''}</div></div>
+        </div>`).join('')}
+      <div class="ig-section-ttl">Posts em destaque</div>
+      ${posts===0?`<div class="ig-no-posts">Nenhum post nas últimas 48h.</div>`:postsDestaque.length===0?`<div class="ig-no-posts">Posts coletados sem destaque identificado.</div>`:postsDestaque.slice(0,3).map(ps=>`
+        <div class="ig-post-item">
+          <div class="ig-post-caption">${ps.caption_resumo||ps.resumo_caption||ps.caption||''}</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+            <div class="ig-post-why">${ps.por_que_relevante||''}</div>
+            ${ps.curtidas?`<div class="ig-post-eng">${ps.curtidas} ❤</div>`:''}
+          </div>
+        </div>`).join('')}
+      ${p.oportunidade_fotus?`<div class="ig-opp" style="margin-top:16px"><div class="ig-opp-lbl">⚡ Oportunidade para Fotus</div><div class="ig-opp-txt">${p.oportunidade_fotus}</div></div>`:''}
+    </div>
+  </div>`;
+}
+
+function igToggleCard(header, idx) {
+  const body = document.getElementById(`igBody_${idx}`);
+  const btn  = document.getElementById(`igBtn_${idx}`);
+  if (!body) return;
+  const open = body.classList.toggle('open');
+  if (btn) {
+    btn.classList.toggle('expanded', open);
+    btn.firstChild.textContent = open ? 'Fechar análise ' : 'Ver análise completa ';
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+loadLatestReport();
 </script>
 </body>
 </html>

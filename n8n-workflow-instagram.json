@@ -1,0 +1,242 @@
+{
+  "name": "IG Competitors – Análise Diária Claude",
+  "nodes": [
+    {
+      "id": "ig-node-cron",
+      "name": "Agendamento Diário IG",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [200, 300],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      }
+    },
+
+    {
+      "id": "ig-node-set-data",
+      "name": "Set Data Referencia",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Data de referencia em horario de Brasilia (BRT = UTC-3)\nconst now = new Date();\nconst brtOffset = -3 * 60 * 60 * 1000;\nconst brt = new Date(now.getTime() + brtOffset);\nconst dataRef = brt.toISOString().split('T')[0];\n\nconsole.log('[IG] Iniciando analise do dia:', dataRef);\n\nreturn [{ json: { data_referencia: dataRef } }];"
+      }
+    },
+
+    {
+      "id": "ig-node-get-competitors",
+      "name": "Busca Concorrentes do Instagram",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [680, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, username, nome, tier FROM competitors WHERE username IS NOT NULL AND username <> '' ORDER BY tier ASC, id ASC",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": { "id": "nTAgCoTJ7cvG9pIz", "name": "Postgres account" }
+      }
+    },
+
+    {
+      "id": "ig-node-check-competitors",
+      "name": "Tem Concorrentes?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [920, 300],
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": false, "typeValidation": "loose" },
+          "conditions": [
+            {
+              "id": "check-count",
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0,
+              "operator": { "type": "number", "operation": "gt" }
+            }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+
+    {
+      "id": "ig-node-no-competitors",
+      "name": "Sem Concorrentes Cadastrados",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [1160, 480],
+      "parameters": {
+        "content": "⚠️ Nenhum concorrente encontrado na tabela `competitors`.\n\nVerifique se a coluna `username` está preenchida com os handles do Instagram.\n\nExemplo: belenergy, fortlevsolar, soollar"
+      }
+    },
+
+    {
+      "id": "ig-node-loop-competitors",
+      "name": "Loop Concorrentes",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [1160, 300],
+      "parameters": {
+        "batchSize": 1,
+        "options": { "reset": false }
+      }
+    },
+
+    {
+      "id": "ig-node-build-payload",
+      "name": "Monta Payload do Concorrente",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1400, 220],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const competitor = $input.first().json;\nconst dataRef = $('Set Data Referencia').first().json.data_referencia;\n\nif (!competitor.username) {\n  throw new Error('Concorrente sem username: ' + JSON.stringify(competitor));\n}\n\nconsole.log('[IG] Processando:', competitor.username, '|', competitor.name);\n\nreturn [{\n  json: {\n    competitor: {\n      handle: competitor.username,\n      nome: competitor.name || competitor.username,\n      tier: 2\n    },\n    data_referencia: dataRef\n  }\n}];"
+      }
+    },
+
+    {
+      "id": "ig-node-call-edge",
+      "name": "Chama Edge Function analyze-instagram",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1640, 220],
+      "parameters": {
+        "method": "POST",
+        "url": "https://wttmlnhzvevtabjetsqz.supabase.co/functions/v1/analyze-instagram",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 240000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      }
+    },
+
+    {
+      "id": "ig-node-log-result",
+      "name": "Log Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1880, 220],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const result = $input.first().json;\nconst handle = result.competitor || 'desconhecido';\n\nif (result.ok) {\n  console.log('[IG] ✅ Concluido:', handle, '| Posts:', result.posts_analisados, '| Comentarios:', result.comentarios_analisados);\n} else {\n  console.error('[IG] ❌ Erro em', handle, ':', result.error || JSON.stringify(result));\n}\n\n// Retorna para o loop continuar\nreturn [{ json: { ...result, _loop_tick: new Date().toISOString() } }];"
+      }
+    },
+
+    {
+      "id": "ig-node-done",
+      "name": "Análise Completa",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1400, 440],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const dataRef = $('Set Data Referencia').first().json.data_referencia;\nconst total = $input.all().length;\n\nconsole.log('[IG] ✅ Análise diária concluída para', dataRef, '| Total de concorrentes processados:', total);\n\nreturn [{ json: { status: 'concluido', data_referencia: dataRef, concorrentes_processados: total, finalizadoEm: new Date().toISOString() } }];"
+      }
+    },
+
+    {
+      "id": "ig-node-error",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [200, 520],
+      "parameters": {}
+    },
+
+    {
+      "id": "ig-node-error-log",
+      "name": "Notifica Erro",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [440, 520],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const error = $input.first().json;\nconsole.error('[IG] ERRO NO WORKFLOW:', JSON.stringify(error, null, 2));\n// Aqui você pode adicionar notificação por WhatsApp ou email\nreturn [{ json: { erro_registrado: true, detalhe: error } }];"
+      }
+    },
+
+    {
+      "id": "ig-note-main",
+      "name": "Como Funciona",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 80],
+      "parameters": {
+        "content": "## 📸 IG Competitors — Análise Diária Claude\n\n**Executa:** Todo dia às 08:00 UTC (05:00 BRT)\n\n**Fluxo:**\n1. Busca todos os concorrentes da tabela `competitors`\n2. Para cada um: chama a Edge Function `analyze-instagram`\n3. A Edge Function:\n   - Busca 50 posts recentes via ScrapeCreators\n   - Busca 50 comentários por post (em paralelo)\n   - Salva em `ig_posts` e `ig_comments` (Supabase)\n   - Analisa com Claude claude-sonnet-4-5\n   - Salva análise em `ig_relatorios` (Supabase)\n\n**Segredos necessários no Supabase:**\n- `ANTHROPIC_API_KEY` ✅ (já existe)\n- `SCRAPECREATORS_API_KEY` ← **adicionar**\n\n**Coluna necessária na tabela `competitors`:**\n- `username` TEXT — handle do Instagram (ex: belenergy)",
+        "height": 380,
+        "width": 520,
+        "color": 2
+      }
+    }
+  ],
+
+  "connections": {
+    "Agendamento Diário IG": {
+      "main": [[{ "node": "Set Data Referencia", "type": "main", "index": 0 }]]
+    },
+    "Set Data Referencia": {
+      "main": [[{ "node": "Busca Concorrentes do Instagram", "type": "main", "index": 0 }]]
+    },
+    "Busca Concorrentes do Instagram": {
+      "main": [[{ "node": "Tem Concorrentes?", "type": "main", "index": 0 }]]
+    },
+    "Tem Concorrentes?": {
+      "main": [
+        [{ "node": "Loop Concorrentes", "type": "main", "index": 0 }],
+        [{ "node": "Sem Concorrentes Cadastrados", "type": "main", "index": 0 }]
+      ]
+    },
+    "Loop Concorrentes": {
+      "main": [
+        [{ "node": "Análise Completa", "type": "main", "index": 0 }],
+        [{ "node": "Monta Payload do Concorrente", "type": "main", "index": 0 }]
+      ]
+    },
+    "Monta Payload do Concorrente": {
+      "main": [[{ "node": "Chama Edge Function analyze-instagram", "type": "main", "index": 0 }]]
+    },
+    "Chama Edge Function analyze-instagram": {
+      "main": [[{ "node": "Log Resultado", "type": "main", "index": 0 }]]
+    },
+    "Log Resultado": {
+      "main": [[{ "node": "Loop Concorrentes", "type": "main", "index": 0 }]]
+    },
+    "Error Trigger": {
+      "main": [[{ "node": "Notifica Erro", "type": "main", "index": 0 }]]
+    }
+  },
+
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": ""
+  },
+  "tags": ["instagram", "concorrentes", "termometro"]
+}
