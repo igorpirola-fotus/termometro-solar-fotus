@@ -259,6 +259,96 @@ Regras de preenchimento:
 - Mencoes_fotus vazias: retorne array vazio.
 - Max tokens: seja denso e preciso, nao repetitivo.`
 
+// Garante que o payload do Claude tem todos os campos obrigatórios do schema v3.
+// Campos ausentes recebem defaults seguros — o dashboard nunca vê undefined.
+function validateAndNormalizePayload(
+  raw: Record<string, unknown>,
+  dataReferencia: string,
+  totalMensagens: number
+): Record<string, unknown> {
+  const warnings: string[] = []
+
+  const ensureArray = (key: string) => {
+    if (!Array.isArray(raw[key])) {
+      warnings.push(key)
+      raw[key] = []
+    }
+  }
+
+  const ensureObject = (key: string, defaults: Record<string, unknown>) => {
+    if (!raw[key] || typeof raw[key] !== 'object' || Array.isArray(raw[key])) {
+      warnings.push(key)
+      raw[key] = defaults
+    }
+  }
+
+  const ensureString = (key: string, fallback: string) => {
+    if (typeof raw[key] !== 'string') {
+      warnings.push(key)
+      raw[key] = fallback
+    }
+  }
+
+  // meta
+  ensureObject('meta', {
+    data: dataReferencia,
+    mensagens: totalMensagens,
+    grupos: 0,
+    modelo: 'Termometro v3',
+    score_aquecimento: 0,
+    status_aquecimento: 'Volume Reduzido',
+    status_cor: '#3B82F6'
+  })
+
+  // Arrays obrigatórios
+  ensureArray('briefing_executivo')
+  ensureArray('tags_exec')
+  ensureArray('radar_portfolio')
+  ensureArray('lacunas_portfolio')
+  ensureArray('mencoes_fotus')
+  ensureArray('concorrentes_distribuidores')
+  ensureArray('concorrentes')
+  ensureArray('marcas')
+  ensureArray('estados')
+  ensureArray('objecoes')
+  ensureArray('matriz_sinais')
+
+  // kpis
+  ensureObject('kpis', {
+    score:        { valor: 0, sub: '—', tag: '—', tag_tipo: 'neu' },
+    mensagens:    { valor: totalMensagens, sub: '—', tag: '—', tag_tipo: 'neu' },
+    grupos:       { valor: 0, sub: '—', tag: '—', tag_tipo: 'neu' },
+    concorrentes: { valor: 0, sub: '—', tag: '—', tag_tipo: 'neu' }
+  })
+
+  // chart_objecoes
+  ensureObject('chart_objecoes', { labels: [], valores: [], cores: [] })
+
+  // delta
+  ensureObject('delta', {
+    score_delta: null,
+    resumo: 'Dados insuficientes para calcular delta.',
+    novos_alertas: [],
+    temas_encerrados: [],
+    tendencia: 'estavel'
+  })
+
+  // Strings
+  ensureString('tese_executiva', '<p>Análise indisponível para este período.</p>')
+  ensureString('insight_estrategico', '—')
+  ensureString('risco_principal', '—')
+  ensureString('oportunidade_fotus', '—')
+
+  // Marca schema_version para rastreabilidade
+  raw['schema_version'] = 3
+
+  if (warnings.length > 0) {
+    console.warn(`[analyze-market] schema_warnings — campos normalizados: ${warnings.join(', ')}`)
+  }
+
+  return raw
+}
+
 interface Message {
   sender_name?: string
   group_name?: string
@@ -380,12 +470,15 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: 'Claude nao retornou conteudo' }), { status: 502 })
   }
 
-  let payload: unknown
+  let payload: Record<string, unknown>
   try {
-    payload = parseClaudeJSON(rawText)
+    payload = parseClaudeJSON(rawText) as Record<string, unknown>
   } catch {
     return new Response(JSON.stringify({ error: 'JSON invalido', preview: rawText.substring(0, 200) }), { status: 502 })
   }
+
+  // Valida e normaliza schema v3 — campos faltantes recebem defaults seguros
+  payload = validateAndNormalizePayload(payload, body.data_referencia, msgs.length)
 
   const toDate = (v?: string) => { try { return v ? new Date(v).toISOString().split('T')[0] : null } catch { return null } }
 

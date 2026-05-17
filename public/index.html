@@ -470,6 +470,70 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 [data-theme="light"] ::-webkit-scrollbar-track { background: #F0F2F7; }
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: #C8D0DC; }
 
+/* ── RESPONSIVE — TABLET / MOBILE ───────────────────────────────────────── */
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: 1fr; }
+  .g2 { grid-template-columns: 1fr; }
+  .g21 { grid-template-columns: 1fr; }
+  .ig-cards-grid { grid-template-columns: 1fr; }
+  .briefing-grid { grid-template-columns: 1fr; }
+  .matrix-wrap { grid-template-columns: 1fr 1fr; }
+  .ig-comm-grid { grid-template-columns: 1fr; }
+  .ig-voz-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  /* Topbar: esconde nav e subscribe, mantém brand + menu */
+  .topbar-nav { display: none; }
+  .topbar-status { display: none; }
+  .btn-subscribe span { display: none; }
+  .btn-subscribe { padding: 7px 10px; }
+  .topbar { padding: 0 12px; }
+  .topbar-sub { display: none; }
+
+  /* Drawer vira overlay full width no mobile */
+  .drawer { width: 100%; left: -100%; }
+
+  /* Main content: reduz padding */
+  .main { padding: calc(var(--topbar-h) + 16px) 12px 32px; }
+
+  /* Date bar empilha verticalmente */
+  .date-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
+
+  /* KPIs: 2 colunas */
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .kpi-val { font-size: 24px; }
+
+  /* Score hero */
+  .score-hero { flex-direction: column; }
+  .score-hero-left { min-width: unset; }
+  .score-big { font-size: 48px; }
+
+  /* Grids viram 1 coluna */
+  .g2, .g3, .g21 { grid-template-columns: 1fr; gap: 8px; }
+
+  /* Sparkline grid inline */
+  [style*="grid-template-columns:1fr 160px"] {
+    grid-template-columns: 1fr 1fr !important;
+    grid-template-rows: auto auto;
+  }
+
+  /* Charts: altura mínima garantida */
+  .sparkline-wrap { min-height: 60px; }
+  canvas { min-height: 120px; }
+
+  /* Instagram */
+  .ig-cards-grid { grid-template-columns: 1fr; }
+  .ig-cards-grid > .ig-card:last-child:nth-child(odd) { grid-column: 1; }
+
+  /* Matrix: 1 coluna no mobile */
+  .matrix-wrap { grid-template-columns: 1fr; }
+
+  /* Briefing */
+  .briefing-grid { grid-template-columns: 1fr; }
+}
+
 /* ── THEME TOGGLE BUTTON ─────────────────────────────────────────────────── */
 .btn-theme { width: 32px; height: 32px; border-radius: var(--r-ctrl); background: var(--surface); border: 1px solid var(--border2); color: var(--muted); cursor: pointer; display: grid; place-items: center; transition: background .12s, color .12s; flex-shrink: 0; }
 .btn-theme:hover { background: var(--surface2); color: var(--text); }
@@ -567,6 +631,20 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
   </div>
 
   <div class="drawer-foot">
+    <div class="drawer-lbl" style="margin-bottom:8px">Status do Pipeline</div>
+    <div id="pipelineStatus" style="display:flex;flex-direction:column;gap:5px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px">
+        <span style="color:var(--muted)">Análise diária</span>
+        <span id="pipelineAnaliseDot" style="display:flex;align-items:center;gap:4px;color:var(--hint)">
+          <span id="pipelineAnaliseIndicator" style="width:6px;height:6px;border-radius:50%;background:var(--hint);flex-shrink:0;display:inline-block"></span>
+          <span id="pipelineAnaliseLabel">—</span>
+        </span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:11px">
+        <span style="color:var(--muted)">Último relatório</span>
+        <span id="pipelineLastReport" style="color:var(--hint);font-family:var(--mono)">—</span>
+      </div>
+    </div>
     <div class="drawer-date" id="drawerDate">—</div>
     <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--hint)">
       <div class="pulse"></div>
@@ -660,8 +738,8 @@ function toggleTheme() {
   } else {
     icon.innerHTML = '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>';
   }
-  if (currentDashboardData) setTimeout(() => animateDashboard(currentDashboardData), 80);
-  if (currentIgRows) setTimeout(() => renderIgCharts(currentIgRows), 80);
+  if (currentDashboardData) setTimeout(() => animateDashboard(currentDashboardData, true), 60);
+  if (currentIgRows) setTimeout(() => renderIgCharts(currentIgRows), 60);
 }
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
@@ -702,12 +780,45 @@ async function loadReportByDate(dateStr) {
   return rows[0];
 }
 
+let isNavigating = false;
+
 async function navigateDate(dir) {
+  if (isNavigating) return;
   const newIdx = currentDateIndex + dir;
   if (newIdx < 0 || newIdx >= availableDates.length) return;
+
+  isNavigating = true;
   currentDateIndex = newIdx;
+
+  // Feedback visual imediato: trava botões e mostra "···"
+  document.querySelectorAll('.date-nav-btn').forEach(b => b.disabled = true);
+  const navCenter = document.querySelector('.date-nav-center');
+  if (navCenter) navCenter.innerHTML = `
+    <div class="date-nav-lbl" style="color:var(--hint);letter-spacing:.2em">···</div>
+    <div class="date-nav-rel" style="color:var(--hint)">carregando</div>`;
+
+  const timeoutId = setTimeout(() => {
+    if (navCenter) navCenter.innerHTML =
+      `<div class="date-nav-lbl" style="color:var(--red)">Timeout</div>
+       <div class="date-nav-rel" style="color:var(--hint)">tente novamente</div>`;
+    document.querySelectorAll('.date-nav-btn').forEach(b => b.disabled = false);
+    isNavigating = false;
+  }, 10000);
+
   const report = await loadReportByDate(availableDates[currentDateIndex]);
-  if (report) renderDashboard(report.payload);
+  clearTimeout(timeoutId);
+  isNavigating = false;
+
+  if (report) {
+    renderDashboard(report.payload);
+  } else {
+    if (navCenter) navCenter.innerHTML =
+      `<div class="date-nav-lbl">${getDateLabel()}</div>
+       <div class="date-nav-rel" style="color:var(--hint)">sem dados</div>`;
+    document.querySelectorAll('.date-nav-btn').forEach(b => {
+      b.disabled = false;
+    });
+  }
 }
 
 function getDateLabel() {
@@ -777,16 +888,65 @@ async function loadLatestReport() {
 }
 
 function updateTopbarStatus(report) {
-  const meta = report?.payload?.meta || report?.meta || {};
   const ts = report?.created_at ? new Date(report.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
   document.getElementById('topbarStatus').textContent = ts ? `Atualizado ${ts}` : 'Dados carregados';
   document.getElementById('drawerDate').textContent = getDateLabel();
   document.getElementById('drawerStatus').textContent = 'Ao vivo';
+  updatePipelineStatus();
+}
+
+function updatePipelineStatus() {
+  if (!availableDates.length) return;
+  const latest = availableDates[0];
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const reportDate = new Date(latest + 'T12:00:00'); reportDate.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today - reportDate) / 86400000);
+
+  const indicator = document.getElementById('pipelineAnaliseIndicator');
+  const label     = document.getElementById('pipelineAnaliseLabel');
+  const lastReport = document.getElementById('pipelineLastReport');
+
+  if (!indicator || !label || !lastReport) return;
+
+  if (diffDays === 0) {
+    indicator.style.background = 'var(--green)';
+    indicator.style.animation = 'blink 2.5s infinite';
+    label.style.color = '#6EE7B7';
+    label.textContent = 'Hoje';
+  } else if (diffDays === 1) {
+    indicator.style.background = 'var(--amber)';
+    indicator.style.animation = 'none';
+    label.style.color = '#FCD34D';
+    label.textContent = 'Ontem';
+  } else {
+    indicator.style.background = 'var(--red)';
+    indicator.style.animation = 'blink 1s infinite';
+    label.style.color = '#FCA5A5';
+    label.textContent = `${diffDays}d atrás`;
+  }
+
+  const [y, mo, d] = latest.split('-');
+  lastReport.textContent = `${d}/${mo}`;
 }
 
 // ── RENDER DASHBOARD ──────────────────────────────────────────────────────────
 function renderDashboard(d) {
-  if (!d) return;
+  if (!d || typeof d !== 'object') {
+    document.getElementById('dashPage').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;
+                  min-height:60vh;gap:12px;color:var(--hint);text-align:center;padding:40px">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3">
+          <circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01" stroke-linecap="round"/>
+        </svg>
+        <div style="font-size:15px;font-weight:600;color:var(--text)">Análise em processamento</div>
+        <div style="font-size:12px;max-width:300px;line-height:1.6">
+          Os dados desta data ainda não foram processados ou o relatório está sendo gerado.<br>
+          O workflow roda às 06:00 BRT — tente novamente em alguns minutos.
+        </div>
+      </div>`;
+    document.getElementById('drawerDate').textContent = getDateLabel();
+    return;
+  }
   currentDashboardData = d;
   const page = document.getElementById('dashPage');
   page.innerHTML = buildDashboardHTML(d);
@@ -1125,7 +1285,8 @@ function buildDistribuidoresHTML(items) {
 }
 
 // ── ANIMATE CHARTS ────────────────────────────────────────────────────────────
-function animateDashboard(d) {
+// instant=true quando chamado por troca de tema — sem animação, sem flicker
+function animateDashboard(d, instant = false) {
   const score = d.meta?.score_aquecimento || 0;
   const isLight = document.documentElement.getAttribute('data-theme') === 'light';
   const tickClr  = isLight ? '#596480' : '#8B95A6';
@@ -1145,7 +1306,7 @@ function animateDashboard(d) {
     gaugeChart = new Chart(gaugeCanvas.getContext('2d'), {
       type: 'doughnut',
       data: { datasets: [{ data: [score, 100-score], backgroundColor: [gc, emptyArc], borderWidth: 0, circumference: 240, rotation: -120 }] },
-      options: { responsive: false, cutout: '74%', plugins: { legend:{display:false}, tooltip:{enabled:false} }, animation: { duration: 1100, easing: 'easeOutQuart' } }
+      options: { responsive: false, cutout: '74%', plugins: { legend:{display:false}, tooltip:{enabled:false} }, animation: { duration: instant ? 0 : 1100, easing: 'easeOutQuart' } }
     });
   }
 
@@ -1165,7 +1326,7 @@ function animateDashboard(d) {
           x:{ ticks:{font:{size:9,family:'IBM Plex Mono'},color:tickClr}, grid:{display:false}, border:{display:false} },
           y:{ display:false, min:0, max:100 }
         },
-        animation:{ duration:900, easing:'easeOutQuart' }
+        animation:{ duration: instant ? 0 : 900, easing:'easeOutQuart' }
       }
     });
   }
@@ -1188,7 +1349,7 @@ function animateDashboard(d) {
           x:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{color:gridClr}, border:{display:false} },
           y:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{display:false}, border:{display:false} }
         },
-        animation:{ duration:800, easing:'easeOutQuart' }
+        animation:{ duration: instant ? 0 : 800, easing:'easeOutQuart' }
       }
     });
   }
@@ -1207,7 +1368,7 @@ function animateDashboard(d) {
           x:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{color:gridClr}, border:{display:false} },
           y:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{display:false}, border:{display:false} }
         },
-        animation:{ duration:800, easing:'easeOutQuart' }
+        animation:{ duration: instant ? 0 : 800, easing:'easeOutQuart' }
       }
     });
   }

@@ -243,7 +243,7 @@ function parseTextSections(texto: string): Record<string, string> {
     const tagMatch = trimmed.match(/^\[(.+?)\](.*)$/)
     if (tagMatch) {
       if (currentKey) result[currentKey] = currentLines.join('\n').trim()
-      const tag = tagMatch[1].trim()
+      const tag = tagMatch[1].trim().toUpperCase()  // normaliza para maiúsculo — Claude pode variar capitalização
       currentKey = tagMap[tag] ?? tag.toLowerCase().replace(/\s+/g, '_')
       currentLines = tagMatch[2] ? [tagMatch[2].trim()] : []
     } else if (currentKey && trimmed) {
@@ -327,9 +327,8 @@ serve(async (req) => {
     if (!tipo || !['newsletter', 'briefing'].includes(tipo)) return new Response(JSON.stringify({ error: 'tipo deve ser newsletter ou briefing' }), { status: 400, headers: { ...CORS, 'Content-Type': 'application/json' } })
 
     const meta = (payload.meta as Record<string, unknown>) ?? {}
-    const kpis = (payload.kpis as Record<string, unknown>) ?? {}
-    const score = (kpis.score_aquecimento as number) ?? 0
-    const data_referencia = (meta.data_referencia as string) ?? new Date().toISOString().slice(0, 10)
+    const score = (meta.score_aquecimento as number) ?? 0
+    const data_referencia = (meta.data as string) ?? (meta.data_referencia as string) ?? new Date().toISOString().slice(0, 10)
     const dataFormatada = formatDate(data_referencia)
     const tendencia = (meta.tendencia as string) ?? ''
 

@@ -3,7 +3,6 @@ module.exports = function handler(req, res) {
   res.status(200).json({
     status: 'ok',
     anthropic_key_configured: hasKey,
-    node_version: process.version,
     timestamp: new Date().toISOString()
   });
 };

@@ -149,25 +149,37 @@ interface RequestBody {
   data_referencia: string  // "YYYY-MM-DD"
 }
 
+// Resultado tipado do fetchPosts — distingue "sem posts" de "API indisponível"
+interface FetchPostsResult {
+  posts: Post[]
+  api_error: boolean
+  error_detail?: string
+}
+
 // ============================================================
 // SCRAPECREATORS API HELPERS
 // ============================================================
 
-async function fetchPosts(handle: string, apiKey: string): Promise<Post[]> {
+async function fetchPosts(handle: string, apiKey: string): Promise<FetchPostsResult> {
   const url = `https://api.scrapecreators.com/v2/instagram/user/posts?handle=${encodeURIComponent(handle)}&amount=50`
-  const res = await fetch(url, {
-    headers: { 'x-api-key': apiKey }
-  })
+  let res: Response
+  try {
+    res = await fetch(url, { headers: { 'x-api-key': apiKey } })
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err)
+    console.error(`ScrapeCreators posts network error for ${handle}: ${detail}`)
+    return { posts: [], api_error: true, error_detail: `network_error: ${detail}` }
+  }
 
   if (!res.ok) {
-    console.error(`ScrapeCreators posts error for ${handle}: ${res.status}`)
-    return []
+    console.error(`ScrapeCreators posts error for ${handle}: HTTP ${res.status}`)
+    return { posts: [], api_error: true, error_detail: `http_${res.status}` }
   }
 
   const data = await res.json()
   const items = data.items || data.data || []
 
-  return items.map((p: Record<string, unknown>) => ({
+  const posts: Post[] = items.map((p: Record<string, unknown>) => ({
     url: (p.code as string) || (p.shortcode as string) || String(p.pk || p.id || ''),
     caption: ((p.caption as Record<string, string>)?.text) || (p.caption as string) || '',
     image_url: ((p.image_versions2 as Record<string, Array<Record<string, string>>>)?.candidates?.[0]?.url) || (p.thumbnail_url as string) || '',
@@ -176,6 +188,8 @@ async function fetchPosts(handle: string, apiKey: string): Promise<Post[]> {
     taken_at: (p.taken_at as number) || 0,
     comments: []
   }))
+
+  return { posts, api_error: false }
 }
 
 async function fetchComments(postUrl: string, apiKey: string): Promise<Comment[]> {
@@ -243,7 +257,36 @@ Deno.serve(async (req) => {
   // ----------------------------------------------------------
   // 1. Busca posts das ultimas 48h
   // ----------------------------------------------------------
-  const allPosts = await fetchPosts(competitor.handle, scraperKey)
+  const fetchResult = await fetchPosts(competitor.handle, scraperKey)
+
+  if (fetchResult.api_error) {
+    console.error(`[analyze-instagram] ScrapeCreators indisponivel para @${competitor.handle}: ${fetchResult.error_detail}`)
+    // Salva registro de erro no Supabase para visibilidade no dashboard
+    await sb.from('ig_relatorios').upsert({
+      competitor_handle: competitor.handle,
+      data_referencia,
+      payload: {
+        concorrente: { handle: competitor.handle, nome: competitor.nome || competitor.handle, tier: competitor.tier || 3, data: data_referencia },
+        api_error: true,
+        api_error_detail: fetchResult.error_detail,
+        briefing: `Coleta de dados indisponível para @${competitor.handle}. Erro: ${fetchResult.error_detail}`,
+        atividade: { posts_analisados: 0, total_curtidas: 0, total_comentarios_recebidos: 0, engajamento_medio_por_post: 0, score_ameaca: 0 },
+        alertas: [], tags: [], posts_destaque: []
+      },
+      posts_analisados: 0,
+      comentarios_analisados: 0,
+      created_at: new Date().toISOString()
+    }, { onConflict: 'competitor_handle,data_referencia' })
+
+    return new Response(JSON.stringify({
+      ok: false,
+      api_error: true,
+      competitor: competitor.handle,
+      error_detail: fetchResult.error_detail
+    }), { status: 502, headers: { 'Content-Type': 'application/json' } })
+  }
+
+  const allPosts = fetchResult.posts
   console.log(`[analyze-instagram] @${competitor.handle}: ${allPosts.length} posts encontrados`)
 
   // Filtra ultimas 48h (margem de seguranca vs 24h para nao perder posts)
