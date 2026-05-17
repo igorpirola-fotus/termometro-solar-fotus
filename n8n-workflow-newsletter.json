@@ -19,18 +19,42 @@
       }
     },
     {
-      "id": "node-pg-relatorio",
+      "id": "node-http-relatorio",
       "name": "Busca Relatório de Hoje",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [480, 300],
       "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT id, data_referencia, payload FROM public.relatorios WHERE data_referencia = CURRENT_DATE ORDER BY created_at DESC LIMIT 1",
+        "method": "GET",
+        "url": "https://wttmlnhzvevtabjetsqz.supabase.co/rest/v1/relatorios",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL" },
+            { "name": "Authorization", "value": "Bearer sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL" }
+          ]
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "select", "value": "id,data_referencia,payload" },
+            { "name": "data_referencia", "value": "=eq.{{ $now.toFormat('yyyy-MM-dd') }}" },
+            { "name": "order", "value": "created_at.desc" },
+            { "name": "limit", "value": "1" }
+          ]
+        },
         "options": {}
-      },
-      "credentials": {
-        "postgres": { "name": "Postgres account" }
+      }
+    },
+    {
+      "id": "node-code-extrai",
+      "name": "Extrai Relatório",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 300],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const raw = $input.all();\n// HTTP node pode retornar o array como um item ou items separados\nlet relatorio = null;\nif (raw.length === 1 && Array.isArray(raw[0].json)) {\n  relatorio = raw[0].json[0] || null;\n} else if (raw.length >= 1 && raw[0].json?.id) {\n  relatorio = raw[0].json;\n}\nreturn [{ json: { relatorio, found: !!(relatorio?.id) } }];"
       }
     },
     {
@@ -38,16 +62,16 @@
       "name": "Relatório Existe?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [720, 300],
+      "position": [960, 300],
       "parameters": {
         "conditions": {
-          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "strict" },
+          "options": { "caseSensitive": false, "leftValue": "", "typeValidation": "loose" },
           "conditions": [
             {
               "id": "check-exists",
-              "leftValue": "={{ $json.id }}",
-              "rightValue": "",
-              "operator": { "type": "string", "operation": "notEmpty" }
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "true" }
             }
           ],
           "combinator": "and"
@@ -55,29 +79,14 @@
       }
     },
     {
-      "id": "node-pg-inscritos",
-      "name": "Busca Inscritos",
-      "type": "n8n-nodes-base.postgres",
-      "typeVersion": 2.5,
-      "position": [960, 200],
-      "parameters": {
-        "operation": "executeQuery",
-        "query": "SELECT email FROM public.newsletter_subscribers WHERE ativo = true AND email LIKE '%@fotus.com.br'",
-        "options": {}
-      },
-      "credentials": {
-        "postgres": { "name": "Postgres account" }
-      }
-    },
-    {
       "id": "node-code-newsletter-body",
       "name": "Prepara Body Newsletter",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1200, 200],
+      "position": [1200, 180],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const relatorio = $('Busca Relatório de Hoje').first().json;\nconst inscritos = $('Busca Inscritos').all().map(i => i.json.email);\n\nreturn [{\n  json: {\n    payload: relatorio.payload,\n    tipo: 'newsletter',\n    inscritos,\n    total_inscritos: inscritos.length\n  }\n}];"
+        "jsCode": "const relatorio = $('Extrai Relatório').first().json.relatorio;\nconst inscritos = ['igor.pirola@fotus.com.br'];\n\nreturn [{\n  json: {\n    payload: relatorio.payload,\n    tipo: 'newsletter',\n    inscritos,\n    total_inscritos: inscritos.length\n  }\n}];"
       }
     },
     {
@@ -85,7 +94,7 @@
       "name": "Gera HTML Newsletter",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1440, 200],
+      "position": [1440, 180],
       "parameters": {
         "method": "POST",
         "url": "https://wttmlnhzvevtabjetsqz.supabase.co/functions/v1/generate-newsletter",
@@ -109,7 +118,7 @@
       "position": [1200, 420],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const relatorio = $('Busca Relatório de Hoje').first().json;\n\n// Destinatários hard-coded do briefing executivo\nconst briefingDestinatarios = [\n  'jose.joao@fotus.com.br',\n  'breno.ventorim@fotus.com.br',\n  'bruna.pilon@fotus.com.br',\n  'igor.pirola@fotus.com.br'\n];\n\nreturn [{\n  json: {\n    payload: relatorio.payload,\n    tipo: 'briefing',\n    destinatarios: briefingDestinatarios\n  }\n}];"
+        "jsCode": "const relatorio = $('Extrai Relatório').first().json.relatorio;\n\nconst briefingDestinatarios = ['igor.pirola@fotus.com.br'];\n\nreturn [{\n  json: {\n    payload: relatorio.payload,\n    tipo: 'briefing',\n    destinatarios: briefingDestinatarios\n  }\n}];"
       }
     },
     {
@@ -138,7 +147,7 @@
       "name": "Monta Envio Newsletter",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1680, 200],
+      "position": [1680, 180],
       "parameters": {
         "mode": "runOnceForAllItems",
         "jsCode": "const htmlResp = $('Gera HTML Newsletter').first().json;\nconst bodyPrep = $('Prepara Body Newsletter').first().json;\n\nconst dataRef = htmlResp.data_referencia ?? new Date().toISOString().slice(0, 10);\nconst d = new Date(dataRef + 'T12:00:00Z');\nconst dataFmt = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });\n\nconst kpis = htmlResp.payload?.kpis ?? {};\nconst score = kpis.score_aquecimento ?? 0;\nconst scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 50 ? 'MORNO' : 'ESFRIADO';\n\nreturn bodyPrep.inscritos.map(email => ({\n  json: {\n    to: email,\n    subject: `O Termômetro Solar · ${score}° ${scoreLabel} · ${dataFmt}`,\n    html: htmlResp.html\n  }\n}));"
@@ -147,18 +156,27 @@
     {
       "id": "node-email-newsletter",
       "name": "Envia Newsletter",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
-      "position": [1920, 200],
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1920, 180],
       "parameters": {
-        "fromEmail": "termometro@fotus.com.br",
-        "toEmail": "={{ $json.to }}",
-        "subject": "={{ $json.subject }}",
-        "html": "={{ $json.html }}",
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ from: 'Termômetro Solar <onboarding@resend.dev>', to: [$json.to], subject: $json.subject, html: $json.html }) }}",
         "options": {}
       },
       "credentials": {
-        "smtp": { "name": "SMTP Fotus" }
+        "httpHeaderAuth": { "name": "Resend API" }
       }
     },
     {
@@ -169,24 +187,33 @@
       "position": [1680, 420],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const htmlResp = $('Gera HTML Briefing').first().json;\nconst bodyPrep = $('Prepara Body Briefing').first().json;\n\nconst dataRef = htmlResp.data_referencia ?? new Date().toISOString().slice(0, 10);\nconst d = new Date(dataRef + 'T12:00:00Z');\nconst dataFmt = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });\n\nconst kpis = htmlResp.payload?.kpis ?? {};\nconst score = kpis.score_aquecimento ?? 0;\nconst tendencia = htmlResp.payload?.meta?.tendencia ?? '';\nconst scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 50 ? 'MORNO' : 'ESFRIADO';\n\nreturn bodyPrep.destinatarios.map(email => ({\n  json: {\n    to: email,\n    subject: `Fotus Mercado | ${score}° ${scoreLabel} | ${dataFmt}`,\n    html: htmlResp.html\n  }\n}));"
+        "jsCode": "const htmlResp = $('Gera HTML Briefing').first().json;\nconst bodyPrep = $('Prepara Body Briefing').first().json;\n\nconst dataRef = htmlResp.data_referencia ?? new Date().toISOString().slice(0, 10);\nconst d = new Date(dataRef + 'T12:00:00Z');\nconst dataFmt = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });\n\nconst kpis = htmlResp.payload?.kpis ?? {};\nconst score = kpis.score_aquecimento ?? 0;\nconst scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 50 ? 'MORNO' : 'ESFRIADO';\n\nreturn bodyPrep.destinatarios.map(email => ({\n  json: {\n    to: email,\n    subject: `Fotus Mercado | ${score}° ${scoreLabel} | ${dataFmt}`,\n    html: htmlResp.html\n  }\n}));"
       }
     },
     {
       "id": "node-email-briefing",
       "name": "Envia Briefing Executivo",
-      "type": "n8n-nodes-base.emailSend",
-      "typeVersion": 2.1,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [1920, 420],
       "parameters": {
-        "fromEmail": "termometro@fotus.com.br",
-        "toEmail": "={{ $json.to }}",
-        "subject": "={{ $json.subject }}",
-        "html": "={{ $json.html }}",
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ from: 'Fotus Mercado <onboarding@resend.dev>', to: [$json.to], subject: $json.subject, html: $json.html }) }}",
         "options": {}
       },
       "credentials": {
-        "smtp": { "name": "SMTP Fotus" }
+        "httpHeaderAuth": { "name": "Resend API" }
       }
     },
     {
@@ -194,7 +221,7 @@
       "name": "Sem Relatório — Para",
       "type": "n8n-nodes-base.noOp",
       "typeVersion": 1,
-      "position": [960, 480],
+      "position": [960, 500],
       "parameters": {}
     }
   ],
@@ -203,19 +230,19 @@
       "main": [[{ "node": "Busca Relatório de Hoje", "type": "main", "index": 0 }]]
     },
     "Busca Relatório de Hoje": {
+      "main": [[{ "node": "Extrai Relatório", "type": "main", "index": 0 }]]
+    },
+    "Extrai Relatório": {
       "main": [[{ "node": "Relatório Existe?", "type": "main", "index": 0 }]]
     },
     "Relatório Existe?": {
       "main": [
         [
-          { "node": "Busca Inscritos", "type": "main", "index": 0 },
+          { "node": "Prepara Body Newsletter", "type": "main", "index": 0 },
           { "node": "Prepara Body Briefing", "type": "main", "index": 0 }
         ],
         [{ "node": "Sem Relatório — Para", "type": "main", "index": 0 }]
       ]
-    },
-    "Busca Inscritos": {
-      "main": [[{ "node": "Prepara Body Newsletter", "type": "main", "index": 0 }]]
     },
     "Prepara Body Newsletter": {
       "main": [[{ "node": "Gera HTML Newsletter", "type": "main", "index": 0 }]]

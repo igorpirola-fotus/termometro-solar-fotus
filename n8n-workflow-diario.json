@@ -56,7 +56,9 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Content-Type", "value": "application/json" }
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Authorization", "value": "Bearer {{$env.SUPABASE_SERVICE_KEY}}" },
+            { "name": "apikey", "value": "{{$env.SUPABASE_SERVICE_KEY}}" }
           ]
         },
         "sendBody": true,
