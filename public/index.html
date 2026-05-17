@@ -1283,7 +1283,7 @@ async function submitSubscription() {
   btn.disabled = true;
   btn.textContent = 'Salvando...';
 
-  const { error } = await sb.from('newsletter_subscribers').insert({ email, ativo: true }, { ignoreDuplicates: true });
+  const { error } = await sb.from('newsletter_subscribers').upsert({ email, ativo: true }, { onConflict: 'email', ignoreDuplicates: true });
 
   if (error) {
     btn.disabled = false;
