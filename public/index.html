@@ -168,7 +168,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .tag-neu { background: var(--surface3);  color: var(--muted); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: var(--r-chip); font-family: var(--mono); }
 
 /* ── BRIEFING CARDS ──────────────────────────────────────────────────────── */
-.briefing-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 20px; }
+.briefing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .briefing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 18px; position: relative; overflow: hidden; animation: fadeUp .3s ease both; border-left: 3px solid var(--border2); }
 .briefing-card.prio-critica { border-left-color: var(--red); background: linear-gradient(135deg, rgba(239,68,68,.04) 0%, var(--surface) 60%); }
 .briefing-card.prio-alta    { border-left-color: var(--amber); background: linear-gradient(135deg, rgba(245,158,11,.04) 0%, var(--surface) 60%); }
@@ -339,7 +339,8 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
 /* ── INSTAGRAM PAGE ──────────────────────────────────────────────────────── */
 .ig-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 300px; color: var(--hint); font-size: 12px; text-align: center; gap: 8px; }
-.ig-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); margin-bottom: 12px; overflow: hidden; animation: fadeUp .3s ease both; }
+.ig-cards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ig-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); overflow: hidden; animation: fadeUp .3s ease both; }
 .ig-card-header { padding: 18px; cursor: pointer; }
 .ig-header-row { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
 .ig-tier { font-size: 9px; font-weight: 700; padding: 3px 7px; border-radius: var(--r-chip); text-transform: uppercase; letter-spacing: .06em; margin-right: 8px; }
@@ -920,41 +921,58 @@ function buildDashboardHTML(d) {
     </div>
   </div>
 
-  <!-- SCORE HERO + SPARKLINE -->
-  <div class="score-hero">
-    <div class="score-hero-left">
-      <div class="score-big" style="color:${scoreColor}">${score}</div>
-      <div class="score-meta">
-        <div class="score-label" style="color:${scoreColor}">${scoreLabel}</div>
-        <div class="score-den">/100 pts</div>
-        ${d.delta?.tendencia ? `<span class="score-trend">${d.delta.tendencia==='acelerando'?'↑':d.delta.tendencia==='arrefecendo'?'↓':'→'} ${d.delta.tendencia}</span>` : ''}
+  ${hasNewSchema ? `
+
+  <!-- LINHA 1: TERMÔMETRO (gauge 35%) + SÍNTESE DO DIA (65%) -->
+  <div style="display:grid;grid-template-columns:35fr 65fr;gap:12px;margin-bottom:12px;align-items:stretch">
+
+    <!-- Gauge / Termômetro -->
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+      <div class="gauge-wrap">
+        <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
+          <canvas id="gaugeC" width="148" height="148"></canvas>
+          <div class="gauge-center">
+            <div class="gauge-num" style="color:${scoreColor}">${score}</div>
+            <div class="gauge-den">/100</div>
+          </div>
+        </div>
+        <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
+        <div class="gauge-bar" style="width:170px">
+          <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
+          <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,var(--blue) 0%,var(--amber) 55%,var(--red) 100%)"></div></div>
+        </div>
       </div>
+      ${statesHTML?`<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);width:100%">
+        <div class="card-ttl" style="margin-bottom:6px">Por estado</div>
+        <div class="states-grid">${statesHTML}</div>
+      </div>`:''}
     </div>
-    <div class="score-hero-right">
-      <div class="sparkline-label">Score — últimos 7 dias</div>
-      <div class="sparkline-wrap"><canvas id="sparklineC"></canvas></div>
-    </div>
-    ${kpiExtra ? `<div style="display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;min-width:220px">${
-      [
-        { lbl:'Alertas críticos', val:alertasCount, color:alertasCount>0?'var(--red)':'var(--green)' },
-        { lbl:'Lacunas portfólio', val:lacunasCount, color:'var(--amber)' },
-        { lbl:'Distribuidoras', val:distribCount, color:'var(--blue)' },
-      ].map((k,i)=>`<div style="padding:12px 16px;${i<2?'border-bottom:1px solid var(--border)':''}">
-        <div style="font-size:10px;font-weight:600;color:var(--hint);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px">${k.lbl}</div>
-        <div style="font-family:var(--mono);font-size:22px;font-weight:600;color:${k.color};line-height:1">${k.val}</div>
-      </div>`).join('')
-    }</div>` : ''}
+
+    <!-- Síntese do dia — só o texto, sem cabeçalho -->
+    ${d.tese_executiva ? `<div class="exec-card" style="display:flex;flex-direction:column;justify-content:center">
+      <div class="exec-txt" style="font-size:14px;line-height:1.75">${d.tese_executiva}</div>
+      ${tagsHTML?`<div class="exec-tags" style="margin-top:14px">${tagsHTML}</div>`:''}
+    </div>` : '<div></div>'}
   </div>
 
-  ${hasNewSchema ? `
-  <!-- SÍNTESE DO DIA — topo, é o mais importante -->
-  ${d.tese_executiva ? `<div class="exec-card" style="margin-bottom:16px">
-    <div class="exec-lbl">Síntese do dia · ${m.data||''}</div>
-    <div class="exec-txt">${d.tese_executiva}</div>
-    <div class="exec-tags">${tagsHTML}</div>
-  </div>` : ''}
+  <!-- LINHA 2: SPARKLINE (flex) + KPIs ESTRATÉGICOS -->
+  <div style="display:grid;grid-template-columns:1fr 160px 160px 160px;gap:12px;margin-bottom:12px">
+    <div class="card" style="padding:14px 18px">
+      <div class="sparkline-label">Score — últimos 7 dias</div>
+      <div class="sparkline-wrap" style="min-height:58px"><canvas id="sparklineC"></canvas></div>
+    </div>
+    ${[
+      { lbl:'Alertas críticos', val:alertasCount, color:alertasCount>0?'var(--red)':'var(--green)' },
+      { lbl:'Lacunas portfólio', val:lacunasCount, color:'var(--amber)' },
+      { lbl:'Distribuidoras', val:distribCount, color:'var(--blue)' },
+    ].map(k=>`<div class="kpi" style="margin:0">
+      <div class="kpi-accent" style="background:${k.color}"></div>
+      <div class="kpi-lbl">${k.lbl}</div>
+      <div class="kpi-val" style="color:${k.color};font-size:28px">${k.val}</div>
+    </div>`).join('')}
+  </div>
 
-  <!-- BRIEFING EXECUTIVO -->
+  <!-- INSIGHTS CRÍTICOS -->
   <div class="section-label">Insights críticos</div>
   <div class="briefing-grid">${buildBriefingHTML(d.briefing_executivo)}</div>
   ${buildDeltaCard(d.delta)}
@@ -967,7 +985,7 @@ function buildDashboardHTML(d) {
       ${buildRadarPortfolioHTML(d.radar_portfolio)}
     </div>
     <div class="card">
-      <div class="card-ttl">Lacunas · oportunidades</div>
+      <div class="card-ttl">Lacunas · Oportunidades</div>
       ${buildLacunasHTML(d.lacunas_portfolio)}
       ${d.insight_estrategico?`<div class="insight-box" style="margin-top:10px"><div class="insight-lbl">Oportunidade</div><div class="insight-txt">${d.insight_estrategico}</div></div>`:''}
     </div>
@@ -981,85 +999,46 @@ function buildDashboardHTML(d) {
   <!-- ANÁLISE VISUAL -->
   <div class="section-label">Análise</div>
   <div class="g2" style="margin-bottom:12px">
-    <!-- Marcas — gráfico de barras -->
     ${topBrands.length?`<div class="card">
       <div class="card-ttl">Marcas mencionadas</div>
       <div style="position:relative;height:${Math.min(topBrands.length*26+20,220)}px"><canvas id="brandChart"></canvas></div>
     </div>`:''}
-
-    <!-- Objeções + chart -->
     <div class="card">
       <div class="card-ttl">Objeções e dores recorrentes</div>
-      ${d.chart_objecoes?.labels?.length?`<div style="position:relative;height:${Math.min(d.chart_objecoes.labels.length*26+20,200)}px;margin-bottom:14px"><canvas id="objChart"></canvas></div>`:''}
+      ${d.chart_objecoes?.labels?.length?`<div style="position:relative;height:${Math.min(d.chart_objecoes.labels.length*26+20,180)}px;margin-bottom:12px"><canvas id="objChart"></canvas></div>`:''}
       <div class="pain-list">${objecoesHTML}</div>
     </div>
   </div>
 
-  <!-- MATRIZ + MENÇÕES -->
-  <div class="g21" style="margin-bottom:0">
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="g2" style="margin-bottom:0">
-        <div class="card">
-          <div class="card-ttl">Matriz de sinais</div>
-          <div class="matrix-wrap">${matrixHTML}</div>
-        </div>
-        <div class="card">
-          <div class="card-ttl">Aquecimento</div>
-          <div class="gauge-wrap">
-            <div class="gauge-canvas" style="width:140px;height:140px;position:relative">
-              <canvas id="gaugeC" width="140" height="140"></canvas>
-              <div class="gauge-center">
-                <div class="gauge-num" style="color:${scoreColor};font-size:30px">${score}</div>
-                <div class="gauge-den">/100</div>
-              </div>
-            </div>
-            <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
-            <div class="gauge-bar" style="width:155px">
-              <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
-              <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,var(--blue) 0%,var(--amber) 55%,var(--red) 100%)"></div></div>
-            </div>
-          </div>
-          ${statesHTML?`<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);width:100%">
-            <div class="card-ttl" style="margin-bottom:6px">Por estado</div>
-            <div class="states-grid">${statesHTML}</div>
-          </div>`:''}
-        </div>
-      </div>
-    </div>
+  <!-- MATRIZ DE SINAIS — linha inteira -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-ttl">Matriz de sinais</div>
+    <div class="matrix-wrap" style="grid-template-columns:repeat(4,1fr)">${matrixHTML}</div>
+  </div>
 
-    <div class="mention-panel">
-      <div class="card-ttl">Menções sobre a Fotus</div>
-      ${mentionsHTML}
-      ${d.oportunidade_fotus?`<div class="opp-box"><div class="opp-lbl">Oportunidade identificada</div><div class="opp-txt">${d.oportunidade_fotus}</div></div>`:''}
-    </div>
+  <!-- MENÇÕES À FOTUS -->
+  <div class="mention-panel" style="margin-bottom:0">
+    <div class="card-ttl">Menções sobre a Fotus</div>
+    ${mentionsHTML}
+    ${d.oportunidade_fotus?`<div class="opp-box"><div class="opp-lbl">Oportunidade identificada</div><div class="opp-txt">${d.oportunidade_fotus}</div></div>`:''}
   </div>
 
   ` : /* LEGACY SCHEMA */ `
-  ${d.tese_executiva?`<div class="exec-card" style="margin-bottom:16px"><div class="exec-lbl">Síntese do dia</div><div class="exec-txt">${d.tese_executiva}</div></div>`:''}
-  <div class="g21">
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="g2" style="margin-bottom:0">
-        <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center">
-          <div class="card-ttl" style="text-align:center">Aquecimento geral</div>
-          <div class="gauge-wrap">
-            <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
-              <canvas id="gaugeC" width="148" height="148"></canvas>
-              <div class="gauge-center"><div class="gauge-num" style="color:${scoreColor}">${score}</div><div class="gauge-den">/100</div></div>
-            </div>
-            <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
-          </div>
+  ${d.tese_executiva?`<div class="exec-card" style="margin-bottom:16px"><div class="exec-txt">${d.tese_executiva}</div></div>`:''}
+  <div style="display:grid;grid-template-columns:35fr 65fr;gap:12px;margin-bottom:12px">
+    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
+      <div class="gauge-wrap">
+        <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
+          <canvas id="gaugeC" width="148" height="148"></canvas>
+          <div class="gauge-center"><div class="gauge-num" style="color:${scoreColor}">${score}</div><div class="gauge-den">/100</div></div>
         </div>
-        ${topBrands.length?`<div class="card"><div class="card-ttl">Marcas</div><div style="position:relative;height:${Math.min(topBrands.length*26+20,220)}px"><canvas id="brandChart"></canvas></div></div>`:''}
+        <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
       </div>
-      <div class="card"><div class="card-ttl">Matriz de sinais</div><div class="matrix-wrap">${matrixHTML}</div></div>
-      <div class="card"><div class="card-ttl">Objeções</div><div class="pain-list">${objecoesHTML}</div></div>
     </div>
-    <div class="mention-panel">
-      <div class="card-ttl">Menções sobre a Fotus</div>
-      ${mentionsHTML}
-      ${d.oportunidade_fotus?`<div class="opp-box"><div class="opp-lbl">Oportunidade</div><div class="opp-txt">${d.oportunidade_fotus}</div></div>`:''}
-    </div>
+    ${topBrands.length?`<div class="card"><div class="card-ttl">Marcas mencionadas</div><div style="position:relative;height:${Math.min(topBrands.length*26+20,220)}px"><canvas id="brandChart"></canvas></div></div>`:'<div></div>'}
   </div>
+  <div class="card" style="margin-bottom:12px"><div class="card-ttl">Matriz de sinais</div><div class="matrix-wrap" style="grid-template-columns:repeat(4,1fr)">${matrixHTML}</div></div>
+  <div class="card"><div class="card-ttl">Objeções</div><div class="pain-list">${objecoesHTML}</div></div>
   `}`;
 }
 
@@ -1435,7 +1414,7 @@ function buildIgPageHTML(rows, dateStr) {
 
   const cardsHTML = rows.length === 0
     ? `<div class="ig-empty">Nenhum concorrente analisado nesta data.</div>`
-    : rows.map((r,i) => buildIgCardHTML(r,i)).join('');
+    : `<div class="ig-cards-grid">${rows.map((r,i) => buildIgCardHTML(r,i)).join('')}</div>`;
 
   return `
     <div class="date-bar">
@@ -1493,9 +1472,9 @@ function buildIgCardHTML(row, idx) {
   const prods = comm.produtos_em_destaque || p.produtos_em_destaque || [];
   const tags  = p.tags || [];
 
-  const handle = conc.handle || row.competitor_handle || '—';
+  const rawHandle = conc.handle || row.competitor_handle || '—';
+  const handle = rawHandle.replace(/^@/, '');
   const nome   = conc.nome || handle;
-  const tier   = conc.tier || 3;
   const score  = ativ.score_ameaca || 0;
   const posts  = row.posts_analisados || ativ.posts_analisados || 0;
   const coments = row.comentarios_analisados || 0;
@@ -1504,7 +1483,6 @@ function buildIgCardHTML(row, idx) {
   const briefing = p.briefing || '';
   const scoreCls = score >= 70 ? 'ig-score-high' : score >= 40 ? 'ig-score-mid' : 'ig-score-low';
   const scoreColor = score >= 70 ? 'var(--red)' : score >= 40 ? 'var(--amber)' : 'var(--green)';
-  const tierLabel = `TIER ${tier}`;
 
   const tagsHTML = tags.length ? `<div class="ig-tags">${tags.map(t=>`<span class="${t.tipo==='alerta'?'ig-tag-alerta':t.tipo==='oportunidade'?'ig-tag-oportunidade':'ig-tag-neutro'}">${t.texto}</span>`).join('')}</div>` : '';
 
@@ -1516,10 +1494,9 @@ function buildIgCardHTML(row, idx) {
   <div class="ig-card" style="animation-delay:${idx*.06}s">
     <div class="ig-card-header" onclick="igToggleCard(this,${idx})">
       <div class="ig-header-row">
-        <div style="display:flex;align-items:center;gap:0">
-          <span class="ig-tier ig-tier-${tier}">${tierLabel}</span>
-          <span class="ig-handle">@${handle}</span>
-          ${nome!==handle?`<span style="font-size:12px;color:var(--muted);font-weight:300;margin-left:8px">${nome}</span>`:''}
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:15px;font-weight:600;color:var(--text)">${nome}</span>
+          <span style="font-size:12px;color:var(--hint)">@${handle}</span>
         </div>
         <div style="text-align:right">
           <div class="ig-score-display ${scoreCls}">${score}</div>
