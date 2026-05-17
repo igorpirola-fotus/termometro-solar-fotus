@@ -1284,9 +1284,9 @@ async function submitSubscription() {
   btn.disabled = true;
   btn.textContent = 'Salvando...';
 
-  const { error } = await sb.from('newsletter_subscribers').upsert({ email, ativo: true }, { onConflict: 'email', ignoreDuplicates: true });
+  const { error } = await sb.from('newsletter_subscribers').insert({ email, ativo: true });
 
-  if (error) {
+  if (error && error.code !== '23505') {
     btn.disabled = false;
     btn.textContent = 'Quero receber';
     errorEl.textContent = 'Erro ao salvar. Tente novamente.';
