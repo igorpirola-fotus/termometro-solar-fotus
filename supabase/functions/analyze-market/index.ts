@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { parseClaudeJSON } from '../_shared/parseClaudeJSON.ts'
 
 const SYSTEM_PROMPT = `Voce e o motor analitico do Termometro do Mercado Solar — sistema de inteligencia de mercado diaria da Fotus Distribuidora Solar.
 
@@ -356,12 +357,13 @@ Deno.serve(async (req) => {
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': anthropicKey,
-      'anthropic-version': '2023-06-01'
+      'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'prompt-caching-2024-07-31'
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-5',
-      max_tokens: 8000,
-      system: SYSTEM_PROMPT,
+      model: 'claude-sonnet-4-6',
+      max_tokens: 5000,
+      system: [{ type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } }],
       messages: [{ role: 'user', content: userContent }]
     })
   })
@@ -380,14 +382,9 @@ Deno.serve(async (req) => {
 
   let payload: unknown
   try {
-    const clean = rawText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-    payload = JSON.parse(clean)
+    payload = parseClaudeJSON(rawText)
   } catch {
-    const match = rawText.match(/\{[\s\S]*\}/)
-    if (!match) {
-      return new Response(JSON.stringify({ error: 'JSON invalido', preview: rawText.substring(0, 200) }), { status: 502 })
-    }
-    payload = JSON.parse(match[0])
+    return new Response(JSON.stringify({ error: 'JSON invalido', preview: rawText.substring(0, 200) }), { status: 502 })
   }
 
   const toDate = (v?: string) => { try { return v ? new Date(v).toISOString().split('T')[0] : null } catch { return null } }
