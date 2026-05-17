@@ -1266,9 +1266,10 @@ function closeSubscribeModal() {
   document.getElementById('subscribeError').textContent = '';
 }
 
-function submitSubscription() {
+async function submitSubscription() {
   const emailEl = document.getElementById('subscribeEmail');
   const errorEl = document.getElementById('subscribeError');
+  const btn     = document.getElementById('subscribeBtn');
   const email   = emailEl.value.trim().toLowerCase();
 
   errorEl.textContent = '';
@@ -1276,6 +1277,18 @@ function submitSubscription() {
   if (!email.endsWith('@fotus.com.br')) {
     errorEl.textContent = 'Use seu email corporativo @fotus.com.br';
     emailEl.focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  const { error } = await sb.from('newsletter_subscribers').insert({ email, ativo: true }, { ignoreDuplicates: true });
+
+  if (error) {
+    btn.disabled = false;
+    btn.textContent = 'Quero receber';
+    errorEl.textContent = 'Erro ao salvar. Tente novamente.';
     return;
   }
 
