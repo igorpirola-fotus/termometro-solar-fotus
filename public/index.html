@@ -603,31 +603,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .insight-row.prio-media   .insight-row-accent { background: var(--blue); }
 
 /* ── VISÃO SEMANAL ───────────────────────────────────────────────────────── */
-.week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.week-period { font-size: 11px; color: var(--hint); text-transform: uppercase; letter-spacing: .08em; }
-.week-score-badge { display: flex; align-items: baseline; gap: 6px; }
-.week-score-val { font-family: var(--mono); font-size: 32px; font-weight: 700; line-height: 1; }
-.week-score-lbl { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
-
-.week-insights-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-bottom: 20px; }
-.week-insight { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 16px; border-left: 3px solid var(--border2); animation: fadeUp .3s ease both; }
-.week-insight.prio-critica { border-left-color: var(--red); }
-.week-insight.prio-alta    { border-left-color: var(--amber); }
-.week-insight:nth-child(1) { animation-delay: .05s; }
-.week-insight:nth-child(2) { animation-delay: .10s; }
-.week-insight:nth-child(3) { animation-delay: .15s; }
-.week-insight-titulo { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
-.week-insight-ctx { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; }
-.week-insight-acao { font-size: 11px; color: var(--amber); font-weight: 500; }
-.week-insight-date { font-size: 10px; color: var(--hint); margin-top: 8px; }
-
-.week-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.week-rank { padding: 0; }
-.week-rank-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
-.week-rank-row:last-child { border-bottom: none; }
-.week-rank-num { font-family: var(--mono); font-size: 11px; color: var(--hint); width: 16px; text-align: center; flex-shrink: 0; }
-.week-rank-name { flex: 1; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.week-rank-count { font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; }
+.week-badge { display: inline-flex; align-items: center; gap: 5px; background: rgba(59,130,246,.15); border: 1px solid rgba(59,130,246,.3); border-radius: 20px; padding: 3px 10px; font-size: 10px; font-weight: 600; color: var(--blue); letter-spacing: .06em; text-transform: uppercase; margin-top: 6px; }
 
 .day-chips-wrap { margin-bottom: 8px; }
 .day-chips-row { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -1040,165 +1016,131 @@ function updatePipelineStatus() {
 
 // ── WEEKLY VIEW ───────────────────────────────────────────────────────────────
 function aggregateWeek(reports) {
-  const scores = reports.map(r => r.payload?.meta?.score_aquecimento || r.payload?.kpis?.score_aquecimento || 0);
-  const scoreMedio = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+  if (!reports.length) return null;
 
-  // Insights de alta/crítica prioridade dos 7 dias
+  const fmt = ds => { const [,m,d] = (ds||'').split('-'); return (d && m) ? `${d}/${m}` : ds; };
+  const sorted = [...reports].sort((a, b) => a.data_referencia.localeCompare(b.data_referencia));
+  const weekLabel = `Semana ${fmt(sorted[0].data_referencia)} – ${fmt(sorted[sorted.length-1].data_referencia)}`;
+
+  // Score médio
+  const scores = reports.map(r => r.payload?.meta?.score_aquecimento || r.payload?.kpis?.score_aquecimento || 0);
+  const avgScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+
+  // Insights críticos/altos — deduplicados por título, mais recentes primeiro
   const allInsights = [];
-  for (const r of reports) {
+  const seenTitles = new Set();
+  for (const r of [...reports].reverse()) {
     for (const b of (r.payload?.briefing_executivo || [])) {
       const prio = (b.prioridade || '').toLowerCase();
-      if (prio === 'critica' || prio === 'alta') {
+      if ((prio === 'critica' || prio === 'alta') && b.titulo && !seenTitles.has(b.titulo)) {
+        seenTitles.add(b.titulo);
         allInsights.push({ ...b, data: r.data_referencia });
       }
     }
   }
-  const topInsights = allInsights
-    .sort((a, b) => (a.prioridade === 'critica' ? -1 : 1))
-    .slice(0, 3);
+  const topInsights = allInsights.sort((a, b) => a.prioridade === 'critica' ? -1 : 1).slice(0, 5);
 
-  // Top marcas do portfólio citadas
+  // Radar portfólio — soma de contagens por marca
   const brandMap = {};
   for (const r of reports) {
     for (const b of (r.payload?.radar_portfolio || [])) {
       const key = b.brand_name || b.nome;
       if (!key) continue;
-      if (!brandMap[key]) brandMap[key] = { nome: key, mencoes: 0 };
-      brandMap[key].mencoes += (b.mencoes || b.total_mentions || 1);
+      if (!brandMap[key]) brandMap[key] = { ...b, brand_name: key, contagem: 0 };
+      brandMap[key].contagem += (b.contagem || b.mencoes || b.total_mentions || 1);
     }
   }
-  const topBrands = Object.values(brandMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 5);
+  const mergedBrands = Object.values(brandMap).sort((a, b) => b.contagem - a.contagem).slice(0, 10);
 
-  // Top objeções
+  // Objeções — frequência acumulada por título
   const objMap = {};
   for (const r of reports) {
-    for (const o of (r.payload?.objecoes || [])) {
-      const key = o.titulo || o.tipo || o.descricao;
+    for (const o of (r.payload?.objecoes || r.payload?.objecoes_dores || [])) {
+      const key = o.titulo || o.tipo;
       if (!key) continue;
-      if (!objMap[key]) objMap[key] = { titulo: key, count: 0 };
-      objMap[key].count++;
+      if (!objMap[key]) objMap[key] = { ...o, titulo: key, _freq: 0 };
+      objMap[key]._freq += (o.frequencia || o.contagem || 1);
     }
   }
-  const topObjecoes = Object.values(objMap).sort((a, b) => b.count - a.count).slice(0, 5);
+  const mergedObjecoes = Object.values(objMap).sort((a, b) => b._freq - a._freq).slice(0, 8);
 
-  // Top concorrentes
+  // Concorrentes — soma de menções
   const concMap = {};
   for (const r of reports) {
     for (const c of (r.payload?.concorrentes_distribuidores || [])) {
       const key = c.nome;
       if (!key) continue;
-      if (!concMap[key]) concMap[key] = { nome: key, mencoes: 0 };
+      if (!concMap[key]) concMap[key] = { ...c, mencoes: 0 };
       concMap[key].mencoes += (c.mencoes || 1);
     }
   }
-  const topConcorrentes = Object.values(concMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 5);
+  const mergedConcorrentes = Object.values(concMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 8);
 
-  // Top lacunas de portfólio
+  // Lacunas — soma de frequência por produto
   const lacMap = {};
   for (const r of reports) {
     for (const l of (r.payload?.lacunas_portfolio || [])) {
       const key = l.produto || l.brand_name || l.nome;
       if (!key) continue;
-      if (!lacMap[key]) lacMap[key] = { produto: key, mencoes: 0 };
-      lacMap[key].mencoes += (l.mencoes || 1);
+      if (!lacMap[key]) lacMap[key] = { ...l, produto: key, _freq: 0 };
+      lacMap[key]._freq += (l.frequencia || l.mencoes || 1);
     }
   }
-  const topLacunas = Object.values(lacMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 5);
+  const mergedLacunas = Object.values(lacMap).sort((a, b) => b._freq - a._freq).slice(0, 8);
 
-  return { scoreMedio, scores, topInsights, topBrands, topObjecoes, topConcorrentes, topLacunas };
+  // Matriz de sinais — do relatório mais recente (qualitativo, não agrega bem)
+  const latest = sorted[sorted.length - 1];
+  const matrizSinais = latest?.payload?.matriz_sinais || [];
+
+  // Tese executiva sintética
+  const topBullets = topInsights.slice(0, 3).map(i => i.titulo).filter(Boolean);
+  const teseExecutiva = {
+    cabecalho: weekLabel,
+    bullets: topBullets.length ? topBullets : ['Nenhum destaque crítico identificado na semana.'],
+    conclusao: `Agregado de ${reports.length} análises diárias`
+  };
+
+  return {
+    isWeekly: true,
+    weekLabel,
+    meta: { score_aquecimento: avgScore, status_aquecimento: getScoreLabel(avgScore) },
+    briefing_executivo: topInsights,
+    tese_executiva: teseExecutiva,
+    matriz_sinais: matrizSinais,
+    radar_portfolio: mergedBrands,
+    lacunas_portfolio: mergedLacunas,
+    concorrentes_distribuidores: mergedConcorrentes,
+    objecoes: mergedObjecoes,
+    marcas: [],
+    estados: [],
+    mencoes_fotus: [],
+    tags_exec: [],
+    delta: null
+  };
 }
 
 function renderWeeklyView() {
+  if (!weeklyReports.length) return;
+
+  const syntheticPayload = aggregateWeek(weeklyReports);
+  renderDashboard(syntheticPayload);
+
+  // Append day chips at the bottom
   const page = document.getElementById('dashPage');
-  if (!page) return;
-
-  if (!weeklyReports.length) {
-    page.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--hint);text-align:center">
-      <div style="font-size:15px;font-weight:600;color:var(--text)">Nenhum relatório encontrado</div>
-    </div>`;
-    return;
-  }
-
-  const w = aggregateWeek(weeklyReports);
-  const scoreColor = getScoreColor(w.scoreMedio);
-  const scoreLabel = getScoreLabel(w.scoreMedio);
-
-  // Insights da semana
-  const insightsHTML = w.topInsights.length
-    ? w.topInsights.map(ins => {
-        const prio = (ins.prioridade || 'media').toLowerCase();
-        const [dy, dm, dd] = (ins.data || '').split('-');
-        const dateLabel = dd && dm ? `${dd}/${dm}` : '';
-        return `<div class="week-insight prio-${prio}">
-          <div class="week-insight-titulo">${ins.titulo || ''}</div>
-          <div class="week-insight-ctx">${ins.contexto || ins.implicacao || ''}</div>
-          ${ins.acao ? `<div class="week-insight-acao">▸ ${ins.acao}</div>` : ''}
-          ${dateLabel ? `<div class="week-insight-date">${dateLabel}</div>` : ''}
-        </div>`;
-      }).join('')
-    : `<div class="week-insight" style="color:var(--hint);font-size:12px">Nenhum destaque de alta prioridade na semana.</div>`;
-
-  // Função auxiliar para rank lists
-  function rankList(items, labelKey, countKey) {
-    if (!items.length) return `<div style="color:var(--hint);font-size:11px;padding:8px 0">Sem dados</div>`;
-    return items.map((item, i) => `
-      <div class="week-rank-row">
-        <span class="week-rank-num">${i + 1}</span>
-        <span class="week-rank-name">${item[labelKey] || '—'}</span>
-        <span class="week-rank-count">${item[countKey]}×</span>
-      </div>`).join('');
-  }
-
-  // Day chips
-  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const latestDate = weeklyReports[weeklyReports.length - 1].data_referencia;
   const chipsHTML = [...weeklyReports].reverse().map(r => {
     const ds = r.data_referencia || '';
-    const [y, mo, d] = ds.split('-');
+    const [, mo, d] = ds.split('-');
     const label = d && mo ? `${d}/${mo}` : ds;
-    const rDate = new Date(ds + 'T12:00:00Z'); rDate.setHours(0, 0, 0, 0);
-    const isLatest = rDate.getTime() === new Date(weeklyReports[weeklyReports.length - 1].data_referencia + 'T12:00:00Z').setHours(0,0,0,0);
-    return `<button class="day-chip${isLatest ? ' latest' : ''}" onclick="showDayDetail('${ds}')">${label}</button>`;
+    return `<button class="day-chip${ds === latestDate ? ' latest' : ''}" onclick="showDayDetail('${ds}')">${label}</button>`;
   }).join('');
 
-  page.innerHTML = `
-    <div class="week-header">
-      <div>
-        <div class="week-period">Últimos ${weeklyReports.length} dias</div>
-      </div>
-      <div class="week-score-badge">
-        <span class="week-score-val" style="color:${scoreColor}">${w.scoreMedio}</span>
-        <span class="week-score-lbl" style="color:${scoreColor}">${scoreLabel}</span>
-        <span style="font-size:11px;color:var(--hint);margin-left:4px">/ 100 (média)</span>
-      </div>
-    </div>
-
-    <div class="section-label">Destaques da semana</div>
-    <div class="week-insights-grid">${insightsHTML}</div>
-
-    <div class="week-data-grid">
-      <div class="card">
-        <div class="card-ttl">Marcas citadas</div>
-        <div class="week-rank">${rankList(w.topBrands, 'nome', 'mencoes')}</div>
-      </div>
-      <div class="card">
-        <div class="card-ttl">Objeções recorrentes</div>
-        <div class="week-rank">${rankList(w.topObjecoes, 'titulo', 'count')}</div>
-      </div>
-      <div class="card">
-        <div class="card-ttl">Concorrentes em alta</div>
-        <div class="week-rank">${rankList(w.topConcorrentes, 'nome', 'mencoes')}</div>
-      </div>
-      <div class="card">
-        <div class="card-ttl">Lacunas de portfólio</div>
-        <div class="week-rank">${rankList(w.topLacunas, 'produto', 'mencoes')}</div>
-      </div>
-    </div>
-
-    <div class="section-label">Análises diárias</div>
-    <div class="day-chips-wrap">
-      <div class="day-chips-row">${chipsHTML}</div>
-    </div>
+  const chipsEl = document.createElement('div');
+  chipsEl.innerHTML = `
+    <div class="section-label" style="margin-top:16px">Ver análise do dia</div>
+    <div class="day-chips-wrap"><div class="day-chips-row">${chipsHTML}</div></div>
   `;
+  page.appendChild(chipsEl);
 }
 
 async function showDayDetail(dateStr) {
@@ -1373,6 +1315,7 @@ function buildDashboardHTML(d) {
           </div>
         </div>
         <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
+        ${d.isWeekly ? `<div class="week-badge">7 dias · média</div>` : ''}
         <div class="gauge-bar" style="width:200px">
           <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
           <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,var(--blue) 0%,var(--amber) 55%,var(--red) 100%)"></div></div>
@@ -1547,6 +1490,22 @@ function updateTopbarCtx(d) {
   const score = m.score_aquecimento || 0;
   const scoreColor = getScoreColor(score);
   const scoreLabel = getScoreLabel(score);
+
+  if (d?.isWeekly) {
+    ctx.innerHTML = `
+      <div class="meta-chips" style="margin:0;display:flex;align-items:center;gap:6px">
+        <span class="meta-chip" style="color:var(--blue)">Últimos 7 dias</span>
+        <span class="meta-chip" style="color:var(--hint);font-size:10px">média agregada</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+        <div class="heat-pill">
+          <div class="heat-dot" style="background:${scoreColor}"></div>
+          ${scoreLabel} · ${score}/100
+        </div>
+      </div>`;
+    return;
+  }
+
   const hasPrev = currentDateIndex < availableDates.length - 1;
   const hasNext = currentDateIndex > 0;
   ctx.innerHTML = `
