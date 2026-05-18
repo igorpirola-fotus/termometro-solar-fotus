@@ -4,8 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Termômetro do Mercado Solar · Fotus</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" href="logo-fotus-icon.png">
+<style>
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Thin.otf') format('opentype'); font-weight: 100; font-style: normal; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-ThinItalic.otf') format('opentype'); font-weight: 100; font-style: italic; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Light.otf') format('opentype'); font-weight: 300; font-style: normal; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-LightItalic.otf') format('opentype'); font-weight: 300; font-style: italic; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Italic.otf') format('opentype'); font-weight: 400; font-style: italic; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Medium.otf') format('opentype'); font-weight: 500; font-style: normal; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-MediumItalic.otf') format('opentype'); font-weight: 500; font-style: italic; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Bold.otf') format('opentype'); font-weight: 700; font-style: normal; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-BoldItalic.otf') format('opentype'); font-weight: 700; font-style: italic; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Black.otf') format('opentype'); font-weight: 900; font-style: normal; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-BlackItalic.otf') format('opentype'); font-weight: 900; font-style: italic; }
+</style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -36,8 +49,8 @@
   --navy:   #0B2559;
   --yellow: #FFC20E;
 
-  --mono: 'IBM Plex Mono', monospace;
-  --sans: 'IBM Plex Sans', sans-serif;
+  --mono: 'Azo Sans', monospace;
+  --sans: 'Azo Sans', sans-serif;
 
   --r-chip: 5px;
   --r-ctrl: 8px;
@@ -45,6 +58,7 @@
   --r-lg:   16px;
 
   --topbar-h: 56px;
+  --ctx-bar-h: 40px;
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -64,7 +78,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .topbar-menu svg { width: 16px; height: 16px; }
 
 .topbar-brand { display: flex; align-items: center; gap: 10px; margin-left: 10px; flex-shrink: 0; }
-.topbar-sun { width: 28px; height: 28px; border-radius: var(--r-ctrl); background: var(--yellow); display: grid; place-items: center; flex-shrink: 0; }
+.topbar-sun { width: 28px; height: 28px; border-radius: var(--r-ctrl); background: transparent; display: grid; place-items: center; flex-shrink: 0; overflow: hidden; }
 .topbar-sun svg { width: 14px; height: 14px; }
 .topbar-title { font-family: var(--mono); font-size: 13px; font-weight: 600; color: #fff; letter-spacing: .06em; line-height: 1; }
 .topbar-sub { font-size: 10px; color: rgba(255,255,255,.4); letter-spacing: .08em; text-transform: uppercase; margin-top: 2px; }
@@ -102,7 +116,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .drawer-date { font-family: var(--mono); font-size: 11px; color: var(--hint); margin-bottom: 6px; }
 
 /* ── MAIN ────────────────────────────────────────────────────────────────── */
-.main { padding: calc(var(--topbar-h) + 24px) 24px 48px; max-width: 1600px; margin: 0 auto; }
+.main { padding: calc(var(--topbar-h) + var(--ctx-bar-h) + 24px) 24px 48px; max-width: 1600px; margin: 0 auto; }
 
 /* ── PAGE SECTIONS ───────────────────────────────────────────────────────── */
 #dashPage { display: none; }
@@ -322,7 +336,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 /* ── EXEC / TESE ─────────────────────────────────────────────────────────── */
 .exec-card { background: linear-gradient(135deg, #112059 0%, #0B1A3E 100%); border-radius: var(--r-card); padding: 20px 22px; border: 1px solid rgba(255,255,255,.07); }
 .exec-lbl { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .12em; margin-bottom: 8px; }
-.exec-txt { font-size: 13px; color: rgba(255,255,255,.88); line-height: 1.7; font-weight: 300; max-width: 700px; }
+.exec-txt { font-size: 13px; color: rgba(255,255,255,.88); line-height: 1.7; font-weight: 300; }
 .exec-txt strong { color: var(--yellow); font-weight: 500; }
 .exec-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
 .etag { font-size: 10px; padding: 2px 9px; border-radius: var(--r-chip); border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.6); }
@@ -496,7 +510,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
   .drawer { width: 100%; left: -100%; }
 
   /* Main content: reduz padding */
-  .main { padding: calc(var(--topbar-h) + 16px) 12px 32px; }
+  .main { padding: calc(var(--topbar-h) + var(--ctx-bar-h) + 16px) 12px 32px; }
 
   /* Date bar empilha verticalmente */
   .date-bar { flex-direction: column; align-items: flex-start; gap: 10px; }
@@ -555,6 +569,38 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .score-hero-right { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 16px 18px; display: flex; flex-direction: column; }
 .sparkline-label { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .09em; margin-bottom: 8px; }
 .sparkline-wrap  { flex: 1; position: relative; min-height: 70px; }
+
+/* ── CONTEXT BAR (below topbar) ─────────────────────────────────────────── */
+.topbar-ctx {
+  position: fixed; top: var(--topbar-h); left: 0; right: 0; height: var(--ctx-bar-h);
+  background: #0A0F1C; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; gap: 12px; z-index: 199;
+}
+.topbar-ctx .meta-chips { margin: 0; }
+
+/* ── EXEC SUMMARY — REFORMATTED ──────────────────────────────────────────── */
+.exec-intro { font-size: 13px; color: rgba(255,255,255,.72); margin-bottom: 12px; font-weight: 300; line-height: 1.65; }
+.exec-bullets { list-style: none; padding: 0; margin: 0 0 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.exec-bullets li { display: flex; gap: 10px; font-size: 13px; line-height: 1.6; color: rgba(255,255,255,.88); align-items: flex-start; }
+.exec-bullets li::before { content: '›'; color: var(--yellow); font-weight: 700; flex-shrink: 0; font-size: 15px; line-height: 1.4; }
+.exec-bullets li strong { color: var(--yellow); font-weight: 500; }
+.exec-concl { font-size: 12px; color: rgba(255,255,255,.45); font-style: italic; line-height: 1.55; }
+
+/* ── INSIGHTS CARD — tabela única ───────────────────────────────────────── */
+.insights-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); overflow: hidden; margin-bottom: 20px; }
+.insights-card-hdr { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.insights-card-hdr-lbl { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .09em; }
+.insight-row { display: grid; grid-template-columns: 3px 1fr 1.1fr 0.9fr; border-bottom: 1px solid var(--border); min-height: 88px; animation: fadeUp .3s ease both; }
+.insight-row:last-child { border-bottom: none; }
+.insight-row-accent { }
+.insight-row-titulo { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.insight-row-corpo { padding: 14px 16px; border-left: 1px solid var(--border); }
+.insight-row-acao { padding: 14px 16px; border-left: 1px solid var(--border); background: rgba(255,255,255,.015); display: flex; align-items: flex-start; gap: 6px; }
+.insight-row-acao svg { flex-shrink: 0; margin-top: 2px; }
+.insight-row-acao-txt { font-size: 11px; color: var(--amber); font-weight: 500; line-height: 1.5; }
+.insight-row.prio-critica .insight-row-accent { background: var(--red); }
+.insight-row.prio-alta    .insight-row-accent { background: var(--amber); }
+.insight-row.prio-media   .insight-row-accent { background: var(--blue); }
 </style>
 </head>
 <body>
@@ -567,14 +613,11 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
   <div class="topbar-brand">
     <div class="topbar-sun">
-      <svg viewBox="0 0 15 15" fill="none">
-        <circle cx="7.5" cy="7.5" r="3" fill="#0B2559"/>
-        <path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M3.2 3.2l1 1M10.8 10.8l1 1M10.8 3.2l-1 1M3.2 10.8l1-1" stroke="#0B2559" stroke-width="1.3" stroke-linecap="round"/>
-      </svg>
+      <img src="logo-fotus-icon.png" alt="Fotus" style="width:100%;height:100%;object-fit:contain;border-radius:var(--r-ctrl);">
     </div>
     <div>
-      <div class="topbar-title">TERMÔMETRO SOLAR</div>
-      <div class="topbar-sub">Fotus · Inteligência de Mercado</div>
+      <div class="topbar-title">TERMÔMETRO DO MERCADO</div>
+      <div class="topbar-sub">MARKETING · SQUAD CRM</div>
     </div>
   </div>
 
@@ -599,6 +642,9 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
     </button>
   </div>
 </header>
+
+<!-- ── CONTEXT BAR ─────────────────────────────────────────────────────── -->
+<div id="topbar-ctx" class="topbar-ctx"></div>
 
 <!-- ── DRAWER ──────────────────────────────────────────────────────────── -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
@@ -691,7 +737,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
         <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" stroke-linecap="round"/>
       </svg>
     </div>
-    <div class="loading-title">Carregando inteligência de mercado</div>
+    <div class="loading-title">Carregando dados do mercado solar</div>
     <div class="loading-sub">Conectando ao Supabase e buscando relatórios...</div>
     <div class="loading-steps">
       <div class="lstep active" id="step1"><div class="lstep-dot"></div> Conectando ao banco de dados</div>
@@ -950,6 +996,7 @@ function renderDashboard(d) {
   currentDashboardData = d;
   const page = document.getElementById('dashPage');
   page.innerHTML = buildDashboardHTML(d);
+  updateTopbarCtx(d);
   animateDashboard(d);
   document.getElementById('drawerDate').textContent = getDateLabel();
 }
@@ -1052,53 +1099,23 @@ function buildDashboardHTML(d) {
   </div>`).join('');
 
   return `
-  <!-- DATE BAR -->
-  <div class="date-bar">
-    <div class="date-bar-left">
-      <div class="date-bar-h1">Termômetro de Mercado</div>
-      <div class="meta-chips" style="margin-top:4px">
-        <span class="meta-chip"><svg viewBox="0 0 14 14" fill="none"><path d="M7 1.5C4 1.5 1.5 4 1.5 7S4 12.5 7 12.5 12.5 10 12.5 7 10 1.5 7 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 7h5M7 4.5v5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${m.grupos||0} grupos</span>
-        <span class="meta-chip"><svg viewBox="0 0 14 14" fill="none"><path d="M2 3h10a1 1 0 011 1v5a1 1 0 01-1 1H4l-2 2V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>${m.mensagens||0} msgs</span>
-        <span class="meta-chip" style="color:var(--hint);font-size:10px">${m.modelo||'Claude'}</span>
-      </div>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <div class="date-nav">
-        <button class="date-nav-btn" onclick="navigateDate(1)" ${!hasPrev?'disabled':''}>
-          <svg viewBox="0 0 12 12" fill="none"><path d="M7.5 2l-4 4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-        <div class="date-nav-center">
-          <div class="date-nav-lbl">${getDateLabel()}</div>
-          <div class="date-nav-rel">${getRelativeLabel()}</div>
-        </div>
-        <button class="date-nav-btn" onclick="navigateDate(-1)" ${!hasNext?'disabled':''}>
-          <svg viewBox="0 0 12 12" fill="none"><path d="M4.5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-      <div class="heat-pill">
-        <div class="heat-dot" style="background:${m.status_cor||scoreColor}"></div>
-        ${m.status_aquecimento||scoreLabel}
-      </div>
-    </div>
-  </div>
-
   ${hasNewSchema ? `
 
-  <!-- LINHA 1: TERMÔMETRO (gauge 35%) + SÍNTESE DO DIA (65%) -->
+  <!-- LINHA 1: TERMÔMETRO (gauge 220px 35%) + SÍNTESE DO DIA (65%) -->
   <div style="display:grid;grid-template-columns:35fr 65fr;gap:12px;margin-bottom:12px;align-items:stretch">
 
     <!-- Gauge / Termômetro -->
     <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
       <div class="gauge-wrap">
-        <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
-          <canvas id="gaugeC" width="148" height="148"></canvas>
+        <div class="gauge-canvas" style="width:220px;height:220px;position:relative">
+          <canvas id="gaugeC" width="220" height="220"></canvas>
           <div class="gauge-center">
             <div class="gauge-num" style="color:${scoreColor}">${score}</div>
             <div class="gauge-den">/100</div>
           </div>
         </div>
         <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
-        <div class="gauge-bar" style="width:170px">
+        <div class="gauge-bar" style="width:200px">
           <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
           <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,var(--blue) 0%,var(--amber) 55%,var(--red) 100%)"></div></div>
         </div>
@@ -1109,33 +1126,39 @@ function buildDashboardHTML(d) {
       </div>`:''}
     </div>
 
-    <!-- Síntese do dia — só o texto, sem cabeçalho -->
+    <!-- Síntese do dia reformatada -->
     ${d.tese_executiva ? `<div class="exec-card" style="display:flex;flex-direction:column;justify-content:center">
-      <div class="exec-txt" style="font-size:14px;line-height:1.75">${d.tese_executiva}</div>
+      ${formatTeseExecutiva(d.tese_executiva)}
       ${tagsHTML?`<div class="exec-tags" style="margin-top:14px">${tagsHTML}</div>`:''}
     </div>` : '<div></div>'}
   </div>
 
-  <!-- LINHA 2: SPARKLINE (flex) + KPIs ESTRATÉGICOS -->
-  <div style="display:grid;grid-template-columns:1fr 160px 160px 160px;gap:12px;margin-bottom:12px">
+  <!-- LINHA 2: MATRIZ DE SINAIS -->
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-ttl">Matriz de sinais</div>
+    <div class="matrix-wrap" style="grid-template-columns:repeat(4,1fr)">${matrixHTML}</div>
+  </div>
+
+  <!-- LINHA 3: SPARKLINE (flex) + KPIs ESTRATÉGICOS -->
+  <div style="display:grid;grid-template-columns:1fr 175px 175px 175px;gap:12px;margin-bottom:12px">
     <div class="card" style="padding:14px 18px">
       <div class="sparkline-label">Score — últimos 7 dias</div>
       <div class="sparkline-wrap" style="min-height:58px"><canvas id="sparklineC"></canvas></div>
     </div>
     ${[
-      { lbl:'Alertas críticos', val:alertasCount, color:alertasCount>0?'var(--red)':'var(--green)' },
-      { lbl:'Lacunas portfólio', val:lacunasCount, color:'var(--amber)' },
-      { lbl:'Distribuidoras', val:distribCount, color:'var(--blue)' },
-    ].map(k=>`<div class="kpi" style="margin:0">
+      { lbl:'Alertas críticos', val:alertasCount, color:alertasCount>0?'var(--red)':'var(--green)', sub: alertasCount > 0 ? alertasCount + ' requerem ação' : 'Nenhum alerta' },
+      { lbl:'Lacunas portfólio', val:lacunasCount, color:'var(--amber)', sub: lacunasCount > 0 ? lacunasCount + ' oportunidades' : 'Portfólio completo' },
+      { lbl:'Distribuidoras', val:distribCount, color:'var(--blue)', sub: distribCount > 0 ? distribCount + ' concorrentes' : 'Sem dados' },
+    ].map(k=>`<div class="kpi" style="margin:0;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
       <div class="kpi-accent" style="background:${k.color}"></div>
       <div class="kpi-lbl">${k.lbl}</div>
-      <div class="kpi-val" style="color:${k.color};font-size:28px">${k.val}</div>
+      <div class="kpi-val" style="color:${k.color};font-size:42px">${k.val}</div>
+      <div class="kpi-sub" style="font-size:11px;color:var(--muted);margin-top:0">${k.sub}</div>
     </div>`).join('')}
   </div>
 
-  <!-- INSIGHTS CRÍTICOS -->
-  <div class="section-label">Insights críticos</div>
-  <div class="briefing-grid">${buildBriefingHTML(d.briefing_executivo)}</div>
+  <!-- INSIGHTS CRÍTICOS — card único -->
+  ${buildBriefingHTML(d.briefing_executivo)}
   ${buildDeltaCard(d.delta)}
 
   <!-- PORTFÓLIO & MERCADO -->
@@ -1171,12 +1194,6 @@ function buildDashboardHTML(d) {
     </div>
   </div>
 
-  <!-- MATRIZ DE SINAIS — linha inteira -->
-  <div class="card" style="margin-bottom:12px">
-    <div class="card-ttl">Matriz de sinais</div>
-    <div class="matrix-wrap" style="grid-template-columns:repeat(4,1fr)">${matrixHTML}</div>
-  </div>
-
   <!-- MENÇÕES À FOTUS -->
   <div class="mention-panel" style="margin-bottom:0">
     <div class="card-ttl">Menções sobre a Fotus</div>
@@ -1205,24 +1222,33 @@ function buildDashboardHTML(d) {
 
 // ── BUILDERS ──────────────────────────────────────────────────────────────────
 function buildBriefingHTML(items) {
-  if (!items || !items.length) return '<div style="color:var(--hint);font-size:12px">Nenhum briefing disponível.</div>';
-  return items.map((b, i) => {
+  if (!items || !items.length) return '<div style="color:var(--hint);font-size:12px;padding:16px">Nenhum briefing disponível.</div>';
+  const rows = items.map((b, i) => {
     const prio = (b.prioridade||'media').toLowerCase();
     const badgeCls = prio === 'critica' ? 'badge-critica' : prio === 'alta' ? 'badge-alta' : 'badge-media';
     const badgeLabel = prio === 'critica' ? 'Crítico' : prio === 'alta' ? 'Alta' : 'Média';
-    return `<div class="briefing-card prio-${prio}" style="animation-delay:${.05+i*.05}s">
-      <div class="briefing-top">
-        <div class="briefing-titulo">${b.titulo||''}</div>
+    return `<div class="insight-row prio-${prio}" style="animation-delay:${.05+i*.05}s">
+      <div class="insight-row-accent"></div>
+      <div class="insight-row-titulo">
         <span class="briefing-badge ${badgeCls}">${badgeLabel}</span>
+        <div class="briefing-titulo" style="margin-top:6px">${b.titulo||''}</div>
       </div>
-      <div class="briefing-contexto">${b.contexto||''}</div>
-      <div class="briefing-implicacao">${b.implicacao||''}</div>
-      <div class="briefing-acao">
-        <svg viewBox="0 0 12 12" fill="none"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        ${b.acao||''}
+      <div class="insight-row-corpo">
+        <div class="briefing-contexto">${b.contexto||''}</div>
+        <div class="briefing-implicacao" style="margin-bottom:0">${b.implicacao||''}</div>
+      </div>
+      <div class="insight-row-acao">
+        <svg viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="insight-row-acao-txt">${b.acao||''}</div>
       </div>
     </div>`;
   }).join('');
+  return `<div class="insights-card">
+    <div class="insights-card-hdr">
+      <span class="insights-card-hdr-lbl">Insights críticos</span>
+    </div>
+    ${rows}
+  </div>`;
 }
 
 function buildDeltaCard(delta) {
@@ -1237,6 +1263,84 @@ function buildDeltaCard(delta) {
     <div class="delta-text">${delta.resumo}</div>
     <span class="delta-tend" style="color:${tendColor}">${tendLabel}</span>
   </div>`;
+}
+
+function formatTeseExecutiva(html) {
+  if (!html) return '';
+  // Split by <strong> tags to extract bullets
+  const parts = html.split(/(<strong>[\s\S]*?<\/strong>)/g);
+  if (parts.length <= 1) {
+    // No <strong> tags — render as plain paragraph
+    return `<div class="exec-txt">${html}</div>`;
+  }
+  let intro = '';
+  const bullets = [];
+  let concl = '';
+  let inBullets = false;
+  let currentBulletStrong = '';
+
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i].trim();
+    if (!p) continue;
+    if (p.startsWith('<strong>')) {
+      inBullets = true;
+      currentBulletStrong = p;
+    } else if (inBullets && currentBulletStrong) {
+      // Text after the strong tag — this completes a bullet
+      // Strip leading connector words and trailing if it's the last
+      const tail = p.replace(/^[,;:\s]+/, '');
+      bullets.push(`${currentBulletStrong}${tail ? ' ' + tail : ''}`);
+      currentBulletStrong = '';
+    } else if (!inBullets) {
+      // Before first strong — this is the intro
+      // Trim volume/count openers: "O dia X registrou Y mensagens ... "
+      const cleaned = p.replace(/^O dia [^,]+,?\s*(registrou\s+[^,]+,?\s*)?/i, '').replace(/^\s+/, '');
+      intro = cleaned || p;
+    } else {
+      // After all bullets — conclusion
+      concl = p;
+    }
+  }
+
+  const introHTML = intro ? `<p class="exec-intro">${intro}</p>` : '';
+  const bulletsHTML = bullets.length ? `<ul class="exec-bullets">${bullets.map(b=>`<li>${b}</li>`).join('')}</ul>` : '';
+  const conclHTML = concl ? `<p class="exec-concl">${concl}</p>` : '';
+  return introHTML + bulletsHTML + conclHTML;
+}
+
+function updateTopbarCtx(d) {
+  const ctx = document.getElementById('topbar-ctx');
+  if (!ctx) return;
+  const m = d?.meta || {};
+  const score = m.score_aquecimento || 0;
+  const scoreColor = score >= 70 ? 'var(--red)' : score >= 45 ? 'var(--amber)' : score >= 25 ? 'var(--blue)' : 'var(--muted)';
+  const scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 45 ? 'MORNO' : score >= 25 ? 'ESFRIADO' : 'BAIXO';
+  const hasPrev = currentDateIndex < availableDates.length - 1;
+  const hasNext = currentDateIndex > 0;
+  ctx.innerHTML = `
+    <div class="meta-chips" style="margin:0;display:flex;align-items:center;gap:6px">
+      <span class="meta-chip"><svg viewBox="0 0 14 14" fill="none"><path d="M7 1.5C4 1.5 1.5 4 1.5 7S4 12.5 7 12.5 12.5 10 12.5 7 10 1.5 7 1.5z" stroke="currentColor" stroke-width="1.2"/><path d="M4.5 7h5M7 4.5v5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>${m.grupos||0} grupos</span>
+      <span class="meta-chip"><svg viewBox="0 0 14 14" fill="none"><path d="M2 3h10a1 1 0 011 1v5a1 1 0 01-1 1H4l-2 2V4a1 1 0 011-1z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg>${m.mensagens||0} msgs</span>
+      <span class="meta-chip" style="color:var(--hint);font-size:10px">${m.modelo||'Claude'}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+      <div class="date-nav">
+        <button class="date-nav-btn" onclick="navigateDate(1)" ${!hasPrev?'disabled':''}>
+          <svg viewBox="0 0 12 12" fill="none"><path d="M7.5 2l-4 4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="date-nav-center">
+          <div class="date-nav-lbl">${getDateLabel()}</div>
+          <div class="date-nav-rel">${getRelativeLabel()}</div>
+        </div>
+        <button class="date-nav-btn" onclick="navigateDate(-1)" ${!hasNext?'disabled':''}>
+          <svg viewBox="0 0 12 12" fill="none"><path d="M4.5 2l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="heat-pill">
+        <div class="heat-dot" style="background:${m.status_cor||scoreColor}"></div>
+        ${m.status_aquecimento||scoreLabel}
+      </div>
+    </div>`;
 }
 
 function buildRadarPortfolioHTML(items) {
