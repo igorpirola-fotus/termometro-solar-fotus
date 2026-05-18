@@ -15,6 +15,7 @@ RETORNE APENAS JSON VALIDO, sem markdown, sem explicacoes, sem texto fora do JSO
 3. Marcas do portfolio Fotus em crise (garantia, defeito, suporte) sao um problema DA Fotus, nao de um concorrente — trate como alerta interno.
 4. Seja estrategico, nao descritivo. Cada campo deve ter valor analitico real para tomada de decisao executiva.
 5. O briefing_executivo e o campo mais importante — deve ser lido em 60 segundos e orientar acao imediata.
+6. REVISAO GRAMATICAL OBRIGATORIA: Use sempre acentuacao correta em portugues em todos os textos gerados (ã, ç, é, ê, ô, õ, í, ú, à, etc.). Nunca omita acentos. Exemplos: "inteligência", "análise", "menção", "distribuição", "aquecimento", "ação", "competição".
 
 === PORTFOLIO DA FOTUS — BASE DE CLASSIFICACAO ===
 
@@ -60,6 +61,22 @@ PRACAS ESTRATEGICAS:
 - SP (Sao Paulo): maior concentracao de integradores do Brasil. Campo de batalha principal com a Belenergy.
 - ES (Espirito Santo): estado da Fotus. Qualquer movimentacao da Fortlev aqui e alerta maximo.
 
+=== PRISMA DE ANALISE — DOIS ANGULOS OBRIGATORIOS ===
+
+ANGULO 1 — COMERCIAL FOTUS: O que aconteceu que afeta as vendas da Fotus hoje ou nos proximos 7 dias?
+- Portfólio citado (positivo/negativo/neutro)
+- Concorrentes distribuidores em movimento
+- Objecoes que o integrador vai levantar na proxima compra
+
+ANGULO 2 — NECESSIDADE DO INTEGRADOR: O que o integrador precisa que a Fotus ainda nao oferece?
+- Produto que ele busca e nao encontra no portfolio Fotus
+- Argumento tecnico ou comercial que ele nao tem para fechar o cliente
+- Suporte operacional que ele pede e nao recebe (tecnico, logistica, pos-venda)
+- Ferramenta, material ou informacao que ele precisaria
+
+Cada campo do JSON deve refletir os dois angulos quando relevante.
+O campo gaps_fotus e o output exclusivo do Angulo 2.
+
 === CLASSIFICACAO DE SINAIS — HIERARQUIA DE PRIORIDADE ===
 
 CRITICA:
@@ -82,22 +99,27 @@ MODERADA:
 - Tendencias tecnologicas emergentes
 - Movimentacao politica ou regulatoria do setor
 
-=== CRITERIO DE SCORE DE AQUECIMENTO ===
+=== CRITERIO DE SCORE DE AQUECIMENTO (MODELO HIBRIDO) ===
 
-Volume base:
-- Menos de 50 mensagens: score maximo 35
-- 50 a 150 mensagens: score entre 35 e 55
-- 150 a 300 mensagens: score entre 55 e 70
-- Mais de 300 mensagens: score entre 70 e 100
+PASSO 1 — Volume define o RANGE possivel (teto e piso):
+- Menos de 50 mensagens: range 10 a 40
+- 50 a 150 mensagens: range 25 a 55
+- 150 a 300 mensagens: range 40 a 70
+- Mais de 300 mensagens: range 55 a 95
 
-Modificadores:
-+10: sinais criticos sobre portfolio Fotus presentes
+PASSO 2 — Qualidade dos sinais posiciona DENTRO do range:
+Parta do piso do range e adicione:
++12: sinal critico presente (exclusivo Fotus, crise de garantia, Fortlev em ES)
 +10: multiplas perguntas de compra ativa em marcas Fotus
-+8: movimentacao relevante de distribuidora concorrente Tier 1
-+8: nova demanda emergente identificada (produto ou segmento)
++8: movimentacao relevante de distribuidora Tier 1 (Belenergy/Fortlev)
++7: integradores pedindo produto sem resposta (lacuna de portfólio urgente)
++5: nova demanda emergente identificada (produto ou segmento novo)
 +5: atividade relevante em SP ou ES
--8: conversas majoritariamente sobre marcas sem relacao com o portfolio Fotus
--5: discussoes predominantemente tecnicas sem implicacao comercial
+-5: conversas majoritariamente spam comercial ou autopromocao
+-8: ruido domina (>60% das mensagens sem relacao com mercado B2B solar)
+
+REGRA DE CAP: o score nunca ultrapassa o teto do range independente dos modificadores.
+EXEMPLO: 79 msgs (range 25-55), 1 sinal critico (+12) e ruido dominante (-8) = 25 + 12 - 8 = 29.
 
 === ESTRUTURA DO JSON DE SAIDA ===
 
@@ -108,7 +130,7 @@ Modificadores:
     "grupos": numero,
     "modelo": "Termometro v3",
     "score_aquecimento": 0-100,
-    "status_aquecimento": "Volume Reduzido|Volume Moderado|Volume Alto|Mercado Quente",
+    "status_aquecimento": "Frio|Parcialmente Frio|Morno|Parcialmente Quente|Aquecido",
     "status_cor": "#3B82F6|#EF9F27|#FFC20E|#E24B4A"
   },
 
@@ -122,7 +144,15 @@ Modificadores:
     }
   ],
 
-  "tese_executiva": "string HTML com analise do dia em 2-3 paragrafos, use <strong> para destaques estrategicos",
+  "tese_executiva": {
+    "cabecalho": "frase de 10-15 palavras resumindo o dia com perspectiva comercial",
+    "bullets": [
+      "bullet 1 — fato comercial relevante com dado numerico ou concreto",
+      "bullet 2 — segundo fato relevante",
+      "bullet 3 — terceiro fato relevante"
+    ],
+    "conclusao": "frase de conclusao com implicacao comercial direta para a Fotus — o que muda nas vendas"
+  },
 
   "tags_exec": [
     { "texto": "label curto", "tipo": "hot|warn|neu" }
@@ -232,6 +262,16 @@ Modificadores:
     }
   ],
 
+  "gaps_fotus": [
+    {
+      "tipo": "produto|argumento|suporte|ferramenta",
+      "descricao": "o que o integrador busca e nao encontra na Fotus — 1 a 2 frases concretas",
+      "frequencia": "alta|media|baixa",
+      "evidencia": "trecho ou contexto da conversa que evidencia esse gap",
+      "recomendacao": "acao especifica que a Fotus poderia tomar para preencher esse gap"
+    }
+  ],
+
   "insight_estrategico": "analise de oportunidade do dia em 2-3 linhas — sem citar nomes de pessoas internas",
   "risco_principal": "analise de risco do dia em 2-3 linhas — sem citar nomes de pessoas internas",
 
@@ -255,6 +295,7 @@ Regras de preenchimento:
 - lacunas_portfolio: inclua marcas fora do portfolio com mencoes relevantes. Ordene por numero de mencoes.
 - concorrentes_distribuidores: inclua distribuidoras concorrentes mencionadas. Se nenhuma foi citada, retorne array vazio e sinalize isso na tese_executiva.
 - marcas.tipo: use "Fotus" para marcas comuns do portfolio; "Exclusivo" para AUXSOL, Pulling e Deye Micro; "Lacuna" para marcas nao distribuidas pela Fotus com alta demanda; "Concorr." para marcas concorrentes sem relacao com portfolio Fotus; "Software" para ferramentas de monitoramento.
+- gaps_fotus: use o Angulo 2 (necessidade do integrador). Inclua apenas gaps com evidencia real nas mensagens do dia. Se nao houver gap identificado, retorne array vazio. Maximo 4 itens. Priorize por frequencia.
 - Se nao houver dia anterior: delta.score_delta = null, delta.resumo = "Primeiro dia de referencia — linha de base estabelecida".
 - Mencoes_fotus vazias: retorne array vazio.
 - Max tokens: seja denso e preciso, nao repetitivo.`
@@ -296,7 +337,7 @@ function validateAndNormalizePayload(
     grupos: 0,
     modelo: 'Termometro v3',
     score_aquecimento: 0,
-    status_aquecimento: 'Volume Reduzido',
+    status_aquecimento: 'Frio',
     status_cor: '#3B82F6'
   })
 
@@ -312,6 +353,7 @@ function validateAndNormalizePayload(
   ensureArray('estados')
   ensureArray('objecoes')
   ensureArray('matriz_sinais')
+  ensureArray('gaps_fotus')
 
   // kpis
   ensureObject('kpis', {
@@ -333,8 +375,17 @@ function validateAndNormalizePayload(
     tendencia: 'estavel'
   })
 
-  // Strings
-  ensureString('tese_executiva', '<p>Análise indisponível para este período.</p>')
+  // tese_executiva — objeto estruturado (migração de string HTML para objeto)
+  if (!raw['tese_executiva'] || typeof raw['tese_executiva'] === 'string') {
+    const legacyHtml = typeof raw['tese_executiva'] === 'string' ? raw['tese_executiva'] : ''
+    const plainText = legacyHtml.replace(/<[^>]+>/g, '').trim()
+    raw['tese_executiva'] = {
+      cabecalho: plainText ? plainText.substring(0, 100) : 'Análise indisponível para este período.',
+      bullets: [],
+      conclusao: ''
+    }
+    warnings.push('tese_executiva')
+  }
   ensureString('insight_estrategico', '—')
   ensureString('risco_principal', '—')
   ensureString('oportunidade_fotus', '—')
@@ -410,9 +461,16 @@ Deno.serve(async (req) => {
         data: dataAnteriorStr,
         score_aquecimento: (p.meta as Record<string, unknown>)?.score_aquecimento,
         status_aquecimento: (p.meta as Record<string, unknown>)?.status_aquecimento,
-        tese_resumo: typeof p.tese_executiva === 'string'
-          ? p.tese_executiva.replace(/<[^>]+>/g, '').substring(0, 500)
-          : '',
+        tese_resumo: (() => {
+          const t = p.tese_executiva
+          if (typeof t === 'string') return t.replace(/<[^>]+>/g, '').substring(0, 500)
+          if (t && typeof t === 'object') {
+            const obj = t as Record<string, unknown>
+            return [obj.cabecalho, ...(Array.isArray(obj.bullets) ? obj.bullets : []), obj.conclusao]
+              .filter(Boolean).join(' ').substring(0, 500)
+          }
+          return ''
+        })(),
         concorrentes_top: Array.isArray(p.concorrentes)
           ? (p.concorrentes as Array<Record<string, unknown>>).slice(0, 3).map(c => ({ nome: c.nome, mencoes: c.mencoes }))
           : [],

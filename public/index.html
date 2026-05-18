@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Termômetro do Mercado Solar · Fotus</title>
-<link rel="icon" type="image/png" href="logo-fotus-icon.png">
+<link rel="icon" type="image/png" href="logo-fotus-favicon.png">
 <style>
 @font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Thin.otf') format('opentype'); font-weight: 100; font-style: normal; }
 @font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-ThinItalic.otf') format('opentype'); font-weight: 100; font-style: italic; }
@@ -601,6 +601,44 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .insight-row.prio-critica .insight-row-accent { background: var(--red); }
 .insight-row.prio-alta    .insight-row-accent { background: var(--amber); }
 .insight-row.prio-media   .insight-row-accent { background: var(--blue); }
+
+/* ── VISÃO SEMANAL ───────────────────────────────────────────────────────── */
+.week-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.week-period { font-size: 11px; color: var(--hint); text-transform: uppercase; letter-spacing: .08em; }
+.week-score-badge { display: flex; align-items: baseline; gap: 6px; }
+.week-score-val { font-family: var(--mono); font-size: 32px; font-weight: 700; line-height: 1; }
+.week-score-lbl { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+
+.week-insights-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.week-insight { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 16px; border-left: 3px solid var(--border2); animation: fadeUp .3s ease both; }
+.week-insight.prio-critica { border-left-color: var(--red); }
+.week-insight.prio-alta    { border-left-color: var(--amber); }
+.week-insight:nth-child(1) { animation-delay: .05s; }
+.week-insight:nth-child(2) { animation-delay: .10s; }
+.week-insight:nth-child(3) { animation-delay: .15s; }
+.week-insight-titulo { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; line-height: 1.4; }
+.week-insight-ctx { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; }
+.week-insight-acao { font-size: 11px; color: var(--amber); font-weight: 500; }
+.week-insight-date { font-size: 10px; color: var(--hint); margin-top: 8px; }
+
+.week-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+.week-rank { padding: 0; }
+.week-rank-row { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.week-rank-row:last-child { border-bottom: none; }
+.week-rank-num { font-family: var(--mono); font-size: 11px; color: var(--hint); width: 16px; text-align: center; flex-shrink: 0; }
+.week-rank-name { flex: 1; font-size: 12px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.week-rank-count { font-family: var(--mono); font-size: 11px; color: var(--muted); flex-shrink: 0; }
+
+.day-chips-wrap { margin-bottom: 8px; }
+.day-chips-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.day-chip { padding: 6px 12px; border-radius: var(--r-ctrl); background: var(--surface2); border: 1px solid var(--border); color: var(--muted); font-size: 11px; font-weight: 500; cursor: pointer; transition: background .12s, color .12s, border-color .12s; font-family: var(--sans); }
+.day-chip:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); }
+.day-chip.latest { border-color: var(--green); color: var(--green); }
+
+.back-nav { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+.back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); border-radius: var(--r-ctrl); padding: 6px 12px; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans); transition: background .12s, color .12s; }
+.back-btn:hover { background: var(--surface2); color: var(--text); }
+.back-nav-date { font-size: 12px; color: var(--hint); }
 </style>
 </head>
 <body>
@@ -613,7 +651,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
   <div class="topbar-brand">
     <div class="topbar-sun">
-      <img src="logo-fotus-icon.png" alt="Fotus" style="width:100%;height:100%;object-fit:contain;border-radius:var(--r-ctrl);">
+      <img src="logo-fotus-favicon.png" alt="Fotus" style="width:100%;height:100%;object-fit:contain;border-radius:var(--r-ctrl);">
     </div>
     <div>
       <div class="topbar-title">TERMÔMETRO DO MERCADO</div>
@@ -796,6 +834,7 @@ let brandChart = null;
 let igOverviewChart = null;
 let availableDates     = [];
 let currentDateIndex   = 0;
+let weeklyReports      = [];
 let igDates    = [];
 let igDateIndex = 0;
 let currentPage = 'termometro';
@@ -824,6 +863,28 @@ async function loadReportByDate(dateStr) {
   const { data: rows, error } = await sb.from('relatorios').select('*').eq('data_referencia', dateStr).limit(1);
   if (error || !rows || rows.length === 0) return null;
   return rows[0];
+}
+
+function getScoreLabel(score) {
+  if (score > 80) return 'Aquecido';
+  if (score > 60) return 'Parcialmente Quente';
+  if (score > 40) return 'Morno';
+  if (score > 20) return 'Parcialmente Frio';
+  return 'Frio';
+}
+function getScoreColor(score) {
+  if (score > 80) return 'var(--red)';
+  if (score > 60) return '#F97316';
+  if (score > 40) return 'var(--amber)';
+  if (score > 20) return 'var(--blue)';
+  return 'var(--muted)';
+}
+function getScoreColorHex(score) {
+  if (score > 80) return '#EF4444';
+  if (score > 60) return '#F97316';
+  if (score > 40) return '#F59E0B';
+  if (score > 20) return '#3B82F6';
+  return '#5C6478';
 }
 
 let isNavigating = false;
@@ -909,17 +970,17 @@ async function loadLatestReport() {
   }
 
   setStep(3, 70);
-  const report = await loadReportByDate(availableDates[0]);
 
-  // Sparkline: últimos 7 relatórios
-  const { data: sparkRows } = await sb.from('relatorios')
-    .select('data_referencia, payload')
+  // Carrega últimos 7 relatórios (sparkline + visão semanal)
+  const { data: weekRows } = await sb.from('relatorios')
+    .select('data_referencia, payload, created_at')
     .order('data_referencia', { ascending: false })
     .limit(7);
-  sparklineData = (sparkRows || []).map(r => ({
+  weeklyReports = (weekRows || []).reverse();
+  sparklineData = weeklyReports.map(r => ({
     date: r.data_referencia,
     score: r.payload?.meta?.score_aquecimento || r.payload?.kpis?.score_aquecimento || 0
-  })).reverse();
+  }));
 
   setStep(4, 90);
   await new Promise(r => setTimeout(r, 150));
@@ -927,9 +988,11 @@ async function loadLatestReport() {
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('dashPage').style.display = 'block';
 
-  if (report) {
-    renderDashboard(report.payload);
-    updateTopbarStatus(report);
+  renderWeeklyView();
+
+  if (weeklyReports.length > 0) {
+    const latest = weeklyReports[weeklyReports.length - 1];
+    updateTopbarStatus(latest);
   }
 }
 
@@ -975,6 +1038,201 @@ function updatePipelineStatus() {
   lastReport.textContent = `${d}/${mo}`;
 }
 
+// ── WEEKLY VIEW ───────────────────────────────────────────────────────────────
+function aggregateWeek(reports) {
+  const scores = reports.map(r => r.payload?.meta?.score_aquecimento || r.payload?.kpis?.score_aquecimento || 0);
+  const scoreMedio = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+
+  // Insights de alta/crítica prioridade dos 7 dias
+  const allInsights = [];
+  for (const r of reports) {
+    for (const b of (r.payload?.briefing_executivo || [])) {
+      const prio = (b.prioridade || '').toLowerCase();
+      if (prio === 'critica' || prio === 'alta') {
+        allInsights.push({ ...b, data: r.data_referencia });
+      }
+    }
+  }
+  const topInsights = allInsights
+    .sort((a, b) => (a.prioridade === 'critica' ? -1 : 1))
+    .slice(0, 3);
+
+  // Top marcas do portfólio citadas
+  const brandMap = {};
+  for (const r of reports) {
+    for (const b of (r.payload?.radar_portfolio || [])) {
+      const key = b.brand_name || b.nome;
+      if (!key) continue;
+      if (!brandMap[key]) brandMap[key] = { nome: key, mencoes: 0 };
+      brandMap[key].mencoes += (b.mencoes || b.total_mentions || 1);
+    }
+  }
+  const topBrands = Object.values(brandMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 5);
+
+  // Top objeções
+  const objMap = {};
+  for (const r of reports) {
+    for (const o of (r.payload?.objecoes || [])) {
+      const key = o.titulo || o.tipo || o.descricao;
+      if (!key) continue;
+      if (!objMap[key]) objMap[key] = { titulo: key, count: 0 };
+      objMap[key].count++;
+    }
+  }
+  const topObjecoes = Object.values(objMap).sort((a, b) => b.count - a.count).slice(0, 5);
+
+  // Top concorrentes
+  const concMap = {};
+  for (const r of reports) {
+    for (const c of (r.payload?.concorrentes_distribuidores || [])) {
+      const key = c.nome;
+      if (!key) continue;
+      if (!concMap[key]) concMap[key] = { nome: key, mencoes: 0 };
+      concMap[key].mencoes += (c.mencoes || 1);
+    }
+  }
+  const topConcorrentes = Object.values(concMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 5);
+
+  // Top lacunas de portfólio
+  const lacMap = {};
+  for (const r of reports) {
+    for (const l of (r.payload?.lacunas_portfolio || [])) {
+      const key = l.produto || l.brand_name || l.nome;
+      if (!key) continue;
+      if (!lacMap[key]) lacMap[key] = { produto: key, mencoes: 0 };
+      lacMap[key].mencoes += (l.mencoes || 1);
+    }
+  }
+  const topLacunas = Object.values(lacMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 5);
+
+  return { scoreMedio, scores, topInsights, topBrands, topObjecoes, topConcorrentes, topLacunas };
+}
+
+function renderWeeklyView() {
+  const page = document.getElementById('dashPage');
+  if (!page) return;
+
+  if (!weeklyReports.length) {
+    page.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:12px;color:var(--hint);text-align:center">
+      <div style="font-size:15px;font-weight:600;color:var(--text)">Nenhum relatório encontrado</div>
+    </div>`;
+    return;
+  }
+
+  const w = aggregateWeek(weeklyReports);
+  const scoreColor = getScoreColor(w.scoreMedio);
+  const scoreLabel = getScoreLabel(w.scoreMedio);
+
+  // Insights da semana
+  const insightsHTML = w.topInsights.length
+    ? w.topInsights.map(ins => {
+        const prio = (ins.prioridade || 'media').toLowerCase();
+        const [dy, dm, dd] = (ins.data || '').split('-');
+        const dateLabel = dd && dm ? `${dd}/${dm}` : '';
+        return `<div class="week-insight prio-${prio}">
+          <div class="week-insight-titulo">${ins.titulo || ''}</div>
+          <div class="week-insight-ctx">${ins.contexto || ins.implicacao || ''}</div>
+          ${ins.acao ? `<div class="week-insight-acao">▸ ${ins.acao}</div>` : ''}
+          ${dateLabel ? `<div class="week-insight-date">${dateLabel}</div>` : ''}
+        </div>`;
+      }).join('')
+    : `<div class="week-insight" style="color:var(--hint);font-size:12px">Nenhum destaque de alta prioridade na semana.</div>`;
+
+  // Função auxiliar para rank lists
+  function rankList(items, labelKey, countKey) {
+    if (!items.length) return `<div style="color:var(--hint);font-size:11px;padding:8px 0">Sem dados</div>`;
+    return items.map((item, i) => `
+      <div class="week-rank-row">
+        <span class="week-rank-num">${i + 1}</span>
+        <span class="week-rank-name">${item[labelKey] || '—'}</span>
+        <span class="week-rank-count">${item[countKey]}×</span>
+      </div>`).join('');
+  }
+
+  // Day chips
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const chipsHTML = [...weeklyReports].reverse().map(r => {
+    const ds = r.data_referencia || '';
+    const [y, mo, d] = ds.split('-');
+    const label = d && mo ? `${d}/${mo}` : ds;
+    const rDate = new Date(ds + 'T12:00:00Z'); rDate.setHours(0, 0, 0, 0);
+    const isLatest = rDate.getTime() === new Date(weeklyReports[weeklyReports.length - 1].data_referencia + 'T12:00:00Z').setHours(0,0,0,0);
+    return `<button class="day-chip${isLatest ? ' latest' : ''}" onclick="showDayDetail('${ds}')">${label}</button>`;
+  }).join('');
+
+  page.innerHTML = `
+    <div class="week-header">
+      <div>
+        <div class="week-period">Últimos ${weeklyReports.length} dias</div>
+      </div>
+      <div class="week-score-badge">
+        <span class="week-score-val" style="color:${scoreColor}">${w.scoreMedio}</span>
+        <span class="week-score-lbl" style="color:${scoreColor}">${scoreLabel}</span>
+        <span style="font-size:11px;color:var(--hint);margin-left:4px">/ 100 (média)</span>
+      </div>
+    </div>
+
+    <div class="section-label">Destaques da semana</div>
+    <div class="week-insights-grid">${insightsHTML}</div>
+
+    <div class="week-data-grid">
+      <div class="card">
+        <div class="card-ttl">Marcas citadas</div>
+        <div class="week-rank">${rankList(w.topBrands, 'nome', 'mencoes')}</div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">Objeções recorrentes</div>
+        <div class="week-rank">${rankList(w.topObjecoes, 'titulo', 'count')}</div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">Concorrentes em alta</div>
+        <div class="week-rank">${rankList(w.topConcorrentes, 'nome', 'mencoes')}</div>
+      </div>
+      <div class="card">
+        <div class="card-ttl">Lacunas de portfólio</div>
+        <div class="week-rank">${rankList(w.topLacunas, 'produto', 'mencoes')}</div>
+      </div>
+    </div>
+
+    <div class="section-label">Análises diárias</div>
+    <div class="day-chips-wrap">
+      <div class="day-chips-row">${chipsHTML}</div>
+    </div>
+  `;
+}
+
+async function showDayDetail(dateStr) {
+  const page = document.getElementById('dashPage');
+  page.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:40vh;color:var(--hint);font-size:13px">Carregando...</div>`;
+
+  const idx = availableDates.indexOf(dateStr);
+  if (idx >= 0) currentDateIndex = idx;
+
+  const report = await loadReportByDate(dateStr);
+  if (!report) {
+    page.innerHTML = `<div style="padding:40px;color:var(--hint);text-align:center">Relatório não encontrado para ${dateStr}.</div>`;
+    return;
+  }
+
+  renderDashboard(report.payload);
+
+  // Injeta botão voltar no topo do conteúdo
+  const [y, mo, d] = dateStr.split('-');
+  const dateLabel = d && mo ? `${d}/${mo}/${y}` : dateStr;
+  const backBar = document.createElement('div');
+  backBar.className = 'back-nav';
+  backBar.innerHTML = `
+    <button class="back-btn" onclick="renderWeeklyView()">
+      <svg viewBox="0 0 12 12" fill="none" style="width:12px;height:12px"><path d="M7.5 2l-4 4 4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Semana
+    </button>
+    <span class="back-nav-date">${dateLabel}</span>
+  `;
+  page.insertBefore(backBar, page.firstChild);
+
+  updateTopbarStatus(report);
+}
+
 // ── RENDER DASHBOARD ──────────────────────────────────────────────────────────
 function renderDashboard(d) {
   if (!d || typeof d !== 'object') {
@@ -1009,8 +1267,8 @@ function buildDashboardHTML(d) {
   const hasNext = currentDateIndex > 0;
 
   // Score color
-  const scoreColor = score >= 70 ? 'var(--red)' : score >= 45 ? 'var(--amber)' : score >= 25 ? 'var(--blue)' : 'var(--muted)';
-  const scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 45 ? 'MORNO' : score >= 25 ? 'ESFRIADO' : 'BAIXO';
+  const scoreColor = getScoreColor(score);
+  const scoreLabel = getScoreLabel(score);
 
   // KPIs
   const kpis = d.kpis || {};
@@ -1265,46 +1523,20 @@ function buildDeltaCard(delta) {
   </div>`;
 }
 
-function formatTeseExecutiva(html) {
-  if (!html) return '';
-  // Split by <strong> tags to extract bullets
-  const parts = html.split(/(<strong>[\s\S]*?<\/strong>)/g);
-  if (parts.length <= 1) {
-    // No <strong> tags — render as plain paragraph
-    return `<div class="exec-txt">${html}</div>`;
+function formatTeseExecutiva(tese) {
+  if (!tese) return '';
+  // Suporte a objeto estruturado (schema v3+) e legado HTML (string)
+  if (typeof tese === 'string') {
+    return `<div class="exec-txt">${tese}</div>`;
   }
-  let intro = '';
-  const bullets = [];
-  let concl = '';
-  let inBullets = false;
-  let currentBulletStrong = '';
-
-  for (let i = 0; i < parts.length; i++) {
-    const p = parts[i].trim();
-    if (!p) continue;
-    if (p.startsWith('<strong>')) {
-      inBullets = true;
-      currentBulletStrong = p;
-    } else if (inBullets && currentBulletStrong) {
-      // Text after the strong tag — this completes a bullet
-      // Strip leading connector words and trailing if it's the last
-      const tail = p.replace(/^[,;:\s]+/, '');
-      bullets.push(`${currentBulletStrong}${tail ? ' ' + tail : ''}`);
-      currentBulletStrong = '';
-    } else if (!inBullets) {
-      // Before first strong — this is the intro
-      // Trim volume/count openers: "O dia X registrou Y mensagens ... "
-      const cleaned = p.replace(/^O dia [^,]+,?\s*(registrou\s+[^,]+,?\s*)?/i, '').replace(/^\s+/, '');
-      intro = cleaned || p;
-    } else {
-      // After all bullets — conclusion
-      concl = p;
-    }
-  }
-
-  const introHTML = intro ? `<p class="exec-intro">${intro}</p>` : '';
-  const bulletsHTML = bullets.length ? `<ul class="exec-bullets">${bullets.map(b=>`<li>${b}</li>`).join('')}</ul>` : '';
-  const conclHTML = concl ? `<p class="exec-concl">${concl}</p>` : '';
+  const cabecalho = tese.cabecalho || '';
+  const bullets = Array.isArray(tese.bullets) ? tese.bullets : [];
+  const conclusao = tese.conclusao || '';
+  const introHTML = cabecalho ? `<p class="exec-intro">${cabecalho}</p>` : '';
+  const bulletsHTML = bullets.length
+    ? `<ul class="exec-bullets">${bullets.map(b => `<li>${b}</li>`).join('')}</ul>`
+    : '';
+  const conclHTML = conclusao ? `<p class="exec-concl">${conclusao}</p>` : '';
   return introHTML + bulletsHTML + conclHTML;
 }
 
@@ -1313,8 +1545,8 @@ function updateTopbarCtx(d) {
   if (!ctx) return;
   const m = d?.meta || {};
   const score = m.score_aquecimento || 0;
-  const scoreColor = score >= 70 ? 'var(--red)' : score >= 45 ? 'var(--amber)' : score >= 25 ? 'var(--blue)' : 'var(--muted)';
-  const scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 45 ? 'MORNO' : score >= 25 ? 'ESFRIADO' : 'BAIXO';
+  const scoreColor = getScoreColor(score);
+  const scoreLabel = getScoreLabel(score);
   const hasPrev = currentDateIndex < availableDates.length - 1;
   const hasNext = currentDateIndex > 0;
   ctx.innerHTML = `
@@ -1406,7 +1638,7 @@ function animateDashboard(d, instant = false) {
   // Gauge
   const gaugeCanvas = document.getElementById('gaugeC');
   if (gaugeCanvas) {
-    const gc = score >= 70 ? '#EF4444' : score >= 45 ? '#F59E0B' : score >= 25 ? '#3B82F6' : '#5C6478';
+    const gc = getScoreColorHex(score);
     gaugeChart = new Chart(gaugeCanvas.getContext('2d'), {
       type: 'doughnut',
       data: { datasets: [{ data: [score, 100-score], backgroundColor: [gc, emptyArc], borderWidth: 0, circumference: 240, rotation: -120 }] },

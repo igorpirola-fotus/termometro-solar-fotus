@@ -12,43 +12,71 @@ const CORS = {
 
 // ─── Personas ───────────────────────────────────────────────────────────────
 
-const SYSTEM_NEWSLETTER = `Você é o "Cortex Solar" — um especialista em mercado de energia solar fotovoltaica com 15 anos de experiência em distribuição. Você escreve uma newsletter diária para os consultores de vendas da Fotus, uma distribuidora de equipamentos solares no Espírito Santo.
+const SYSTEM_NEWSLETTER = `Você é o "Cortex Solar" — consultor de vendas sênior com 15 anos rodando o mercado solar fotovoltaico no Brasil. Você escreve uma newsletter diária para os consultores de vendas da Fotus com o único objetivo de ajudá-los a vender mais hoje.
 
-Tom: como um colega experiente contando novidades no café da manhã, não um executivo em terno. Use linguagem direta, sem jargão técnico desnecessário. Seja específico — cite marcas, estados, números quando disponíveis. Evite frases genéricas como "o mercado está aquecido".
+O leitor é um consultor de vendas B2B que vai fazer ligações e visitas nas próximas horas. Ele quer saber: qual objeção vai ouvir hoje? O que o mercado está pedindo? O que fazer diferente para fechar mais?
+
+Tom: como um colega experiente passando um briefing rápido antes da rota — direto, prático, comercial. Sem relatório técnico, sem linguagem de tecnologia. Cada frase deve ter utilidade imediata para quem vai vender.
+
+FOCO COMERCIAL OBRIGATÓRIO em cada seção:
+- Qual objeção está circulando nos grupos que o consultor vai ouvir hoje?
+- Qual produto ou marca está gerando demanda ou sendo comparada?
+- O que fazer com essa informação em uma ligação ou visita?
 
 REGRAS:
 - Nunca cite nomes de pessoas da equipe Fotus — use "a Fotus", "o time Fotus"
 - "Por que importa:" é obrigatório após cada notícia principal
 - Máximo 350 palavras no total
 - Use linguagem do método OPC: O quê aconteceu → Por quê importa → Como agir
+- REVISÃO OBRIGATÓRIA: Use sempre acentuação correta em português (ã, ç, é, ê, ô, õ, í, ú, à, etc.). Nunca omita acentos. Exemplos: "inteligência", "análise", "menção", "ação", "aquecimento", "distribuição".
 
 ESTRUTURA OBRIGATÓRIA (5 seções, use exatamente esses títulos):
-1. [ABERTURA] — 1-2 frases contextualizando o dia (temperatura do mercado, tom geral)
-2. [TOP 3 DO DIA] — 3 bullets com as principais movimentações, cada um com "Por que importa:"
-3. [NÚMERO DO DIA] — 1 dado numérico relevante com contexto em 2-3 frases
-4. [O QUE USAR HOJE] — 1 recomendação acionável para o time de vendas (produto, argumento, abordagem)
-5. [ABERTURA DE CONVERSA] — 1 frase para abrir conversa com cliente hoje
+1. [ABERTURA] — 1-2 frases contextualizando o dia com foco em oportunidade de venda
+2. [TOP 3 DO DIA] — 3 bullets com as principais movimentações comerciais, cada um com "Por que importa:"
+3. [NÚMERO DO DIA] — 1 dado numérico relevante com impacto direto em conversão ou ticket
+4. [O QUE USAR HOJE] — 1 argumento ou abordagem específica para usar nas conversas de hoje (produto, comparativo, contorno de objeção)
+5. [ABERTURA DE CONVERSA] — 1 frase para abrir conversa com cliente hoje, baseada no contexto do mercado
 
 Retorne APENAS o texto editorial estruturado. Não inclua HTML, markdown, ou qualquer formatação além dos títulos entre colchetes.`
 
-const SYSTEM_BRIEFING = `Você é um analista estratégico de mercado preparando um briefing executivo para o CEO e heads de uma distribuidora de equipamentos solares. Seja cirúrgico: só o que muda decisões hoje. Sem histórico, sem contexto óbvio, sem enrolação.
+const SYSTEM_BRIEFING = `Você é um consultor comercial sênior preparando um briefing diário de mercado para o CEO e líderes comerciais de uma distribuidora de equipamentos solares. Foco exclusivo em implicações para vendas — o que aconteceu no mercado que muda alguma decisão comercial hoje.
 
-ESTRUTURA OBRIGATÓRIA (150-200 palavras, nunca mais):
-1. [HEADLINE] — 2 linhas: o que mudou hoje que importa
-2. [O QUÊ] — 3 bullets de exatamente 20 palavras cada: fatos com números
-3. [POR QUÊ IMPORTA] — 1 parágrafo de 40 palavras: implicação estratégica nos próximos 30-60 dias
-4. [PRÓXIMO PASSO] — 1 bullet: ação ou ponto de vigília
+FORMATO OBRIGATÓRIO (sem subtítulos, sem seções rotuladas, texto corrido em 3 blocos):
 
-REGRAS: voz ativa, número primeiro, jargão executivo aceito (ASP, spread, mix, tier), nunca cite nomes de pessoas da Fotus, nunca use frases genéricas.
+Bloco 1 — HEADLINE (primeira linha do texto, obrigatoriamente em maiúsculas): uma frase de até 15 palavras sobre o fato comercial mais relevante do dia.
 
-Retorne APENAS o texto estruturado. Não inclua HTML, markdown, ou qualquer formatação além dos títulos entre colchetes.`
+Bloco 2 — CONTEXTO (3 bullets separados por quebra de linha, começando com •): cada bullet com um fato numérico ou concreto, máximo 20 palavras cada.
+
+Bloco 3 — IMPLICAÇÃO COMERCIAL (parágrafo final, sem label): 2-3 frases sobre o impacto nas vendas dos próximos 15-30 dias. O que o time deve fazer diferente? Qual oportunidade ou risco concreto para o portfólio?
+
+REGRAS: voz ativa, número primeiro, foco em vendas (não em tecnologia), nunca cite nomes de pessoas da Fotus, nunca use frases genéricas como "o mercado está aquecido". Use sempre acentuação correta em português (ã, ç, é, ê, ô, õ, í, ú, à, etc.) — nunca omita acentos. Máximo 180 palavras no total.
+
+Retorne APENAS o texto. Sem HTML, sem markdown, sem labels entre colchetes.`
+
+// ─── Score helpers ────────────────────────────────────────────────────────────
+
+function getScoreLabel(score: number): string {
+  if (score > 80) return 'Aquecido'
+  if (score > 60) return 'Parcialmente Quente'
+  if (score > 40) return 'Morno'
+  if (score > 20) return 'Parcialmente Frio'
+  return 'Frio'
+}
+
+function getScoreColor(score: number): string {
+  if (score > 80) return '#EF4444'
+  if (score > 60) return '#F97316'
+  if (score > 40) return '#F59E0B'
+  if (score > 20) return '#3B82F6'
+  return '#8B95A6'
+}
 
 // ─── HTML Templates ──────────────────────────────────────────────────────────
 
 function buildNewsletterHTML(texto: string, dataFormatada: string, score: number): string {
   const sections = parseTextSections(texto)
-  const scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 50 ? 'MORNO' : 'ESFRIADO'
-  const scoreColor = score >= 70 ? '#F59E0B' : score >= 50 ? '#3B82F6' : '#8B95A6'
+  const scoreLabel = getScoreLabel(score)
+  const scoreColor = getScoreColor(score)
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -141,7 +169,7 @@ function buildNewsletterHTML(texto: string, dataFormatada: string, score: number
       <!-- Footer -->
       <tr>
         <td style="background:#F4F5F7;border-radius:0 0 8px 8px;padding:16px 32px;border-top:1px solid #E5E7EB;">
-          <p style="margin:0;color:#9CA3AF;font-size:11px;text-align:center;">Gerado pelo Termômetro · Fotus Distribuidora Solar · Para cancelar sua inscrição, entre em contato com o time de TI.</p>
+          <p style="margin:0;color:#9CA3AF;font-size:11px;text-align:center;">Gerado pelo Termômetro · Fotus Distribuidora Solar · Para cancelar sua inscrição, fale com o time Fotus.</p>
         </td>
       </tr>
 
@@ -153,19 +181,20 @@ function buildNewsletterHTML(texto: string, dataFormatada: string, score: number
 }
 
 function buildBriefingHTML(texto: string, dataFormatada: string, score: number, tendencia: string): string {
-  const scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 50 ? 'MORNO' : 'ESFRIADO'
-  const scoreColor = score >= 70 ? '#F59E0B' : score >= 50 ? '#3B82F6' : '#8B95A6'
-  const lines = texto.split('\n').filter(l => l.trim())
-  const htmlLines = lines.map(line => {
-    if (line.startsWith('[') && line.includes(']')) {
-      const label = line.slice(1, line.indexOf(']'))
-      const rest = line.slice(line.indexOf(']') + 1).trim()
-      return `<p style="margin:0 0 4px;color:#6B7280;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">${label}</p>${rest ? `<p style="margin:0 0 16px;color:#111827;font-size:14px;line-height:1.6;">${rest}</p>` : ''}`
-    }
+  const scoreLabel = getScoreLabel(score)
+  const scoreColor = getScoreColor(score)
+  const lines = texto.split('\n').map(l => l.trim()).filter(Boolean)
+
+  // Primeira linha é a headline (em maiúsculas conforme o prompt)
+  const headlineLine = lines[0] ?? ''
+  const restLines = lines.slice(1)
+
+  const bodyHtml = restLines.map(line => {
     if (line.startsWith('•') || line.startsWith('-')) {
-      return `<p style="margin:0 0 8px;color:#374151;font-size:13px;line-height:1.5;padding-left:12px;">${line}</p>`
+      const content = line.replace(/^[•\-]\s*/, '')
+      return `<p style="margin:0 0 10px;color:#374151;font-size:14px;line-height:1.6;padding-left:16px;position:relative;"><span style="position:absolute;left:0;color:#FFC20E;font-weight:700;">▸</span>${content}</p>`
     }
-    return `<p style="margin:0 0 12px;color:#374151;font-size:13px;line-height:1.6;">${line}</p>`
+    return `<p style="margin:0 0 14px;color:#374151;font-size:14px;line-height:1.7;">${line}</p>`
   }).join('')
 
   return `<!DOCTYPE html>
@@ -173,39 +202,45 @@ function buildBriefingHTML(texto: string, dataFormatada: string, score: number, 
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fotus Mercado | ${score}° ${tendencia} | ${dataFormatada}</title>
+<title>Fotus Mercado | ${score}° ${scoreLabel} | ${dataFormatada}</title>
 </head>
 <body style="margin:0;padding:0;background:#F9FAFB;font-family:Arial,Helvetica,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#F9FAFB;">
   <tr><td align="center" style="padding:24px 16px;">
     <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
 
-      <!-- Header compacto -->
+      <!-- Header -->
       <tr>
-        <td style="padding:0 0 16px;">
+        <td style="background:#0B2559;border-radius:8px 8px 0 0;padding:20px 28px;">
           <table width="100%" cellpadding="0" cellspacing="0">
             <tr>
               <td>
-                <p style="margin:0;color:#6B7280;font-size:11px;letter-spacing:1px;text-transform:uppercase;">Briefing Executivo · ${dataFormatada}</p>
-                <p style="margin:2px 0 0;color:#0B2559;font-size:18px;font-weight:700;">Termômetro do Mercado Solar</p>
+                <p style="margin:0;color:#8B9DC3;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;">Fotus · Mercado Solar · ${dataFormatada}</p>
               </td>
-              <td align="right" valign="top">
-                <span style="color:${scoreColor};font-size:20px;font-weight:700;font-family:'Courier New',monospace;">${score}° ${scoreLabel}</span>
+              <td align="right" valign="middle">
+                <span style="color:${scoreColor};font-size:18px;font-weight:700;font-family:'Courier New',monospace;">${score}° ${scoreLabel}</span>
               </td>
             </tr>
           </table>
-          <hr style="border:none;border-top:2px solid #0B2559;margin:12px 0 0;">
+        </td>
+      </tr>
+
+      <!-- Headline em destaque -->
+      <tr>
+        <td style="background:#FFFFFF;padding:24px 28px 0;">
+          <p style="margin:0;color:#0B2559;font-size:18px;font-weight:700;line-height:1.4;border-left:4px solid #FFC20E;padding-left:14px;">${headlineLine}</p>
         </td>
       </tr>
 
       <!-- Body -->
       <tr>
-        <td style="background:#FFFFFF;border-radius:6px;padding:24px;border:1px solid #E5E7EB;">
-          ${htmlLines}
+        <td style="background:#FFFFFF;border-radius:0 0 8px 8px;padding:20px 28px 24px;border:1px solid #E5E7EB;border-top:none;">
+          <hr style="border:none;border-top:1px solid #E5E7EB;margin:16px 0 20px;">
+          ${bodyHtml}
 
           <!-- CTA -->
-          <hr style="border:none;border-top:1px solid #E5E7EB;margin:16px 0;">
-          <a href="https://termometro-solar-fotus.vercel.app" style="color:#0B2559;font-size:12px;font-weight:700;text-decoration:none;">Dashboard completo →</a>
+          <hr style="border:none;border-top:1px solid #E5E7EB;margin:16px 0 12px;">
+          <a href="https://termometro-solar-fotus.vercel.app" style="color:#0B2559;font-size:12px;font-weight:700;text-decoration:none;">Ver dashboard completo →</a>
         </td>
       </tr>
 
@@ -268,7 +303,8 @@ function formatBullets(text: string): string {
 }
 
 function formatDate(dateStr: string): string {
-  const d = new Date(dateStr + 'T12:00:00Z')
+  const dateOnly = (dateStr ?? '').slice(0, 10)
+  const d = new Date(dateOnly + 'T12:00:00Z')
   return d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 

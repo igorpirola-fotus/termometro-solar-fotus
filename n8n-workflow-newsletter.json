@@ -1,5 +1,5 @@
 {
-  "name": "Termômetro – Newsletter & Briefing Diário",
+  "name": "#02 TMS · 02 · ENTREGA · Newsletter & Briefing",
   "nodes": [
     {
       "id": "node-schedule",
@@ -30,15 +30,15 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "apikey", "value": "sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL" },
-            { "name": "Authorization", "value": "Bearer sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL" }
+            { "name": "apikey", "value": "SUPABASE_SERVICE_ROLE_JWT" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_ROLE_JWT" }
           ]
         },
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             { "name": "select", "value": "id,data_referencia,payload" },
-            { "name": "data_referencia", "value": "=eq.{{ $now.toFormat('yyyy-MM-dd') }}" },
+            { "name": "data_referencia", "value": "=eq.{{ $now.minus({days: 1}).toFormat('yyyy-MM-dd') }}" },
             { "name": "order", "value": "created_at.desc" },
             { "name": "limit", "value": "1" }
           ]
@@ -102,7 +102,7 @@
         "headerParameters": {
           "parameters": [
             { "name": "Content-Type", "value": "application/json" },
-            { "name": "Authorization", "value": "Bearer {{$env.SUPABASE_SERVICE_KEY}}" }
+            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_ROLE_JWT" }
           ]
         },
         "sendBody": true,
@@ -134,7 +134,7 @@
         "headerParameters": {
           "parameters": [
             { "name": "Content-Type", "value": "application/json" },
-            { "name": "Authorization", "value": "Bearer {{$env.SUPABASE_SERVICE_KEY}}" }
+            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_ROLE_JWT" }
           ]
         },
         "sendBody": true,
@@ -150,7 +150,7 @@
       "position": [1680, 180],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const htmlResp = $('Gera HTML Newsletter').first().json;\nconst bodyPrep = $('Prepara Body Newsletter').first().json;\n\nconst dataRef = htmlResp.data_referencia ?? new Date().toISOString().slice(0, 10);\nconst d = new Date(dataRef + 'T12:00:00Z');\nconst dataFmt = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });\n\nconst kpis = htmlResp.payload?.kpis ?? {};\nconst score = kpis.score_aquecimento ?? 0;\nconst scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 50 ? 'MORNO' : 'ESFRIADO';\n\nreturn bodyPrep.inscritos.map(email => ({\n  json: {\n    to: email,\n    subject: `O Termômetro Solar · ${score}° ${scoreLabel} · ${dataFmt}`,\n    html: htmlResp.html\n  }\n}));"
+        "jsCode": "const htmlResp = $('Gera HTML Newsletter').first().json;\nconst bodyPrep = $('Prepara Body Newsletter').first().json;\n\nconst dataRef = (htmlResp.data_referencia ?? new Date().toISOString()).slice(0, 10);\nconst d = new Date(dataRef + 'T12:00:00Z');\nconst dataFmt = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });\n\nconst kpis = htmlResp.payload?.kpis ?? {};\nconst score = kpis.score_aquecimento ?? 0;\nconst scoreLabel = score > 80 ? 'Aquecido' : score > 60 ? 'Parcialmente Quente' : score > 40 ? 'Morno' : score > 20 ? 'Parcialmente Frio' : 'Frio';\n\nreturn bodyPrep.inscritos.map(email => ({\n  json: {\n    to: email,\n    subject: `Termometro Solar - ${score} ${scoreLabel} - ${dataFmt}`,\n    html: htmlResp.html\n  }\n}));"
       }
     },
     {
@@ -187,7 +187,7 @@
       "position": [1680, 420],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const htmlResp = $('Gera HTML Briefing').first().json;\nconst bodyPrep = $('Prepara Body Briefing').first().json;\n\nconst dataRef = htmlResp.data_referencia ?? new Date().toISOString().slice(0, 10);\nconst d = new Date(dataRef + 'T12:00:00Z');\nconst dataFmt = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });\n\nconst kpis = htmlResp.payload?.kpis ?? {};\nconst score = kpis.score_aquecimento ?? 0;\nconst scoreLabel = score >= 70 ? 'AQUECIDO' : score >= 50 ? 'MORNO' : 'ESFRIADO';\n\nreturn bodyPrep.destinatarios.map(email => ({\n  json: {\n    to: email,\n    subject: `Fotus Mercado | ${score}° ${scoreLabel} | ${dataFmt}`,\n    html: htmlResp.html\n  }\n}));"
+        "jsCode": "const htmlResp = $('Gera HTML Briefing').first().json;\nconst bodyPrep = $('Prepara Body Briefing').first().json;\n\nconst dataRef = (htmlResp.data_referencia ?? new Date().toISOString()).slice(0, 10);\nconst d = new Date(dataRef + 'T12:00:00Z');\nconst dataFmt = d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });\n\nconst kpis = htmlResp.payload?.kpis ?? {};\nconst score = kpis.score_aquecimento ?? 0;\nconst scoreLabel = score > 80 ? 'Aquecido' : score > 60 ? 'Parcialmente Quente' : score > 40 ? 'Morno' : score > 20 ? 'Parcialmente Frio' : 'Frio';\n\nreturn bodyPrep.destinatarios.map(email => ({\n  json: {\n    to: email,\n    subject: `Fotus Mercado | ${score}° ${scoreLabel} | ${dataFmt}`,\n    html: htmlResp.html\n  }\n}));"
       }
     },
     {
