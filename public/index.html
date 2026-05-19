@@ -210,8 +210,8 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
 /* ── GAUGE ───────────────────────────────────────────────────────────────── */
 .gauge-wrap { display: flex; flex-direction: column; align-items: center; padding: 4px 0; }
-.gauge-canvas { position: relative; width: 148px; height: 148px; }
-.gauge-canvas canvas { position: absolute; top: 0; left: 0; }
+.gauge-canvas { position: relative; width: 220px; height: 220px; }
+.gauge-canvas canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
 .gauge-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -38%); text-align: center; }
 .gauge-num { font-family: var(--mono); font-size: 36px; font-weight: 600; letter-spacing: -.04em; line-height: 1; }
 .gauge-den { font-size: 11px; color: var(--hint); font-weight: 400; }
@@ -479,6 +479,15 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 [data-theme="light"] .ig-opp { background: rgba(245,158,11,.07); }
 [data-theme="light"] ::-webkit-scrollbar-track { background: #F0F2F7; }
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: #C8D0DC; }
+
+/* ── KPI VARIANTES ───────────────────────────────────────────────────────── */
+.kpi-val-lg { font-size: 42px; line-height: 1; }
+
+/* ── GAUGE RESPONSIVO ────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .gauge-canvas { width: 160px; height: 160px; }
+  .kpi-val-lg { font-size: 28px; }
+}
 
 /* ── JS-GENERATED LAYOUT GRIDS (classes para substituir inline styles) ────── */
 .g-gauge-synth {
@@ -1414,7 +1423,7 @@ function buildDashboardHTML(d) {
     <!-- Gauge / Termômetro -->
     <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
       <div class="gauge-wrap">
-        <div class="gauge-canvas" style="width:220px;height:220px;position:relative">
+        <div class="gauge-canvas">
           <canvas id="gaugeC" width="220" height="220"></canvas>
           <div class="gauge-center">
             <div class="gauge-num" style="color:${scoreColor}">${score}</div>
@@ -1423,7 +1432,7 @@ function buildDashboardHTML(d) {
         </div>
         <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
         ${d.isWeekly ? `<div class="week-badge">7 dias · média</div>` : ''}
-        <div class="gauge-bar" style="width:200px">
+        <div class="gauge-bar">
           <div class="gbar-lbl"><span>Frio</span><span>Morno</span><span>Quente</span></div>
           <div class="gbar-track"><div class="gbar-fill" id="gfill" style="width:0%;background:linear-gradient(90deg,var(--blue) 0%,var(--amber) 55%,var(--red) 100%)"></div></div>
         </div>
@@ -1438,7 +1447,7 @@ function buildDashboardHTML(d) {
     ${d.tese_executiva ? `<div class="exec-card" style="display:flex;flex-direction:column;justify-content:center">
       ${formatTeseExecutiva(d.tese_executiva)}
       ${tagsHTML?`<div class="exec-tags" style="margin-top:14px">${tagsHTML}</div>`:''}
-    </div>` : '<div></div>'}
+    </div>` : ''}
   </div>
 
   <!-- LINHA 2: MATRIZ DE SINAIS -->
@@ -1460,7 +1469,7 @@ function buildDashboardHTML(d) {
     ].map(k=>`<div class="kpi" style="margin:0;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px">
       <div class="kpi-accent" style="background:${k.color}"></div>
       <div class="kpi-lbl">${k.lbl}</div>
-      <div class="kpi-val" style="color:${k.color};font-size:42px">${k.val}</div>
+      <div class="kpi-val kpi-val-lg" style="color:${k.color}">${k.val}</div>
       <div class="kpi-sub" style="font-size:11px;color:var(--muted);margin-top:0">${k.sub}</div>
     </div>`).join('')}
   </div>
