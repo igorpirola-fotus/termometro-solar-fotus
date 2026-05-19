@@ -6,21 +6,17 @@
 <title>Termômetro do Mercado Solar · Fotus</title>
 <link rel="icon" type="image/png" href="logo-fotus-favicon.png">
 <style>
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Thin.otf') format('opentype'); font-weight: 100; font-style: normal; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-ThinItalic.otf') format('opentype'); font-weight: 100; font-style: italic; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Light.otf') format('opentype'); font-weight: 300; font-style: normal; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-LightItalic.otf') format('opentype'); font-weight: 300; font-style: italic; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Italic.otf') format('opentype'); font-weight: 400; font-style: italic; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Medium.otf') format('opentype'); font-weight: 500; font-style: normal; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-MediumItalic.otf') format('opentype'); font-weight: 500; font-style: italic; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Bold.otf') format('opentype'); font-weight: 700; font-style: normal; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-BoldItalic.otf') format('opentype'); font-weight: 700; font-style: italic; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Black.otf') format('opentype'); font-weight: 900; font-style: normal; }
-@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-BlackItalic.otf') format('opentype'); font-weight: 900; font-style: italic; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Light.otf') format('opentype'); font-weight: 300; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-LightItalic.otf') format('opentype'); font-weight: 300; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Regular.otf') format('opentype'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Italic.otf') format('opentype'); font-weight: 400; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Medium.otf') format('opentype'); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-MediumItalic.otf') format('opentype'); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-Bold.otf') format('opentype'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Azo Sans'; src: url('fonts/AzoSans-BoldItalic.otf') format('opentype'); font-weight: 700; font-style: italic; font-display: swap; }
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 /* ── DESIGN SYSTEM — DARK MODE ───────────────────────────────────────────── */
 :root {
@@ -63,7 +59,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { color-scheme: dark; }
-body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 13px; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--sans); background: var(--bg); color: var(--text); min-height: 100vh; font-size: 13px; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 
 /* ── TOPBAR ──────────────────────────────────────────────────────────────── */
@@ -103,7 +99,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .drawer { position: fixed; top: 0; left: -260px; bottom: 0; width: 240px; background: #0D1220; border-right: 1px solid var(--border2); z-index: 301; display: flex; flex-direction: column; transition: left .22s cubic-bezier(.4,0,.2,1); }
 .drawer.open { left: 0; }
 .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid var(--border); height: var(--topbar-h); }
-.drawer-close { width: 30px; height: 30px; border-radius: var(--r-ctrl); background: none; border: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; transition: background .12s, color .12s; }
+.drawer-close { width: 36px; height: 36px; min-width: 44px; min-height: 44px; border-radius: var(--r-ctrl); background: none; border: none; color: var(--muted); cursor: pointer; display: grid; place-items: center; transition: background .12s, color .12s; }
 .drawer-close:hover { background: var(--surface2); color: var(--text); }
 .drawer-close svg { width: 14px; height: 14px; }
 .drawer-section { padding: 8px; }
@@ -153,7 +149,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .date-bar-h1 { font-size: 18px; font-weight: 600; color: var(--text); letter-spacing: -.02em; line-height: 1; }
 .date-bar-sub { font-size: 12px; color: var(--muted); font-weight: 300; }
 .date-nav { display: flex; align-items: center; gap: 6px; }
-.date-nav-btn { width: 30px; height: 30px; border-radius: var(--r-ctrl); background: var(--surface); border: 1px solid var(--border2); color: var(--muted); cursor: pointer; display: grid; place-items: center; transition: background .12s, color .12s; }
+.date-nav-btn { width: 36px; height: 36px; min-width: 44px; min-height: 44px; border-radius: var(--r-ctrl); background: var(--surface); border: 1px solid var(--border2); color: var(--muted); cursor: pointer; display: grid; place-items: center; transition: background .12s, color .12s; }
 .date-nav-btn:hover:not(:disabled) { background: var(--surface2); color: var(--text); }
 .date-nav-btn:disabled { opacity: .3; cursor: default; }
 .date-nav-btn svg { width: 12px; height: 12px; }
@@ -182,7 +178,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .tag-neu { background: var(--surface3);  color: var(--muted); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: var(--r-chip); font-family: var(--mono); }
 
 /* ── BRIEFING CARDS ──────────────────────────────────────────────────────── */
-.briefing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.briefing-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(360px, 100%), 1fr)); gap: 12px; margin-bottom: 20px; }
 .briefing-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 18px; position: relative; overflow: hidden; animation: fadeUp .3s ease both; border-left: 3px solid var(--border2); }
 .briefing-card.prio-critica { border-left-color: var(--red); background: linear-gradient(135deg, rgba(239,68,68,.04) 0%, var(--surface) 60%); }
 .briefing-card.prio-alta    { border-left-color: var(--amber); background: linear-gradient(135deg, rgba(245,158,11,.04) 0%, var(--surface) 60%); }
@@ -228,7 +224,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 /* ── BRANDS ──────────────────────────────────────────────────────────────── */
 .brand-list { display: flex; flex-direction: column; gap: 8px; }
 .brow { display: flex; align-items: center; gap: 8px; }
-.bname  { font-size: 12px; font-weight: 500; color: var(--text); width: 70px; flex-shrink: 0; }
+.bname  { font-size: 12px; font-weight: 500; color: var(--text); width: 70px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .btrack { flex: 1; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; }
 .bfill  { height: 100%; border-radius: 2px; transition: width .9s cubic-bezier(.4,0,.2,1); }
 .bcnt   { font-size: 10px; color: var(--muted); width: 18px; text-align: right; flex-shrink: 0; font-family: var(--mono); }
@@ -412,7 +408,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 500; display: none; place-items: center; }
 .modal-overlay.open { display: grid; }
 .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: var(--r-lg); padding: 28px; width: 100%; max-width: 400px; margin: 20px; position: relative; }
-.modal-close { position: absolute; top: 14px; right: 14px; background: none; border: none; color: var(--muted); cursor: pointer; width: 28px; height: 28px; display: grid; place-items: center; border-radius: var(--r-ctrl); transition: background .12s, color .12s; }
+.modal-close { position: absolute; top: 10px; right: 10px; background: none; border: none; color: var(--muted); cursor: pointer; width: 44px; height: 44px; display: grid; place-items: center; border-radius: var(--r-ctrl); transition: background .12s, color .12s; }
 .modal-close:hover { background: var(--surface2); color: var(--text); }
 .modal-close svg { width: 14px; height: 14px; }
 .modal-icon { width: 44px; height: 44px; border-radius: var(--r-card); background: var(--amber-dim); display: grid; place-items: center; margin-bottom: 16px; }
@@ -420,7 +416,7 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .modal-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 6px; letter-spacing: -.01em; }
 .modal-sub   { font-size: 13px; color: var(--muted); line-height: 1.6; font-weight: 300; margin-bottom: 20px; }
 .modal-input-wrap { position: relative; margin-bottom: 8px; }
-.modal-input { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r-ctrl); padding: 10px 14px; font-size: 13px; color: var(--text); font-family: var(--sans); outline: none; transition: border-color .15s; }
+.modal-input { width: 100%; background: var(--surface2); border: 1px solid var(--border2); border-radius: var(--r-ctrl); padding: 10px 14px; font-size: 16px; color: var(--text); font-family: var(--sans); outline: none; transition: border-color .15s; }
 .modal-input:focus { border-color: var(--amber); }
 .modal-input::placeholder { color: var(--hint); }
 .modal-error   { font-size: 11px; color: #FCA5A5; margin-bottom: 12px; min-height: 16px; }
@@ -484,6 +480,21 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 [data-theme="light"] ::-webkit-scrollbar-track { background: #F0F2F7; }
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: #C8D0DC; }
 
+/* ── JS-GENERATED LAYOUT GRIDS (classes para substituir inline styles) ────── */
+.g-gauge-synth {
+  display: grid; grid-template-columns: 35fr 65fr;
+  gap: 12px; margin-bottom: 12px; align-items: stretch;
+}
+.g-spark-kpis {
+  display: grid; grid-template-columns: 1fr 175px 175px 175px;
+  gap: 12px; margin-bottom: 12px;
+}
+.matrix-4col { grid-template-columns: repeat(4, 1fr); }
+.g-ig-overview {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 16px;
+}
+
 /* ── RESPONSIVE — TABLET / MOBILE ───────────────────────────────────────── */
 @media (max-width: 900px) {
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -493,8 +504,15 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
   .ig-cards-grid { grid-template-columns: 1fr; }
   .briefing-grid { grid-template-columns: 1fr; }
   .matrix-wrap { grid-template-columns: 1fr 1fr; }
+  .matrix-4col { grid-template-columns: repeat(2, 1fr); }
   .ig-comm-grid { grid-template-columns: 1fr; }
   .ig-voz-grid { grid-template-columns: 1fr; }
+  .g-gauge-synth { grid-template-columns: 1fr; }
+  .g-spark-kpis { grid-template-columns: 1fr 1fr; }
+  .g-ig-overview { grid-template-columns: repeat(2, 1fr); }
+  /* Insights table: 2 colunas em tablet */
+  .insight-row { grid-template-columns: 3px 1fr 1fr; }
+  .insight-row-acao { grid-column: 2 / 4; border-left: none; border-top: 1px solid var(--border); }
 }
 
 @media (max-width: 768px) {
@@ -526,16 +544,20 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
   /* Grids viram 1 coluna */
   .g2, .g3, .g21 { grid-template-columns: 1fr; gap: 8px; }
+  .g-gauge-synth { grid-template-columns: 1fr; }
+  .g-spark-kpis { grid-template-columns: 1fr; }
+  .matrix-4col { grid-template-columns: repeat(2, 1fr); }
+  .g-ig-overview { grid-template-columns: repeat(2, 1fr); }
 
-  /* Sparkline grid inline */
-  [style*="grid-template-columns:1fr 160px"] {
+  /* Sparkline grid: lado a lado em mobile */
+  .sparkline-side-grid {
     grid-template-columns: 1fr 1fr !important;
     grid-template-rows: auto auto;
   }
 
-  /* Charts: altura mínima garantida */
+  /* Charts: altura mínima garantida apenas no sparkline */
   .sparkline-wrap { min-height: 60px; }
-  canvas { min-height: 120px; }
+  .sparkline-wrap canvas { min-height: 80px; }
 
   /* Instagram */
   .ig-cards-grid { grid-template-columns: 1fr; }
@@ -546,6 +568,59 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
   /* Briefing */
   .briefing-grid { grid-template-columns: 1fr; }
+
+  /* Insights table: empilha colunas em card */
+  .insight-row {
+    grid-template-columns: 3px 1fr;
+    grid-template-rows: auto auto;
+    min-height: unset;
+  }
+  .insight-row-corpo {
+    grid-column: 2;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+  .insight-row-acao {
+    grid-column: 2;
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    background: none;
+  }
+
+  /* Modal: padding reduzido em telas pequenas */
+  .modal { padding: 20px; margin: 12px; }
+  .modal-close { top: 6px; right: 6px; }
+}
+
+/* ── SMALL PHONES (480px e abaixo) ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  /* KPIs: 1 coluna em telas muito pequenas para evitar overflow */
+  .kpi-grid { grid-template-columns: 1fr; }
+  .kpi { padding: 14px; }
+  .kpi-val { font-size: 28px; }
+
+  /* Score big menor */
+  .score-big { font-size: 40px; }
+
+  /* Context bar: padding reduzido */
+  .topbar-ctx { padding: 0 12px; gap: 8px; }
+
+  /* Títulos do header menores */
+  .topbar-title { font-size: 11px; letter-spacing: .04em; }
+
+  /* Date nav: botões mais apertados */
+  .date-nav-btn { min-width: 36px; min-height: 36px; }
+}
+
+/* ── PREFERS-REDUCED-MOTION ───────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ── THEME TOGGLE BUTTON ─────────────────────────────────────────────────── */
@@ -573,9 +648,11 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 /* ── CONTEXT BAR (below topbar) ─────────────────────────────────────────── */
 .topbar-ctx {
   position: fixed; top: var(--topbar-h); left: 0; right: 0; height: var(--ctx-bar-h);
-  background: #0A0F1C; border-bottom: 1px solid var(--border);
+  background: var(--bg); border-bottom: 1px solid var(--border);
   display: flex; align-items: center; padding: 0 20px; gap: 12px; z-index: 199;
+  overflow-x: auto; scrollbar-width: none;
 }
+.topbar-ctx::-webkit-scrollbar { display: none; }
 .topbar-ctx .meta-chips { margin: 0; }
 
 /* ── EXEC SUMMARY — REFORMATTED ──────────────────────────────────────────── */
@@ -802,6 +879,17 @@ function toggleTheme() {
   if (currentIgRows) setTimeout(() => renderIgCharts(currentIgRows), 60);
 }
 
+// ── XSS SANITIZATION ──────────────────────────────────────────────────────────
+function esc(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let gaugeChart = null;
 let objChart   = null;
@@ -817,6 +905,7 @@ let currentPage = 'termometro';
 let currentDashboardData = null;
 let currentIgRows = null;
 let sparklineData = [];
+let _weeklyAggregate = null;
 
 // ── LOADING PROGRESS ──────────────────────────────────────────────────────────
 function setStep(n, pct) {
@@ -831,13 +920,16 @@ function setStep(n, pct) {
 
 // ── DATE HELPERS ──────────────────────────────────────────────────────────────
 async function loadAvailableDates() {
-  const { data } = await sb.from('relatorios').select('data_referencia').order('data_referencia', { ascending: false });
+  const { data } = await sb.from('relatorios').select('data_referencia').order('data_referencia', { ascending: false }).limit(180);
   availableDates = (data || []).map(r => r.data_referencia).filter(Boolean);
 }
 
+const _reportCache = new Map();
 async function loadReportByDate(dateStr) {
+  if (_reportCache.has(dateStr)) return _reportCache.get(dateStr);
   const { data: rows, error } = await sb.from('relatorios').select('*').eq('data_referencia', dateStr).limit(1);
   if (error || !rows || rows.length === 0) return null;
+  _reportCache.set(dateStr, rows[0]);
   return rows[0];
 }
 
@@ -864,6 +956,18 @@ function getScoreColorHex(score) {
 }
 
 let isNavigating = false;
+
+async function loadSparklineForDate(dateStr) {
+  const { data } = await sb.from('relatorios')
+    .select('data_referencia, payload')
+    .lte('data_referencia', dateStr)
+    .order('data_referencia', { ascending: false })
+    .limit(7);
+  sparklineData = ((data || []).reverse()).map(r => ({
+    date: r.data_referencia,
+    score: r.payload?.meta?.score_aquecimento || r.payload?.kpis?.score_aquecimento || 0
+  }));
+}
 
 async function navigateDate(dir) {
   if (isNavigating) return;
@@ -893,6 +997,8 @@ async function navigateDate(dir) {
   isNavigating = false;
 
   if (report) {
+    history.replaceState(null, '', `?data=${availableDates[currentDateIndex]}`);
+    await loadSparklineForDate(availableDates[currentDateIndex]);
     renderDashboard(report.payload);
   } else {
     if (navCenter) navCenter.innerHTML =
@@ -929,10 +1035,14 @@ async function loadLatestReport() {
   document.getElementById('dashPage').style.display = 'none';
 
   setStep(1, 15);
-  await new Promise(r => setTimeout(r, 200));
-
   setStep(2, 40);
   await loadAvailableDates();
+
+  // Honra deep link ?data=YYYY-MM-DD
+  const _paramData = new URLSearchParams(window.location.search).get('data');
+  if (_paramData && availableDates.includes(_paramData)) {
+    currentDateIndex = availableDates.indexOf(_paramData);
+  }
 
   if (availableDates.length === 0) {
     document.getElementById('loadingScreen').style.display = 'none';
@@ -959,8 +1069,6 @@ async function loadLatestReport() {
   }));
 
   setStep(4, 90);
-  await new Promise(r => setTimeout(r, 150));
-
   document.getElementById('loadingScreen').style.display = 'none';
   document.getElementById('dashPage').style.display = 'block';
 
@@ -1122,8 +1230,8 @@ function aggregateWeek(reports) {
 function renderWeeklyView() {
   if (!weeklyReports.length) return;
 
-  const syntheticPayload = aggregateWeek(weeklyReports);
-  renderDashboard(syntheticPayload);
+  if (!_weeklyAggregate) _weeklyAggregate = aggregateWeek(weeklyReports);
+  renderDashboard(_weeklyAggregate);
 
   // Append day chips at the bottom
   const page = document.getElementById('dashPage');
@@ -1156,6 +1264,7 @@ async function showDayDetail(dateStr) {
     return;
   }
 
+  history.replaceState(null, '', `?data=${dateStr}`);
   renderDashboard(report.payload);
 
   // Injeta botão voltar no topo do conteúdo
@@ -1204,7 +1313,6 @@ function renderDashboard(d) {
 function buildDashboardHTML(d) {
   const m = d.meta || {};
   const score = m.score_aquecimento || 0;
-  const hasNewSchema = !!d.briefing_executivo;
   const hasPrev = currentDateIndex < availableDates.length - 1;
   const hasNext = currentDateIndex > 0;
 
@@ -1236,9 +1344,9 @@ function buildDashboardHTML(d) {
     return items.slice(0,3).map(m2 => {
       const tagCls = m2.tipo === 'Positivo' ? 'mtag-pos' : m2.tipo === 'Negativo' ? 'mtag-neg' : 'mtag-neu';
       return `<div class="mention-item">
-        <span class="mention-tag ${tagCls}">${m2.tipo} · ${m2.categoria||''}</span>
-        <div class="mention-txt">${m2.texto}</div>
-        <div class="mention-group">${m2.grupo||''}</div>
+        <span class="mention-tag ${tagCls}">${esc(m2.tipo)} · ${esc(m2.categoria)}</span>
+        <div class="mention-txt">${esc(m2.texto)}</div>
+        <div class="mention-group">${esc(m2.grupo)}</div>
       </div>`;
     }).join('');
   })();
@@ -1246,9 +1354,9 @@ function buildDashboardHTML(d) {
   // Matrix
   const matrixHTML = (d.matriz_sinais||[]).map((mx, i) => `
     <div class="mitem">
-      <div class="mitem-head"><span class="mitem-lbl">${mx.dimensao}</span><span class="mitem-score ${mx.score_classe}">${mx.score}</span></div>
+      <div class="mitem-head"><span class="mitem-lbl">${esc(mx.dimensao)}</span><span class="mitem-score ${mx.score_classe}">${esc(mx.score)}</span></div>
       <div class="mitem-bar"><div class="mitem-fill" id="mx${i}" style="width:0%;background:${mx.cor}"></div></div>
-      <div class="mitem-desc">${mx.desc}</div>
+      <div class="mitem-desc">${esc(mx.desc)}</div>
     </div>`).join('');
 
   // Objections
@@ -1262,8 +1370,8 @@ function buildDashboardHTML(d) {
     const prioClass = o.prioridade === 'Alta' ? 'ph' : o.prioridade === 'Média' ? 'pm' : 'pl';
     return `<div class="pitem">
       <div class="pico" style="background:${o.icon_cor};color:${o.icon_stroke}">${iconsSVG[i%iconsSVG.length]}</div>
-      <div class="pbody"><div class="pttl">${o.titulo}</div><div class="pdesc">${o.descricao}</div></div>
-      <span class="pbadge ${prioClass}">${o.prioridade}${o.badge_extra?' · '+o.badge_extra:''}</span>
+      <div class="pbody"><div class="pttl">${esc(o.titulo)}</div><div class="pdesc">${esc(o.descricao)}</div></div>
+      <span class="pbadge ${prioClass}">${esc(o.prioridade)}${o.badge_extra?' · '+esc(o.badge_extra):''}</span>
     </div>`;
   }).join('');
 
@@ -1284,7 +1392,7 @@ function buildDashboardHTML(d) {
     </div>`).join('');
 
   // KPIs estratégicos (não grupos/msgs - esses viram chips)
-  const alertasCount = hasNewSchema ? (d.briefing_executivo||[]).filter(b=>['critica','alta'].includes((b.prioridade||'').toLowerCase())).length : 0;
+  const alertasCount = (d.briefing_executivo||[]).filter(b=>['critica','alta'].includes((b.prioridade||'').toLowerCase())).length;
   const lacunasCount = (d.lacunas_portfolio||[]).length;
   const distribCount = (d.concorrentes_distribuidores||[]).length;
   const kpiExtra = [
@@ -1299,10 +1407,9 @@ function buildDashboardHTML(d) {
   </div>`).join('');
 
   return `
-  ${hasNewSchema ? `
 
   <!-- LINHA 1: TERMÔMETRO (gauge 220px 35%) + SÍNTESE DO DIA (65%) -->
-  <div style="display:grid;grid-template-columns:35fr 65fr;gap:12px;margin-bottom:12px;align-items:stretch">
+  <div class="g-gauge-synth">
 
     <!-- Gauge / Termômetro -->
     <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
@@ -1337,11 +1444,11 @@ function buildDashboardHTML(d) {
   <!-- LINHA 2: MATRIZ DE SINAIS -->
   <div class="card" style="margin-bottom:12px">
     <div class="card-ttl">Matriz de sinais</div>
-    <div class="matrix-wrap" style="grid-template-columns:repeat(4,1fr)">${matrixHTML}</div>
+    <div class="matrix-wrap matrix-4col">${matrixHTML}</div>
   </div>
 
   <!-- LINHA 3: SPARKLINE (flex) + KPIs ESTRATÉGICOS -->
-  <div style="display:grid;grid-template-columns:1fr 175px 175px 175px;gap:12px;margin-bottom:12px">
+  <div class="g-spark-kpis">
     <div class="card" style="padding:14px 18px">
       <div class="sparkline-label">Score — últimos 7 dias</div>
       <div class="sparkline-wrap" style="min-height:58px"><canvas id="sparklineC"></canvas></div>
@@ -1372,12 +1479,12 @@ function buildDashboardHTML(d) {
     <div class="card">
       <div class="card-ttl">Lacunas · Oportunidades</div>
       ${buildLacunasHTML(d.lacunas_portfolio)}
-      ${d.insight_estrategico?`<div class="insight-box" style="margin-top:10px"><div class="insight-lbl">Oportunidade</div><div class="insight-txt">${d.insight_estrategico}</div></div>`:''}
+      ${d.insight_estrategico?`<div class="insight-box" style="margin-top:10px"><div class="insight-lbl">Oportunidade</div><div class="insight-txt">${esc(d.insight_estrategico)}</div></div>`:''}
     </div>
     <div class="card">
       <div class="card-ttl">Distribuidoras concorrentes</div>
       ${buildDistribuidoresHTML(d.concorrentes_distribuidores)}
-      ${d.risco_principal?`<div class="risk-box" style="margin-top:10px"><div class="risk-lbl">Risco</div><div class="risk-txt">${d.risco_principal}</div></div>`:''}
+      ${d.risco_principal?`<div class="risk-box" style="margin-top:10px"><div class="risk-lbl">Risco</div><div class="risk-txt">${esc(d.risco_principal)}</div></div>`:''}
     </div>
   </div>
 
@@ -1399,26 +1506,10 @@ function buildDashboardHTML(d) {
   <div class="mention-panel" style="margin-bottom:0">
     <div class="card-ttl">Menções sobre a Fotus</div>
     ${mentionsHTML}
-    ${d.oportunidade_fotus?`<div class="opp-box"><div class="opp-lbl">Oportunidade identificada</div><div class="opp-txt">${d.oportunidade_fotus}</div></div>`:''}
+    ${d.oportunidade_fotus?`<div class="opp-box"><div class="opp-lbl">Oportunidade identificada</div><div class="opp-txt">${esc(d.oportunidade_fotus)}</div></div>`:''}
   </div>
 
-  ` : /* LEGACY SCHEMA */ `
-  ${d.tese_executiva?`<div class="exec-card" style="margin-bottom:16px"><div class="exec-txt">${d.tese_executiva}</div></div>`:''}
-  <div style="display:grid;grid-template-columns:35fr 65fr;gap:12px;margin-bottom:12px">
-    <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px">
-      <div class="gauge-wrap">
-        <div class="gauge-canvas" style="width:148px;height:148px;position:relative">
-          <canvas id="gaugeC" width="148" height="148"></canvas>
-          <div class="gauge-center"><div class="gauge-num" style="color:${scoreColor}">${score}</div><div class="gauge-den">/100</div></div>
-        </div>
-        <div class="gauge-label">${scoreLabel.toLowerCase()}</div>
-      </div>
-    </div>
-    ${topBrands.length?`<div class="card"><div class="card-ttl">Marcas mencionadas</div><div style="position:relative;height:${Math.min(topBrands.length*26+20,220)}px"><canvas id="brandChart"></canvas></div></div>`:'<div></div>'}
-  </div>
-  <div class="card" style="margin-bottom:12px"><div class="card-ttl">Matriz de sinais</div><div class="matrix-wrap" style="grid-template-columns:repeat(4,1fr)">${matrixHTML}</div></div>
-  <div class="card"><div class="card-ttl">Objeções</div><div class="pain-list">${objecoesHTML}</div></div>
-  `}`;
+  `;
 }
 
 // ── BUILDERS ──────────────────────────────────────────────────────────────────
@@ -1432,15 +1523,15 @@ function buildBriefingHTML(items) {
       <div class="insight-row-accent"></div>
       <div class="insight-row-titulo">
         <span class="briefing-badge ${badgeCls}">${badgeLabel}</span>
-        <div class="briefing-titulo" style="margin-top:6px">${b.titulo||''}</div>
+        <div class="briefing-titulo" style="margin-top:6px">${esc(b.titulo)}</div>
       </div>
       <div class="insight-row-corpo">
-        <div class="briefing-contexto">${b.contexto||''}</div>
-        <div class="briefing-implicacao" style="margin-bottom:0">${b.implicacao||''}</div>
+        <div class="briefing-contexto">${esc(b.contexto)}</div>
+        <div class="briefing-implicacao" style="margin-bottom:0">${esc(b.implicacao)}</div>
       </div>
       <div class="insight-row-acao">
         <svg viewBox="0 0 12 12" fill="none" width="11" height="11"><path d="M2 6h8M7 3l3 3-3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        <div class="insight-row-acao-txt">${b.acao||''}</div>
+        <div class="insight-row-acao-txt">${esc(b.acao)}</div>
       </div>
     </div>`;
   }).join('');
@@ -1461,7 +1552,7 @@ function buildDeltaCard(delta) {
   const deltaCls = delta.score_delta > 0 ? 'tag-up' : delta.score_delta < 0 ? 'tag-dn' : 'tag-neu';
   return `<div class="delta-card">
     <span class="delta-badge ${deltaCls}">${deltaVal} pts</span>
-    <div class="delta-text">${delta.resumo}</div>
+    <div class="delta-text">${esc(delta.resumo)}</div>
     <span class="delta-tend" style="color:${tendColor}">${tendLabel}</span>
   </div>`;
 }
@@ -1475,11 +1566,11 @@ function formatTeseExecutiva(tese) {
   const cabecalho = tese.cabecalho || '';
   const bullets = Array.isArray(tese.bullets) ? tese.bullets : [];
   const conclusao = tese.conclusao || '';
-  const introHTML = cabecalho ? `<p class="exec-intro">${cabecalho}</p>` : '';
+  const introHTML = cabecalho ? `<p class="exec-intro">${esc(cabecalho)}</p>` : '';
   const bulletsHTML = bullets.length
-    ? `<ul class="exec-bullets">${bullets.map(b => `<li>${b}</li>`).join('')}</ul>`
+    ? `<ul class="exec-bullets">${bullets.map(b => `<li>${esc(b)}</li>`).join('')}</ul>`
     : '';
-  const conclHTML = conclusao ? `<p class="exec-concl">${conclusao}</p>` : '';
+  const conclHTML = conclusao ? `<p class="exec-concl">${esc(conclusao)}</p>` : '';
   return introHTML + bulletsHTML + conclHTML;
 }
 
@@ -1542,11 +1633,11 @@ function buildRadarPortfolioHTML(items) {
     <div class="radar-item${item.alerta?' has-alert':''}">
       <div class="radar-dot" style="background:${sentimColor(item.sentimento)}"></div>
       <div style="flex:1;min-width:0">
-        <div class="radar-name">${item.marca}</div>
-        <div class="radar-cat">${catMap[item.categoria]||item.categoria||''} ${item.exclusivo?'· Exclusivo':''}</div>
+        <div class="radar-name">${esc(item.marca)}</div>
+        <div class="radar-cat">${esc(catMap[item.categoria]||item.categoria||'')} ${item.exclusivo?'· Exclusivo':''}</div>
       </div>
-      <div class="radar-cnt">${item.mencoes}</div>
-      ${item.alerta?`<div class="radar-alert-icon" title="${item.alerta_descricao||'Alerta'}"><svg viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"/><line x1="6" y1="4" x2="6" y2="6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6" cy="8.2" r=".5" fill="currentColor"/></svg></div>`:''}
+      <div class="radar-cnt">${esc(item.mencoes)}</div>
+      ${item.alerta?`<div class="radar-alert-icon" title="${esc(item.alerta_descricao||'Alerta')}"><svg viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.3"/><line x1="6" y1="4" x2="6" y2="6.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6" cy="8.2" r=".5" fill="currentColor"/></svg></div>`:''}
     </div>`).join('')}</div>`;
 }
 
@@ -1557,22 +1648,22 @@ function buildLacunasHTML(items) {
     <div class="lacuna-item">
       <div class="lacuna-dot"></div>
       <div class="lacuna-body">
-        <div class="lacuna-name">${item.marca}</div>
-        <div class="lacuna-ctx">${item.contexto||''}</div>
+        <div class="lacuna-name">${esc(item.marca)}</div>
+        <div class="lacuna-ctx">${esc(item.contexto)}</div>
       </div>
-      <span class="lacuna-badge ${demCls(item.demanda)}">${item.demanda||'—'}</span>
+      <span class="lacuna-badge ${demCls(item.demanda)}">${esc(item.demanda||'—')}</span>
     </div>`).join('')}</div>`;
 }
 
 function buildDistribuidoresHTML(items) {
   if (!items || !items.length) return '<div style="color:var(--hint);font-size:12px;padding:8px 0">Nenhuma distribuidora concorrente detectada.</div>';
   return `<div class="distrib-list">${items.map(item => {
-    const regs = (item.regioes||[]).map(r=>`<span class="distrib-region">${r}</span>`).join('');
+    const regs = (item.regioes||[]).map(r=>`<span class="distrib-region">${esc(r)}</span>`).join('');
     return `<div class="distrib-item">
-      <div class="distrib-tier"><span class="tier-badge tier-${item.tier}">${item.tier}</span></div>
+      <div class="distrib-tier"><span class="tier-badge tier-${item.tier}">${esc(item.tier)}</span></div>
       <div class="distrib-body">
-        <div class="distrib-name">${item.nome} ${item.alerta?'<span class="alert-dot"></span>':''}</div>
-        <div class="distrib-ctx">${item.contexto||''}</div>
+        <div class="distrib-name">${esc(item.nome)} ${item.alerta?'<span class="alert-dot"></span>':''}</div>
+        <div class="distrib-ctx">${esc(item.contexto)}</div>
         ${regs?`<div class="distrib-tags">${regs}</div>`:''}
       </div>
     </div>`;
@@ -1618,7 +1709,7 @@ function animateDashboard(d, instant = false) {
         responsive:true, maintainAspectRatio:false,
         plugins:{ legend:{display:false}, tooltip:{ backgroundColor:tipBg, titleColor:tipTitle, bodyColor:tipBody, padding:8, cornerRadius:6, callbacks:{ label: ctx => `Score: ${ctx.raw}` } } },
         scales: {
-          x:{ ticks:{font:{size:9,family:'IBM Plex Mono'},color:tickClr}, grid:{display:false}, border:{display:false} },
+          x:{ ticks:{font:{size:9,family:'Azo Sans'},color:tickClr}, grid:{display:false}, border:{display:false} },
           y:{ display:false, min:0, max:100 }
         },
         animation:{ duration: instant ? 0 : 900, easing:'easeOutQuart' }
@@ -1641,8 +1732,8 @@ function animateDashboard(d, instant = false) {
         responsive:true, maintainAspectRatio:false, indexAxis:'y',
         plugins:{ legend:{display:false}, tooltip:{ backgroundColor:tipBg, titleColor:tipTitle, bodyColor:tipBody, padding:8, cornerRadius:6 } },
         scales: {
-          x:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{color:gridClr}, border:{display:false} },
-          y:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{display:false}, border:{display:false} }
+          x:{ ticks:{font:{size:10,family:'Azo Sans'},color:tickClr}, grid:{color:gridClr}, border:{display:false} },
+          y:{ ticks:{font:{size:10,family:'Azo Sans'},color:tickClr}, grid:{display:false}, border:{display:false} }
         },
         animation:{ duration: instant ? 0 : 800, easing:'easeOutQuart' }
       }
@@ -1660,8 +1751,8 @@ function animateDashboard(d, instant = false) {
         responsive:true, maintainAspectRatio:false, indexAxis:'y',
         plugins:{ legend:{display:false}, tooltip:{ backgroundColor:tipBg, titleColor:tipTitle, bodyColor:tipBody, padding:8, cornerRadius:6 } },
         scales: {
-          x:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{color:gridClr}, border:{display:false} },
-          y:{ ticks:{font:{size:10,family:'IBM Plex Mono'},color:tickClr}, grid:{display:false}, border:{display:false} }
+          x:{ ticks:{font:{size:10,family:'Azo Sans'},color:tickClr}, grid:{color:gridClr}, border:{display:false} },
+          y:{ ticks:{font:{size:10,family:'Azo Sans'},color:tickClr}, grid:{display:false}, border:{display:false} }
         },
         animation:{ duration: instant ? 0 : 800, easing:'easeOutQuart' }
       }
@@ -1796,6 +1887,13 @@ async function igNavigateDate(dir) {
   const newIdx = igDateIndex + dir;
   if (newIdx < 0 || newIdx >= igDates.length) return;
   igDateIndex = newIdx;
+
+  document.querySelectorAll('#igPage .date-nav-btn').forEach(b => b.disabled = true);
+  const navCenter = document.querySelector('#igPage .date-nav-center');
+  if (navCenter) navCenter.innerHTML = `
+    <div class="date-nav-lbl" style="color:var(--hint);letter-spacing:.2em">···</div>
+    <div class="date-nav-rel" style="color:var(--hint)">carregando</div>`;
+
   await renderIgPage();
 }
 
@@ -1846,12 +1944,12 @@ function renderIgCharts(rows) {
     options: {
       responsive: true, maintainAspectRatio: false, indexAxis: 'y',
       plugins: {
-        legend: { display: true, position: 'top', labels: { color: tickClr, font: { size: 11, family: 'IBM Plex Sans' }, boxWidth: 12, padding: 16 } },
+        legend: { display: true, position: 'top', labels: { color: tickClr, font: { size: 11, family: 'Azo Sans' }, boxWidth: 12, padding: 16 } },
         tooltip: { backgroundColor: tipBg, bodyColor: tipBody, titleColor: tickClr, padding: 10, cornerRadius: 6 }
       },
       scales: {
-        x: { min: 0, max: 100, ticks: { font: { size: 10, family: 'IBM Plex Mono' }, color: tickClr }, grid: { color: gridClr }, border: { display: false } },
-        y: { ticks: { font: { size: 11, family: 'IBM Plex Mono' }, color: tickClr }, grid: { display: false }, border: { display: false } }
+        x: { min: 0, max: 100, ticks: { font: { size: 10, family: 'Azo Sans' }, color: tickClr }, grid: { color: gridClr }, border: { display: false } },
+        y: { ticks: { font: { size: 11, family: 'Azo Sans' }, color: tickClr }, grid: { display: false }, border: { display: false } }
       },
       animation: { duration: 900, easing: 'easeOutQuart' }
     }
@@ -1916,7 +2014,7 @@ function buildIgPageHTML(rows, dateStr) {
 
     ${rows.length > 0 ? `
     <!-- Overview cards -->
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px">
+    <div class="g-ig-overview">
       <div class="kpi"><div class="kpi-accent" style="background:var(--red)"></div><div class="kpi-lbl">Maior ameaça</div><div class="kpi-val" style="color:var(--red)">${maxScore}</div><div class="kpi-sub" style="font-size:11px">${topHandle}</div></div>
       <div class="kpi"><div class="kpi-accent" style="background:var(--amber)"></div><div class="kpi-lbl">Score médio</div><div class="kpi-val" style="color:var(--amber)">${avgScore}</div><div class="kpi-sub">/100</div></div>
       <div class="kpi"><div class="kpi-accent" style="background:var(--blue)"></div><div class="kpi-lbl">Posts analisados</div><div class="kpi-val" style="color:var(--blue)">${totalPosts}</div><div class="kpi-sub">em ${rows.length} perfis</div></div>
@@ -1958,7 +2056,7 @@ function buildIgCardHTML(row, idx) {
   const scoreCls = score >= 70 ? 'ig-score-high' : score >= 40 ? 'ig-score-mid' : 'ig-score-low';
   const scoreColor = score >= 70 ? 'var(--red)' : score >= 40 ? 'var(--amber)' : 'var(--green)';
 
-  const tagsHTML = tags.length ? `<div class="ig-tags">${tags.map(t=>`<span class="${t.tipo==='alerta'?'ig-tag-alerta':t.tipo==='oportunidade'?'ig-tag-oportunidade':'ig-tag-neutro'}">${t.texto}</span>`).join('')}</div>` : '';
+  const tagsHTML = tags.length ? `<div class="ig-tags">${tags.map(t=>`<span class="${t.tipo==='alerta'?'ig-tag-alerta':t.tipo==='oportunidade'?'ig-tag-oportunidade':'ig-tag-neutro'}">${esc(t.texto)}</span>`).join('')}</div>` : '';
 
   const vozPos = Array.isArray(voz.temas_positivos) ? voz.temas_positivos : [];
   const vozNeg = Array.isArray(voz.temas_negativos) ? voz.temas_negativos : [];
@@ -1969,8 +2067,8 @@ function buildIgCardHTML(row, idx) {
     <div class="ig-card-header" onclick="igToggleCard(this,${idx})">
       <div class="ig-header-row">
         <div style="display:flex;flex-direction:column;gap:2px">
-          <span style="font-size:15px;font-weight:600;color:var(--text)">${nome}</span>
-          <span style="font-size:12px;color:var(--hint)">@${handle}</span>
+          <span style="font-size:15px;font-weight:600;color:var(--text)">${esc(nome)}</span>
+          <span style="font-size:12px;color:var(--hint)">@${esc(handle)}</span>
         </div>
         <div style="text-align:right">
           <div class="ig-score-display ${scoreCls}">${score}</div>
@@ -1985,50 +2083,50 @@ function buildIgCardHTML(row, idx) {
         <div class="ig-stat"><strong>${sentim}</strong></div>
       </div>
       ${tagsHTML}
-      ${briefing?`<div class="ig-briefing-line">${briefing}</div>`:''}
+      ${briefing?`<div class="ig-briefing-line">${esc(briefing)}</div>`:''}
       <button class="ig-expand-btn" id="igBtn_${idx}">
         Ver análise completa
         <svg viewBox="0 0 10 10" fill="none"><path d="M2 3.5L5 6.5 8 3.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
     </div>
     <div class="ig-card-body" id="igBody_${idx}">
-      ${briefing?`<div class="ig-opp" style="margin-top:16px;margin-bottom:0"><div class="ig-opp-lbl">Briefing do dia</div><div class="ig-opp-txt">${briefing}</div></div>`:''}
+      ${briefing?`<div class="ig-opp" style="margin-top:16px;margin-bottom:0"><div class="ig-opp-lbl">Briefing do dia</div><div class="ig-opp-txt">${esc(briefing)}</div></div>`:''}
       <div class="ig-section-ttl">Estratégia de comunicação</div>
       <div class="ig-comm-grid">
-        <div class="ig-comm-item"><div class="ig-comm-lbl">Foco principal</div><div class="ig-comm-val">${comm.foco_principal||'—'}</div></div>
-        <div class="ig-comm-item"><div class="ig-comm-lbl">Tom</div><div class="ig-comm-val">${comm.tom||'—'}</div></div>
-        <div class="ig-comm-item"><div class="ig-comm-lbl">Frequência</div><div class="ig-comm-val">${comm.frequencia||comm.frequência||'—'}</div></div>
-        <div class="ig-comm-item"><div class="ig-comm-lbl">Formatos</div><div class="ig-comm-val">${Array.isArray(comm.formatos_dominantes)?comm.formatos_dominantes.join(', '):(comm.formatos_dominantes||'—')}</div></div>
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Foco principal</div><div class="ig-comm-val">${esc(comm.foco_principal||'—')}</div></div>
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Tom</div><div class="ig-comm-val">${esc(comm.tom||'—')}</div></div>
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Frequência</div><div class="ig-comm-val">${esc(comm.frequencia||comm.frequência||'—')}</div></div>
+        <div class="ig-comm-item"><div class="ig-comm-lbl">Formatos</div><div class="ig-comm-val">${Array.isArray(comm.formatos_dominantes)?comm.formatos_dominantes.map(esc).join(', '):esc(comm.formatos_dominantes||'—')}</div></div>
       </div>
-      ${prods.length?`<div class="ig-section-ttl">Produtos em destaque</div><div>${prods.map(pr=>`<div class="ig-prod-item"><div class="ig-prod-brand">${pr.marca||pr}</div><div class="ig-prod-ctx">${pr.contexto||''}</div></div>`).join('')}</div>`:''}
+      ${prods.length?`<div class="ig-section-ttl">Produtos em destaque</div><div>${prods.map(pr=>`<div class="ig-prod-item"><div class="ig-prod-brand">${esc(pr.marca||pr)}</div><div class="ig-prod-ctx">${esc(pr.contexto||'')}</div></div>`).join('')}</div>`:''}
       <div class="ig-section-ttl">Voz do mercado · comentários</div>
       <div class="ig-voz-grid" style="margin-bottom:8px">
         <div class="ig-voz-col pos">
           <div class="ig-voz-col-lbl">Positivos</div>
-          ${vozPos.length?vozPos.map(t=>`<div class="ig-voz-item">${t}</div>`).join(''):'<div class="ig-voz-item" style="color:var(--hint)">—</div>'}
+          ${vozPos.length?vozPos.map(t=>`<div class="ig-voz-item">${esc(t)}</div>`).join(''):'<div class="ig-voz-item" style="color:var(--hint)">—</div>'}
         </div>
         <div class="ig-voz-col neg">
           <div class="ig-voz-col-lbl" style="color:var(--red)">Negativos</div>
-          ${vozNeg.length?vozNeg.map(t=>`<div class="ig-voz-item">${t}</div>`).join(''):'<div class="ig-voz-item" style="color:var(--hint)">—</div>'}
+          ${vozNeg.length?vozNeg.map(t=>`<div class="ig-voz-item">${esc(t)}</div>`).join(''):'<div class="ig-voz-item" style="color:var(--hint)">—</div>'}
         </div>
       </div>
-      ${vozPergs.length?`<div class="ig-no-data" style="margin-top:0">💬 Perguntas: ${vozPergs.join(' · ')}</div>`:''}
+      ${vozPergs.length?`<div class="ig-no-data" style="margin-top:0">💬 Perguntas: ${vozPergs.map(esc).join(' · ')}</div>`:''}
       <div class="ig-section-ttl">Alertas</div>
       ${alertas.length===0?`<div class="ig-no-data">Nenhum alerta detectado.</div>`:alertas.map(a=>`
         <div class="pitem" style="margin-bottom:6px">
           <div class="pico" style="background:var(--red-dim);color:var(--red)"><svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><line x1="7" y1="4.5" x2="7" y2="7.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="7" cy="9.5" r=".6" fill="currentColor"/></svg></div>
-          <div class="pbody"><div class="pttl">${a.tipo||'Alerta'}</div><div class="pdesc">${a.descricao||''}</div></div>
+          <div class="pbody"><div class="pttl">${esc(a.tipo||'Alerta')}</div><div class="pdesc">${esc(a.descricao||'')}</div></div>
         </div>`).join('')}
       <div class="ig-section-ttl">Posts em destaque</div>
       ${posts===0?`<div class="ig-no-posts">Nenhum post nas últimas 48h.</div>`:postsDestaque.length===0?`<div class="ig-no-posts">Posts coletados sem destaque identificado.</div>`:postsDestaque.slice(0,3).map(ps=>`
         <div class="ig-post-item">
-          <div class="ig-post-caption">${ps.caption_resumo||ps.resumo_caption||ps.caption||''}</div>
+          <div class="ig-post-caption">${esc(ps.caption_resumo||ps.resumo_caption||ps.caption||'')}</div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
-            <div class="ig-post-why">${ps.por_que_relevante||''}</div>
+            <div class="ig-post-why">${esc(ps.por_que_relevante||'')}</div>
             ${ps.curtidas?`<div class="ig-post-eng">${ps.curtidas} ❤</div>`:''}
           </div>
         </div>`).join('')}
-      ${p.oportunidade_fotus?`<div class="ig-opp" style="margin-top:16px"><div class="ig-opp-lbl">⚡ Oportunidade para Fotus</div><div class="ig-opp-txt">${p.oportunidade_fotus}</div></div>`:''}
+      ${p.oportunidade_fotus?`<div class="ig-opp" style="margin-top:16px"><div class="ig-opp-lbl">⚡ Oportunidade para Fotus</div><div class="ig-opp-txt">${esc(p.oportunidade_fotus)}</div></div>`:''}
     </div>
   </div>`;
 }
