@@ -1,5 +1,5 @@
 {
-  "name": "IG Competitors – Análise Diária Claude",
+  "name": "#03 TMS · 03 · COLETA · Instagram Concorrentes",
   "nodes": [
     {
       "id": "ig-node-cron",
@@ -117,7 +117,7 @@
         "headerParameters": {
           "parameters": [
             { "name": "Content-Type", "value": "application/json" },
-            { "name": "Authorization", "value": "Bearer sb_publishable_bWZAHrSR5RiXUWKw52NaoA_hy4F06oL" }
+            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_ROLE_JWT" }
           ]
         },
         "sendBody": true,

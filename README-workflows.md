@@ -6,7 +6,7 @@ Instância n8n: `https://fotus-n8n-editor.mk863j.easypanel.host`
 
 ## Workflows Ativos
 
-### 1. `n8n-workflow-diario.json` — Análise Diária
+### 1. `n8n-workflow-diario.json` — #01 TMS · 01 · COLETA · WhatsApp → Análise
 **Trigger:** Todo dia às 06:00 BRT (cron: `0 9 * * *` UTC)  
 **Função:** Coleta mensagens WhatsApp do dia anterior e gera relatório de inteligência de mercado.
 
@@ -26,7 +26,7 @@ Schedule (06:00 BRT)
 
 ---
 
-### 2. `n8n-workflow-newsletter.json` — Newsletter + Briefing
+### 2. `n8n-workflow-newsletter.json` — #02 TMS · 02 · ENTREGA · Newsletter & Briefing
 **Trigger:** Segunda a sexta às 07:50 BRT (cron: `50 10 * * 1-5` UTC)  
 **Função:** Gera e envia email de newsletter (consultores) e briefing (diretoria) com base no relatório do dia.
 
@@ -49,7 +49,7 @@ Schedule (07:50 BRT seg–sex)
 
 ---
 
-### 3. `n8n-workflow-instagram.json` — Análise Instagram
+### 3. `n8n-workflow-instagram.json` — #03 TMS · 03 · COLETA · Instagram Concorrentes
 **Trigger:** Diário (08:00 UTC)  
 **Função:** Coleta posts e comentários dos concorrentes no Instagram e gera análise competitiva.
 
@@ -70,7 +70,7 @@ Schedule (diário)
 
 ---
 
-### 4. `n8n-workflow-backfill.json` — Reprocessamento Histórico
+### 4. `n8n-workflow-backfill.json` — #04 TMS · 04 · UTIL · Backfill Histórico
 **Trigger:** Manual (execução sob demanda)  
 **Função:** Reprocessa dias históricos — útil para recriar relatórios com schema atualizado.
 

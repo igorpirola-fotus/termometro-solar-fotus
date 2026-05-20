@@ -4,3 +4,14 @@ node_modules/
 .vercel
 .DS_Store
 Thumbs.db
+
+# Claude Code config (local)
+.claude/
+.mcp.json
+
+# Assets soltos / não referenciados
+*.zip
+LOGO_Fotus*.png
+
+# Supabase temp
+supabase/.temp/

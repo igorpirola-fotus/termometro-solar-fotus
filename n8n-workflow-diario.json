@@ -1,5 +1,5 @@
 {
-  "name": "Termômetro do Mercado Solar – Análise Diária",
+  "name": "#01 TMS · 01 · COLETA · WhatsApp → Análise",
   "nodes": [
     {
       "id": "node-schedule",
@@ -57,8 +57,8 @@
         "headerParameters": {
           "parameters": [
             { "name": "Content-Type", "value": "application/json" },
-            { "name": "Authorization", "value": "Bearer {{$env.SUPABASE_SERVICE_KEY}}" },
-            { "name": "apikey", "value": "{{$env.SUPABASE_SERVICE_KEY}}" }
+            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_ROLE_JWT" },
+            { "name": "apikey", "value": "SUPABASE_SERVICE_ROLE_JWT" }
           ]
         },
         "sendBody": true,
