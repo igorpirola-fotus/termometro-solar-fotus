@@ -169,6 +169,13 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (window.Babel && typeof window.Babel.transformScriptTags === 'function') {
       window.Babel.transformScriptTags();
     }
+
+    // Inicializa o dashboard após todos os scripts carregarem
+    if (window.__termometro && typeof window.__termometro.boot === 'function' && window.MOCK_DATA) {
+      window.__termometro.boot(window.MOCK_DATA);
+    }
+
+    if (loading) loading.remove();
   } catch (err) {
     setStatus('Error unpacking: ' + err.message);
     console.error('Bundle unpack error:', err);
