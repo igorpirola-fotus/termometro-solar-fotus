@@ -1,0 +1,85 @@
+{
+  "name": "🚨 Termômetro — Error Handler Global",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "node-error-trigger",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Formata mensagem de alerta com detalhes do erro\nconst execution = $input.first().json;\n\nconst workflowName = execution.workflow?.name ?? 'Desconhecido';\nconst workflowId   = execution.workflow?.id ?? '';\nconst execId       = execution.execution?.id ?? '';\nconst errorMsg     = execution.execution?.error?.message ?? 'Sem mensagem de erro';\nconst nodeName     = execution.execution?.error?.node?.name ?? 'Nó desconhecido';\nconst timestamp    = new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });\n\nconst subject = `🚨 FALHA: ${workflowName} | ${timestamp}`;\n\nconst htmlBody = `\n<!DOCTYPE html>\n<html lang=\"pt-BR\">\n<head><meta charset=\"UTF-8\"></head>\n<body style=\"font-family:Arial,sans-serif;background:#F9FAFB;margin:0;padding:20px;\">\n  <table width=\"560\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#fff;border-radius:8px;border:1px solid #E5E7EB;max-width:560px;margin:0 auto;\">\n    <tr>\n      <td style=\"background:#DC2626;border-radius:8px 8px 0 0;padding:20px 28px;\">\n        <p style=\"margin:0;color:#fff;font-size:18px;font-weight:700;\">🚨 Workflow com Falha</p>\n        <p style=\"margin:4px 0 0;color:#FCA5A5;font-size:12px;\">${timestamp} (horário de Brasília)</p>\n      </td>\n    </tr>\n    <tr>\n      <td style=\"padding:28px;\">\n        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n          <tr>\n            <td style=\"padding-bottom:16px;border-bottom:1px solid #E5E7EB;\">\n              <p style=\"margin:0 0 4px;color:#6B7280;font-size:11px;text-transform:uppercase;letter-spacing:1px;\">Workflow</p>\n              <p style=\"margin:0;color:#111827;font-size:15px;font-weight:600;\">${workflowName}</p>\n              <p style=\"margin:2px 0 0;color:#9CA3AF;font-size:12px;\">ID: ${workflowId}</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:16px 0;border-bottom:1px solid #E5E7EB;\">\n              <p style=\"margin:0 0 4px;color:#6B7280;font-size:11px;text-transform:uppercase;letter-spacing:1px;\">Nó com Falha</p>\n              <p style=\"margin:0;color:#DC2626;font-size:14px;font-weight:600;\">${nodeName}</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:16px 0;border-bottom:1px solid #E5E7EB;\">\n              <p style=\"margin:0 0 8px;color:#6B7280;font-size:11px;text-transform:uppercase;letter-spacing:1px;\">Mensagem de Erro</p>\n              <p style=\"margin:0;background:#FEF2F2;border:1px solid #FECACA;border-radius:4px;padding:12px;color:#991B1B;font-size:13px;font-family:'Courier New',monospace;word-break:break-all;\">${errorMsg}</p>\n            </td>\n          </tr>\n          <tr>\n            <td style=\"padding:16px 0 0;\">\n              <p style=\"margin:0 0 4px;color:#6B7280;font-size:11px;text-transform:uppercase;letter-spacing:1px;\">Execution ID</p>\n              <p style=\"margin:0;color:#374151;font-size:13px;font-family:'Courier New',monospace;\">${execId}</p>\n            </td>\n          </tr>\n        </table>\n      </td>\n    </tr>\n    <tr>\n      <td style=\"background:#F9FAFB;border-radius:0 0 8px 8px;padding:16px 28px;border-top:1px solid #E5E7EB;\">\n        <p style=\"margin:0;color:#9CA3AF;font-size:11px;\">Termômetro do Mercado Solar · Fotus Distribuidora Solar · Alerta automático</p>\n      </td>\n    </tr>\n  </table>\n</body>\n</html>`;\n\nreturn [{ json: { subject, htmlBody, workflowName, nodeName, errorMsg, execId, timestamp } }];"
+      },
+      "id": "node-format-error",
+      "name": "Formata Mensagem de Erro",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.resend.com/emails",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({ from: 'termometro@fotus.com.br', to: ['igor.pirola@fotus.com.br'], subject: $json.subject, html: $json.htmlBody }) }}",
+        "options": {}
+      },
+      "id": "node-send-alert",
+      "name": "Envia Alerta por Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [720, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "resend-api-credential-id",
+          "name": "Resend API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Loga o resultado do envio para auditoria nos logs do N8N\nconst alert = $('Formata Mensagem de Erro').first().json;\nconst sendResult = $input.first().json;\n\nconsole.log(`[error-handler] Alerta enviado para falha em: ${alert.workflowName} | Nó: ${alert.nodeName} | Exec: ${alert.execId}`);\nconsole.log(`[error-handler] Status Resend:`, JSON.stringify(sendResult).substring(0, 200));\n\nreturn [{ json: { ok: true, alerta_enviado: true, workflow: alert.workflowName, exec_id: alert.execId } }];"
+      },
+      "id": "node-log-result",
+      "name": "Loga Resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 300]
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [{ "node": "Formata Mensagem de Erro", "type": "main", "index": 0 }]
+      ]
+    },
+    "Formata Mensagem de Erro": {
+      "main": [
+        [{ "node": "Envia Alerta por Email", "type": "main", "index": 0 }]
+      ]
+    },
+    "Envia Alerta por Email": {
+      "main": [
+        [{ "node": "Loga Resultado", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "none",
+    "timezone": "America/Sao_Paulo"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "description": "Workflow de error handler global. Quando ativado e vinculado aos workflows críticos (Análise Diária, Newsletter), envia email de alerta para igor.pirola@fotus.com.br quando qualquer nó falha. Instruções de setup: 1) Importar este JSON no N8N; 2) Ativar o workflow; 3) Em cada workflow crítico → Settings → Error Workflow → selecionar este."
+  },
+  "tags": ["termometro", "monitoring", "error-handler"]
+}

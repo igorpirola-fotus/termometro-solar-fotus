@@ -17,7 +17,7 @@
       "position": [460, 300],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "// Gera datas de 01/05/2026 ate ontem\nconst start = new Date('2026-05-01T00:00:00Z');\nconst yesterday = new Date();\nyesterday.setUTCDate(yesterday.getUTCDate() - 1);\nyesterday.setUTCHours(23, 59, 59, 0);\n\nconst dates = [];\nconst cur = new Date(start);\nwhile (cur <= yesterday) {\n  dates.push({ json: { data_referencia: cur.toISOString().split('T')[0] } });\n  cur.setUTCDate(cur.getUTCDate() + 1);\n}\nreturn dates;"
+        "jsCode": "// Gera datas de 01/05/2026 até ontem (pula datas que já existem no Supabase)\n// Supabase já tem: 15/05, 16/05, 17/05 — backfill vai preencher os faltantes\nconst start = new Date('2026-05-01T00:00:00Z');\nconst yesterday = new Date();\nyesterday.setUTCDate(yesterday.getUTCDate() - 1);\nyesterday.setUTCHours(23, 59, 59, 0);\n\nconst dates = [];\nconst cur = new Date(start);\nwhile (cur <= yesterday) {\n  dates.push({ json: { data_referencia: cur.toISOString().split('T')[0] } });\n  cur.setUTCDate(cur.getUTCDate() + 1);\n}\nconsole.log(`[Backfill] Processando ${dates.length} datas de ${dates[0].json.data_referencia} a ${dates[dates.length-1].json.data_referencia}`);\nreturn dates;"
       }
     },
     {
@@ -39,7 +39,7 @@
       "position": [900, 300],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const dataRef = $input.first().json.data_referencia;\nconst query = `SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = '${dataRef}'::date AND content_text IS NOT NULL AND content_text <> '' AND group_jid LIKE '%-%' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' ORDER BY message_timestamp ASC`;\nreturn [{ json: { data_referencia: dataRef, query } }];"
+        "jsCode": "const dataRef = $input.first().json.data_referencia;\nconst query = `SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = '${dataRef}'::date AND content_text IS NOT NULL AND content_text <> '' AND (group_jid LIKE '%-%' OR group_jid LIKE '%@g.us') AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' ORDER BY message_timestamp ASC`;\nconst coverageQuery = `SELECT (SELECT COUNT(DISTINCT group_jid) FROM public.messages WHERE (group_jid LIKE '%-%' OR group_jid LIKE '%@g.us') AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' AND message_timestamp >= NOW() - INTERVAL '90 days') AS grupos_total_base, (SELECT COUNT(DISTINCT group_jid) FROM public.messages WHERE (group_jid LIKE '%-%' OR group_jid LIKE '%@g.us') AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' AND DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = '${dataRef}'::date) AS grupos_com_atividade`;\nreturn [{ json: { data_referencia: dataRef, query, coverageQuery } }];"
       }
     },
     {
@@ -58,14 +58,29 @@
       }
     },
     {
+      "id": "node-postgres-coverage",
+      "name": "Conta Grupos do Dia",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1340, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $('Monta Query').first().json.coverageQuery }}",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": { "name": "Postgres account" }
+      }
+    },
+    {
       "id": "node-code-payload",
       "name": "Prepara Payload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1340, 300],
+      "position": [1560, 300],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const items = $input.all();\nconst msgs = items.map(i => i.json);\nconst dataRef = $('Loop por Data').first().json.data_referencia;\n\nif (msgs.length === 0) {\n  return [{ json: { skip: true, data_referencia: dataRef, total: 0 } }];\n}\n\nconst body = JSON.stringify({\n  messages: msgs,\n  data_referencia: dataRef,\n  periodo_inicio: msgs[0].message_timestamp,\n  periodo_fim: msgs[msgs.length - 1].message_timestamp\n});\n\nreturn [{ json: { skip: false, body, data_referencia: dataRef, total: msgs.length } }];"
+        "jsCode": "const msgs = $('Busca Mensagens do Dia').all().map(i => i.json);\nconst dataRef = $('Loop por Data').first().json.data_referencia;\nconst coverageItems = $input.all();\nconst coverage = coverageItems.length > 0 ? coverageItems[0].json : {};\nconst gruposTotalBase = parseInt(coverage.grupos_total_base) || 0;\nconst gruposComAtividade = parseInt(coverage.grupos_com_atividade) || 0;\n\nif (msgs.length === 0) {\n  console.log(`[Backfill] ${dataRef}: sem mensagens (grupos na base: ${gruposTotalBase})`);\n  return [{ json: { skip: true, data_referencia: dataRef, total: 0 } }];\n}\n\nconst body = JSON.stringify({\n  messages: msgs,\n  data_referencia: dataRef,\n  periodo_inicio: msgs[0].message_timestamp,\n  periodo_fim: msgs[msgs.length - 1].message_timestamp,\n  grupos_total_base: gruposTotalBase,\n  grupos_com_atividade: gruposComAtividade\n});\n\nconsole.log(`[Backfill] ${dataRef}: ${msgs.length} msgs | ${gruposComAtividade}/${gruposTotalBase} grupos`);\nreturn [{ json: { skip: false, body, data_referencia: dataRef, total: msgs.length } }];"
       }
     },
     {
@@ -73,7 +88,7 @@
       "name": "Tem Mensagens?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
-      "position": [1560, 300],
+      "position": [1780, 300],
       "parameters": {
         "conditions": {
           "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict" },
@@ -94,14 +109,16 @@
       "name": "Chama Edge Function",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [1780, 200],
+      "position": [2000, 200],
       "parameters": {
         "method": "POST",
         "url": "https://wttmlnhzvevtabjetsqz.supabase.co/functions/v1/analyze-market",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            { "name": "Content-Type", "value": "application/json" }
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "Authorization", "value": "Bearer SUPABASE_SERVICE_ROLE_JWT" },
+            { "name": "apikey", "value": "SUPABASE_SERVICE_ROLE_JWT" }
           ]
         },
         "sendBody": true,
@@ -129,6 +146,9 @@
       "main": [[{ "node": "Busca Mensagens do Dia", "type": "main", "index": 0 }]]
     },
     "Busca Mensagens do Dia": {
+      "main": [[{ "node": "Conta Grupos do Dia", "type": "main", "index": 0 }]]
+    },
+    "Conta Grupos do Dia": {
       "main": [[{ "node": "Prepara Payload", "type": "main", "index": 0 }]]
     },
     "Prepara Payload": {

@@ -11,11 +11,10 @@
         "rule": {
           "interval": [
             {
-              "field": "weeks",
-              "weeksInterval": 1,
-              "triggerAtDay": [1],
-              "triggerAtHour": 9,
-              "triggerAtMinute": 0
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 23,
+              "triggerAtMinute": 50
             }
           ]
         }
@@ -29,7 +28,7 @@
       "position": [480, 300],
       "parameters": {
         "operation": "executeQuery",
-        "query": "WITH ranked AS (SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text, ROW_NUMBER() OVER (PARTITION BY group_jid ORDER BY message_timestamp ASC) AS rn FROM public.messages WHERE message_timestamp >= NOW() - INTERVAL '7 days' AND content_text IS NOT NULL AND content_text <> '' AND group_jid LIKE '%@g.us' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%') SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM ranked WHERE rn <= 100 ORDER BY group_jid, message_timestamp ASC",
+        "query": "WITH ranked AS (SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text, ROW_NUMBER() OVER (PARTITION BY group_jid ORDER BY message_timestamp ASC) AS rn FROM public.messages WHERE message_timestamp >= NOW() - INTERVAL '24 hours' AND content_text IS NOT NULL AND content_text <> '' AND group_jid LIKE '%@g.us' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%') SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM ranked WHERE rn <= 500 ORDER BY group_jid, message_timestamp ASC",
         "options": {}
       },
       "credentials": {

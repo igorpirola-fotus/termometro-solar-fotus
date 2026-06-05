@@ -487,6 +487,66 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
   .kpi-val-lg { font-size: 28px; }
 }
 
+/* ── KPI STRIP — next-gen cards com severidade ───────────────────────────── */
+.kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.kpi-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-card); padding: 18px 18px 16px;
+  position: relative; overflow: hidden;
+  display: flex; flex-direction: column;
+  animation: fadeUp .3s ease both;
+}
+.kpi-card:nth-child(1){animation-delay:.04s}
+.kpi-card:nth-child(2){animation-delay:.08s}
+.kpi-card:nth-child(3){animation-delay:.12s}
+.kpi-card:nth-child(4){animation-delay:.16s}
+.kpi-top  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.kpi-mid  { display: flex; align-items: flex-end; gap: 10px; }
+.kpi-name { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .08em; margin-top: 8px; line-height: 1.3; }
+.kpi-ctx  { font-size: 11px; color: var(--muted); margin-top: 4px; font-weight: 400; line-height: 1.3; }
+
+/* Badge de categoria */
+.kpi-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 9px; font-weight: 700; padding: 3px 8px;
+  border-radius: var(--r-chip); text-transform: uppercase;
+  letter-spacing: .07em; line-height: 1; white-space: nowrap;
+}
+.kpi-badge--pos  { background: rgba(16,185,129,.15);  color: #6EE7B7; }
+.kpi-badge--warn { background: rgba(245,158,11,.15);   color: #FCD34D; }
+.kpi-badge--crit { background: rgba(239,68,68,.15);    color: #FCA5A5; }
+.kpi-badge--neu  { background: var(--surface3);        color: var(--muted); }
+.kpi-badge--blue { background: rgba(74,143,212,.15);   color: #93C5FD; }
+
+/* Valor com cor de severidade */
+.kpi-val--pos  { color: #10B981 !important; }
+.kpi-val--warn { color: #F59E0B !important; }
+.kpi-val--crit { color: #EF4444 !important; }
+.kpi-val--neu  { color: var(--text)  !important; }
+.kpi-val--blue { color: #4A8FD4 !important; }
+
+/* Contexto com cor de severidade */
+.kpi-ctx--pos  { color: rgba(16,185,129,.85)  !important; font-weight: 500; }
+.kpi-ctx--warn { color: rgba(245,158,11,.85)  !important; font-weight: 500; }
+.kpi-ctx--crit { color: rgba(239,68,68,.85)   !important; font-weight: 500; }
+.kpi-ctx--blue { color: rgba(74,143,212,.85)  !important; font-weight: 500; }
+
+/* Light-mode overrides */
+[data-theme="light"] .kpi-card { background: #FFFFFF; border-color: rgba(0,0,0,.08); box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+[data-theme="light"] .kpi-badge--pos  { background: rgba(16,185,129,.1);  color: #059669; }
+[data-theme="light"] .kpi-badge--warn { background: rgba(245,158,11,.1);   color: #B45309; }
+[data-theme="light"] .kpi-badge--crit { background: rgba(239,68,68,.1);    color: #DC2626; }
+[data-theme="light"] .kpi-badge--neu  { background: rgba(0,0,0,.06);       color: #6B7280; }
+[data-theme="light"] .kpi-badge--blue { background: rgba(59,130,246,.1);   color: #2563EB; }
+[data-theme="light"] .kpi-val--pos  { color: #059669 !important; }
+[data-theme="light"] .kpi-val--warn { color: #D97706 !important; }
+[data-theme="light"] .kpi-val--crit { color: #DC2626 !important; }
+[data-theme="light"] .kpi-val--blue { color: #2563EB !important; }
+[data-theme="light"] .kpi-ctx--pos  { color: rgba(5,150,105,.85)   !important; }
+[data-theme="light"] .kpi-ctx--warn { color: rgba(180,83,9,.85)    !important; }
+[data-theme="light"] .kpi-ctx--crit { color: rgba(220,38,38,.85)   !important; }
+[data-theme="light"] .kpi-ctx--blue { color: rgba(37,99,235,.85)   !important; }
+
 /* ── JS-GENERATED LAYOUT GRIDS (classes para substituir inline styles) ────── */
 .g-gauge-synth {
   display: grid; grid-template-columns: 35fr 65fr;
@@ -504,7 +564,8 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 
 /* ── RESPONSIVE — TABLET / MOBILE ───────────────────────────────────────── */
 @media (max-width: 900px) {
-  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .kpi-grid  { grid-template-columns: repeat(2, 1fr); }
+  .kpi-strip { grid-template-columns: repeat(2, 1fr); }
   .g3 { grid-template-columns: 1fr; }
   .g2 { grid-template-columns: 1fr; }
   .g21 { grid-template-columns: 1fr; }
@@ -604,8 +665,10 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 /* ── SMALL PHONES (480px e abaixo) ───────────────────────────────────────── */
 @media (max-width: 480px) {
   /* KPIs: 1 coluna em telas muito pequenas para evitar overflow */
-  .kpi-grid { grid-template-columns: 1fr; }
+  .kpi-grid  { grid-template-columns: 1fr; }
+  .kpi-strip { grid-template-columns: 1fr; }
   .kpi { padding: 14px; }
+  .kpi-card { padding: 14px; }
   .kpi-val { font-size: 28px; }
 
   /* Score big menor */
@@ -699,6 +762,44 @@ body { font-family: var(--sans); background: var(--bg); color: var(--text); min-
 .back-btn { display: flex; align-items: center; gap: 6px; background: none; border: 1px solid var(--border); border-radius: var(--r-ctrl); padding: 6px 12px; color: var(--muted); font-size: 12px; font-weight: 500; cursor: pointer; font-family: var(--sans); transition: background .12s, color .12s; }
 .back-btn:hover { background: var(--surface2); color: var(--text); }
 .back-nav-date { font-size: 12px; color: var(--hint); }
+
+/* ── BRAZIL TILE MAP ─────────────────────────────────────────────────────── */
+.br-map-wrap { position: relative; margin: 8px auto 12px; }
+.br-tile { position: absolute; border-radius: 5px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: default; transition: transform .15s, box-shadow .15s; border: 1px solid transparent; user-select: none; }
+.br-tile:hover { transform: scale(1.18); z-index: 10; box-shadow: 0 4px 14px rgba(0,0,0,.35); }
+.br-tile-uf { font-size: 9px; font-weight: 700; letter-spacing: .04em; line-height: 1; }
+.br-tile-cnt { font-size: 8px; font-family: var(--mono); margin-top: 2px; opacity: .88; }
+
+/* ── COST PILL ───────────────────────────────────────────────────────────── */
+.report-footer { display: flex; justify-content: center; padding: 14px 0 6px; }
+.cost-pill { display: inline-flex; align-items: center; gap: 6px; padding: 5px 13px; border-radius: var(--r-chip); background: var(--surface2); border: 1px solid var(--border); font-size: 10px; color: var(--hint); font-family: var(--mono); letter-spacing: .02em; }
+.cost-pill svg { width: 10px; height: 10px; color: var(--muted); flex-shrink: 0; }
+
+/* ── WEEKLY RANKING ──────────────────────────────────────────────────────── */
+.wrank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.wrank-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-card); padding: 14px 16px; }
+.wrank-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.wrank-ttl { font-size: 10px; font-weight: 600; color: var(--hint); text-transform: uppercase; letter-spacing: .09em; }
+.wrank-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.wrank-row:last-child { border-bottom: none; }
+.wrank-pos { font-size: 11px; width: 18px; text-align: center; flex-shrink: 0; }
+.wrank-name { flex: 1; font-size: 12px; color: var(--text); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.wrank-bar-wrap { width: 56px; height: 3px; background: var(--surface3); border-radius: 2px; overflow: hidden; flex-shrink: 0; }
+.wrank-bar-fill { height: 100%; border-radius: 2px; transition: width .8s cubic-bezier(.2,0,0,1); }
+.wrank-cnt { font-family: var(--mono); font-size: 11px; font-weight: 600; flex-shrink: 0; width: 28px; text-align: right; color: var(--text); }
+
+/* ── MARCAS SPLIT BAR ────────────────────────────────────────────────────── */
+.marcas-split { display: flex; align-items: center; gap: 18px; padding: 8px 0 11px; border-bottom: 1px solid var(--border); margin-bottom: 10px; flex-wrap: wrap; }
+.marcas-split-item { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+.marcas-split-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.marcas-split-lbl { color: var(--muted); }
+.marcas-split-val { font-weight: 600; color: var(--text); font-family: var(--mono); margin-left: 3px; }
+.marcas-split-pct { color: var(--hint); font-size: 10px; margin-left: 2px; }
+.tcloud-section-lbl { font-size: 9px; font-weight: 700; color: var(--hint); text-transform: uppercase; letter-spacing: .09em; margin: 6px 0 3px; display: block; width: 100%; }
+
+@media (max-width: 768px) {
+  .wrank-grid { grid-template-columns: 1fr; }
+}
 </style>
 
 <!-- Redesign overrides — applies after original styles -->
@@ -1225,10 +1326,48 @@ function aggregateWeek(reports) {
     conclusao: `Agregado de ${reports.length} análises diárias`
   };
 
+  // KPIs semanais acumulados
+  const totalMensagens = reports.reduce((s, r) => s + (r.payload?.meta?.mensagens || 0), 0);
+  const avgGrupos = Math.round(reports.reduce((s, r) => s + (r.payload?.meta?.grupos || 0), 0) / reports.length);
+  const allConcNomesSet = new Set();
+  reports.forEach(r => (r.payload?.concorrentes_distribuidores || []).forEach(c => c.nome && allConcNomesSet.add(c.nome)));
+
+  // % grupos ativos (cobertura média diária)
+  const pctGruposArr = reports.map(r => {
+    const tot = r.payload?.meta?.grupos_total_base || 0;
+    const ati = r.payload?.meta?.grupos_com_atividade || r.payload?.meta?.grupos || 0;
+    return tot > 0 ? Math.round(ati / tot * 100) : null;
+  }).filter(v => v !== null);
+  const pctGruposAtivos = pctGruposArr.length
+    ? Math.round(pctGruposArr.reduce((a, b) => a + b, 0) / pctGruposArr.length)
+    : null;
+
+  const weeklyKpis = {
+    score:       { valor: avgScore,              sub: 'média dos 7 dias',                      tag: null, tag_tipo: 'neu' },
+    mensagens:   { valor: totalMensagens,        sub: `total em ${reports.length} dias`,        tag: null, tag_tipo: 'neu' },
+    grupos:      pctGruposAtivos !== null
+                   ? { valor: pctGruposAtivos + '%', sub: 'cobertura de grupos · média',         tag: null, tag_tipo: 'neu' }
+                   : { valor: avgGrupos,             sub: 'grupos ativos / dia',                 tag: null, tag_tipo: 'neu' },
+    concorrentes:{ valor: allConcNomesSet.size,  sub: 'únicos na semana',                      tag: null, tag_tipo: 'neu' }
+  };
+
+  // Marcas semanais — agrupa por nome somando menções
+  const marcaMap = {};
+  for (const r of reports) {
+    for (const mk of (r.payload?.marcas || [])) {
+      const key = mk.nome || mk.brand_name;
+      if (!key) continue;
+      if (!marcaMap[key]) marcaMap[key] = { ...mk, nome: key, mencoes: 0 };
+      marcaMap[key].mencoes += (mk.mencoes || 1);
+    }
+  }
+  const mergedMarcas = Object.values(marcaMap).sort((a, b) => b.mencoes - a.mencoes).slice(0, 16);
+
   return {
     isWeekly: true,
     weekLabel,
     meta: { score_aquecimento: avgScore, status_aquecimento: getScoreLabel(avgScore) },
+    kpis: weeklyKpis,
     briefing_executivo: topInsights,
     tese_executiva: teseExecutiva,
     matriz_sinais: matrizSinais,
@@ -1236,7 +1375,7 @@ function aggregateWeek(reports) {
     lacunas_portfolio: mergedLacunas,
     concorrentes_distribuidores: mergedConcorrentes,
     objecoes: mergedObjecoes,
-    marcas: [],
+    marcas: mergedMarcas,
     estados: [],
     mencoes_fotus: [],
     tags_exec: [],
@@ -1366,8 +1505,8 @@ function buildDashboardHTML(d) {
     </div>
   `;
 
-  // ── KPI STRIP (4 cards, score com sparkline) ───────────────────────────
-  const kpiHTML = isWeekly ? '' : buildKPIStrip(d.kpis);
+  // ── KPI STRIP (4 cards, score com sparkline) — diário E semanal ────────
+  const kpiHTML = buildKPIStrip(d.kpis);
 
   // ── DELTA STRIP (apenas diário) ────────────────────────────────────────
   const deltaHTML = isWeekly ? '' : buildDeltaCard(d.delta);
@@ -1427,16 +1566,14 @@ function buildDashboardHTML(d) {
     </div>
   ` : '';
 
-  // ── ESTADOS (footer pills) ─────────────────────────────────────────────
+  // ── ESTADOS (mapa de tiles interativo) ────────────────────────────────
   const estadosHTML = (d.estados||[]).length ? `
     <div class="card" style="margin-top:var(--density-gap)">
       <div class="card-hdr">
-        <div class="card-ttl"><span class="card-ttl-dot"></span>Volume por UF</div>
-        <div class="card-sub">mensagens 24h</div>
+        <div class="card-ttl"><span class="card-ttl-dot"></span>Atividade por UF</div>
+        <div class="card-sub">${(d.estados||[]).length} estados · 24h</div>
       </div>
-      <div class="estados" style="border:none;padding-top:0;margin-top:0">
-        ${(d.estados||[]).map(s => `<span class="uf-pill">${esc(s.uf)}<span class="uf-pill-cnt">${s.contagem}</span></span>`).join('')}
-      </div>
+      ${buildEstadosMapHTML(d.estados)}
     </div>
   ` : '';
 
@@ -1445,12 +1582,28 @@ function buildDashboardHTML(d) {
     <div class="section-label">
       <span class="section-label-txt">Menções à Fotus</span>
       <span class="section-label-line"></span>
-      <span class="section-label-tag">timeline · 24h</span>
+      <span class="section-label-tag">timeline · ${isWeekly ? 'semana' : '24h'}</span>
     </div>
     ${buildMencoesTimeline(d.mencoes_fotus, d.oportunidade_fotus)}
   ` : '';
 
-  return heroHTML + kpiHTML + deltaHTML + briefingHTML + matrizHTML + portfolioHTML + analiseHTML + estadosHTML + mencoesHTML;
+  // ── CUSTO DO RELATÓRIO ─────────────────────────────────────────────────
+  const custo = m.custo_estimado_usd;
+  const tokens = (m.tokens_input || 0) + (m.tokens_output || 0);
+  const custoHTML = (custo || tokens) ? `
+    <div class="report-footer">
+      <span class="cost-pill">
+        <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.2" stroke="currentColor" stroke-width="1.2"/><path d="M7 4.5v.8M7 8.7v.8M5.5 8a1.8 1.8 0 003.1-1.2 1.8 1.8 0 00-3.2-.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        ${esc(m.modelo || 'claude-sonnet-4-6')}${custo ? ' · $' + custo.toFixed(4) + ' USD' : ''}${tokens ? ' · ' + tokens.toLocaleString('pt-BR') + ' tokens' : ''}
+      </span>
+    </div>
+  ` : '';
+
+  // ── RANKING SEMANAL (somente visão weekly) ─────────────────────────────
+  const weeklyRankingHTML = isWeekly ? buildWeeklyRankingHTML(d) : '';
+
+  // Menções à Fotus sobe para o topo (antes do briefing)
+  return heroHTML + kpiHTML + deltaHTML + mencoesHTML + briefingHTML + matrizHTML + portfolioHTML + weeklyRankingHTML + analiseHTML + estadosHTML + custoHTML;
 }
 
 // ── HELPERS ──────────────────────────────────────────────────────────────
@@ -1543,40 +1696,85 @@ function buildDeltaPill(delta) {
 }
 
 // ── KPI STRIP ────────────────────────────────────────────────────────────
+function kpiSeverity(key, kpi) {
+  if (key === 'score') {
+    const v = parseFloat(kpi.valor);
+    if (isNaN(v)) return 'neu';
+    return v >= 7 ? 'pos' : v >= 5 ? 'warn' : 'crit';
+  }
+  if (key === 'grupos') {
+    const v = String(kpi.valor || '');
+    if (v.endsWith('%')) {
+      const pct = parseFloat(v);
+      return pct >= 50 ? 'pos' : pct >= 30 ? 'warn' : 'crit';
+    }
+    return 'blue';
+  }
+  if (key === 'mensagens') {
+    return kpi.tag_tipo === 'up' ? 'pos' : kpi.tag_tipo === 'dn' ? 'warn' : 'neu';
+  }
+  if (key === 'concorrentes') {
+    const v = parseInt(kpi.valor);
+    return (!isNaN(v) && v >= 8) ? 'warn' : 'neu';
+  }
+  return 'neu';
+}
+
+function kpiBadgeLabel(key, sev, kpi) {
+  if (key === 'score')       return sev === 'pos' ? 'Positivo' : sev === 'warn' ? 'Moderado' : 'Tenso';
+  if (key === 'grupos')      return sev === 'pos' ? 'Alta' : sev === 'warn' ? 'Parcial' : sev === 'crit' ? 'Baixa' : 'Cobertura';
+  if (key === 'mensagens')   return sev === 'pos' ? 'Volume Alto' : sev === 'warn' ? 'Volume Baixo' : 'Volume';
+  if (key === 'concorrentes') return sev === 'warn' ? 'Mercado ativo' : 'Mercado';
+  return 'Info';
+}
+
+function kpiSevColor(sev) {
+  return { pos: '#10B981', warn: '#F59E0B', crit: '#EF4444', blue: '#4A8FD4', neu: null }[sev] || null;
+}
+
 function buildKPIStrip(kpis) {
   if (!kpis) return '';
   const k = kpis;
-  const palette = { score: '#E24B4A', mensagens: '#3AB87F', grupos: '#4A8FD4', concorrentes: '#F5A505' };
-  const labels = { score: 'Score do dia', mensagens: 'Mensagens 24h', grupos: 'Grupos ativos', concorrentes: 'Concorrentes citados' };
-  const keys = ['score','mensagens','grupos','concorrentes'];
+  const names = {
+    score:        'Termômetro do dia',
+    mensagens:    'Mensagens 24h',
+    grupos:       'Cobertura de grupos',
+    concorrentes: 'Concorrentes citados'
+  };
 
-  return '<div class="kpi-strip">' + keys.map(key => {
-    const kpi = k[key] || {};
-    const color = palette[key];
-    const tagCls = kpi.tag_tipo === 'up' ? 'up' : kpi.tag_tipo === 'dn' ? 'dn' : 'neu';
-    const tagIcon = kpi.tag_tipo === 'up'
-      ? '<svg viewBox="0 0 14 14" fill="none" style="width:9px;height:9px"><path d="M3 9l4-4 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-      : kpi.tag_tipo === 'dn'
-      ? '<svg viewBox="0 0 14 14" fill="none" style="width:9px;height:9px"><path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
-      : '';
+  const cards = ['score','mensagens','grupos','concorrentes'].map(key => {
+    const kpi    = k[key] || {};
+    const sev    = kpiSeverity(key, kpi);
+    const badge  = kpiBadgeLabel(key, sev, kpi);
+    const color  = kpiSevColor(sev);
 
-    // Sparkline: somente para score (usa sparklineData global)
+    // Sparkline apenas para score
+    const sparkColor = color || '#E24B4A';
     const sparkSVG = (key === 'score' && sparklineData && sparklineData.length > 1)
-      ? sparklineSVG(sparklineData.map(s => s.score), color)
+      ? sparklineSVG(sparklineData.map(s => s.score), sparkColor)
       : '';
+
+    // Contexto: usa sub do backend; colorido se severity relevante
+    const ctxSev = (sev === 'pos' || sev === 'crit' || sev === 'warn') ? sev : '';
+    const ctxClass = ctxSev ? ` kpi-ctx--${ctxSev}` : '';
+
+    // Valor inline style como fallback para compatibilidade
+    const valStyle = color ? ` style="color:${color}"` : '';
 
     return `<div class="kpi-card">
       <div class="kpi-top">
-        <div class="kpi-lbl">${labels[key]}</div>
-        ${kpi.tag ? `<span class="kpi-delta ${tagCls}">${tagIcon}${esc(kpi.tag)}</span>` : ''}
+        <span class="kpi-badge kpi-badge--${sev}">${esc(badge)}</span>
       </div>
       <div class="kpi-mid">
-        <div class="kpi-val" style="color:${color}">${esc(kpi.valor ?? '—')}</div>
+        <div class="kpi-val kpi-val--${sev}"${valStyle}>${esc(kpi.valor ?? '—')}</div>
         ${sparkSVG}
       </div>
-      <div class="kpi-sub">${esc(kpi.sub || '')}</div>
+      <div class="kpi-name">${esc(names[key])}</div>
+      ${kpi.sub ? `<div class="kpi-ctx${ctxClass}">${esc(kpi.sub)}</div>` : ''}
     </div>`;
-  }).join('') + '</div>';
+  });
+
+  return '<div class="kpi-strip">' + cards.join('') + '</div>';
 }
 
 // ── SPARKLINE SVG ────────────────────────────────────────────────────────
@@ -1786,7 +1984,7 @@ function buildDistribuidoresHTML(items) {
   }).join('')}</div>`;
 }
 
-// ── MARCAS (donut + tag cloud) ──────────────────────────────────────────
+// ── MARCAS (donut + tag cloud com split portfólio/mercado) ──────────────
 function buildMarcasCard(marcas) {
   if (!marcas || !marcas.length) return '';
   const groups = {};
@@ -1795,20 +1993,53 @@ function buildMarcasCard(marcas) {
   const tipoColor = { 'Fotus': '#4A8FD4', 'Lacuna': '#F5A505', 'Concorr.': '#E24B4A', 'Saindo': '#F5A505', 'Exclusivo': '#3AB87F', 'Neutro': '#8893AA', 'Software': '#8B7EE0', 'Parceiro': '#4A8FD4', 'Outros': '#8893AA' };
   const tipoLabel = { 'Fotus': 'No portfólio Fotus', 'Lacuna': 'Lacuna · alta demanda', 'Concorr.': 'Concorrentes', 'Saindo': 'Saindo do portfólio', 'Exclusivo': 'Exclusivo Fotus', 'Neutro': 'Neutro', 'Software': 'Software', 'Parceiro': 'Parceiro', 'Outros': 'Outros' };
 
+  // Split portfólio vs mercado
+  const portfolioTipos = new Set(['Fotus', 'Exclusivo', 'Parceiro']);
+  const portfolioItems = marcas.filter(m => portfolioTipos.has(m.tipo));
+  const outrasItems    = marcas.filter(m => !portfolioTipos.has(m.tipo));
+  const portfolioMencoes = portfolioItems.reduce((a, m) => a + (m.mencoes || 0), 0);
+  const outrasMencoes    = outrasItems.reduce((a, m) => a + (m.mencoes || 0), 0);
+  const pctPortfolio = total ? Math.round(portfolioMencoes / total * 100) : 0;
+
   const max = Math.max(...marcas.map(m => m.mencoes || 1));
-  const cloud = marcas.slice(0, 16).map(m => {
+
+  const makeTag = m => {
     const size = 11 + ((m.mencoes || 1) / max) * 11;
     const tipoCls = m.tipo === 'Fotus' || m.tipo === 'Exclusivo' || m.tipo === 'Parceiro' ? 't-fotus' :
                     m.tipo === 'Lacuna' || m.tipo === 'Saindo' ? 't-lacuna' :
                     m.tipo === 'Concorr.' ? 't-comp' : '';
     return `<span class="tcloud-item ${tipoCls}" style="font-size:${size.toFixed(0)}px">${esc(m.nome)}<span style="margin-left:6px;opacity:.6;font-size:.7em;font-family:var(--mono)">${m.mencoes}</span></span>`;
-  }).join('');
+  };
+
+  const portfolioCloud = portfolioItems.slice(0, 8).map(makeTag).join('');
+  const outrasCloud    = outrasItems.slice(0, 10).map(makeTag).join('');
+
+  const splitHTML = `<div class="marcas-split">
+    <div class="marcas-split-item">
+      <span class="marcas-split-dot" style="background:#4A8FD4"></span>
+      <span class="marcas-split-lbl">Portfólio Fotus</span>
+      <span class="marcas-split-val">${portfolioMencoes}</span>
+      <span class="marcas-split-pct">${pctPortfolio}%</span>
+    </div>
+    <div class="marcas-split-item">
+      <span class="marcas-split-dot" style="background:#E24B4A"></span>
+      <span class="marcas-split-lbl">Fora do portfólio</span>
+      <span class="marcas-split-val">${outrasMencoes}</span>
+      <span class="marcas-split-pct">${100 - pctPortfolio}%</span>
+    </div>
+  </div>`;
+
+  const cloudHTML = `<div class="tagcloud">
+    ${portfolioCloud ? `<span class="tcloud-section-lbl">Portfólio Fotus</span>${portfolioCloud}` : ''}
+    ${outrasCloud ? `<span class="tcloud-section-lbl" style="margin-top:8px">Mercado</span>${outrasCloud}` : ''}
+  </div>`;
 
   return `<div class="card">
     <div class="card-hdr">
       <div class="card-ttl"><span class="card-ttl-dot"></span>Mapa de marcas</div>
       <div class="card-sub">${total} menções · ${marcas.length} marcas</div>
     </div>
+    ${splitHTML}
     <div class="donut-wrap">
       <div class="donut-canvas">
         <canvas id="donutMarcas"></canvas>
@@ -1829,7 +2060,7 @@ function buildMarcasCard(marcas) {
         </div>`;
       }).join('')}</div>
     </div>
-    <div class="tagcloud">${cloud}</div>
+    ${cloudHTML}
   </div>`;
 }
 
@@ -1917,6 +2148,105 @@ function formatTeseExecutiva(tese) {
   // Kept for backward compat — new code calls buildTeseCard directly
   if (!tese) return '';
   return buildTeseCard(tese, false, '');
+}
+
+// ── MAPA DE ESTADOS — tile grid geográfico ────────────────────────────────
+function buildEstadosMapHTML(estados) {
+  if (!estados || !estados.length) return '';
+  const countMap = {};
+  estados.forEach(s => { countMap[(s.uf || '').toUpperCase()] = s.contagem || 0; });
+  const maxCount = Math.max(...Object.values(countMap), 1);
+
+  // Layout: [sigla, coluna, linha] — aproximação geográfica
+  const TILES = [
+    {u:'RR',c:3,r:0},{u:'AP',c:5,r:0},
+    {u:'AC',c:0,r:1},{u:'AM',c:1,r:1},{u:'PA',c:3,r:1},{u:'MA',c:4,r:1},{u:'CE',c:5,r:1},{u:'RN',c:6,r:1},
+    {u:'RO',c:1,r:2},                  {u:'TO',c:3,r:2},{u:'PI',c:4,r:2},{u:'PB',c:5,r:2},
+    {u:'MT',c:2,r:3},                  {u:'GO',c:3,r:3},{u:'BA',c:4,r:3},{u:'PE',c:5,r:3},{u:'AL',c:6,r:3},
+    {u:'MS',c:2,r:4},                  {u:'DF',c:3,r:4},{u:'MG',c:4,r:4},{u:'ES',c:5,r:4},{u:'SE',c:6,r:4},
+                                        {u:'SP',c:3,r:5},{u:'RJ',c:4,r:5},
+    {u:'PR',c:2,r:6},
+    {u:'SC',c:2,r:7},
+    {u:'RS',c:2,r:8}
+  ];
+
+  const S = 38, G = 3, STEP = S + G;
+  const mapW = 6 * STEP + S;  // cols 0-6 → 7 cols
+  const mapH = 8 * STEP + S;  // rows 0-8 → 9 rows
+
+  const tiles = TILES.map(({u, c, r}) => {
+    const cnt = countMap[u] || 0;
+    const x = c * STEP, y = r * STEP;
+    let bg, textColor, borderColor;
+    if (cnt === 0) {
+      bg = 'var(--surface2)'; textColor = 'var(--hint)'; borderColor = 'transparent';
+    } else {
+      const t = cnt / maxCount;
+      const alpha = (0.25 + t * 0.68).toFixed(2);
+      const alphaB = Math.min(parseFloat(alpha) + 0.18, 1).toFixed(2);
+      bg = `rgba(74,143,212,${alpha})`;
+      textColor = parseFloat(alpha) > 0.45 ? 'rgba(255,255,255,.96)' : 'rgba(255,255,255,.72)';
+      borderColor = `rgba(74,143,212,${alphaB})`;
+    }
+    return `<div class="br-tile" style="width:${S}px;height:${S}px;left:${x}px;top:${y}px;background:${bg};border-color:${borderColor}" title="${u}: ${cnt} mensagem${cnt !== 1 ? 's' : ''}">
+      <span class="br-tile-uf" style="color:${textColor}">${u}</span>
+      ${cnt > 0 ? `<span class="br-tile-cnt" style="color:${textColor}">${cnt}</span>` : ''}
+    </div>`;
+  }).join('');
+
+  return `<div class="br-map-wrap" style="width:${mapW}px;height:${mapH}px">${tiles}</div>`;
+}
+
+// ── RANKING SEMANAL ───────────────────────────────────────────────────────
+function buildWeeklyRankingHTML(d) {
+  const concs  = (d.concorrentes_distribuidores || []).slice(0, 6);
+  const marcas = (d.marcas || []).slice(0, 6);
+  if (!concs.length && !marcas.length) return '';
+
+  const medals = ['🥇','🥈','🥉','#4','#5','#6'];
+
+  const renderSection = (items, colorVar, cntFn) => {
+    const max = Math.max(...items.map(cntFn), 1);
+    return items.map((item, i) => {
+      const nome = item.nome || item.marca || item.brand_name || '—';
+      const cnt = cntFn(item);
+      const pct = Math.round((cnt / max) * 100);
+      return `<div class="wrank-row">
+        <span class="wrank-pos">${medals[i] || '#' + (i+1)}</span>
+        <span class="wrank-name" title="${esc(nome)}">${esc(nome)}</span>
+        <div class="wrank-bar-wrap"><div class="wrank-bar-fill" style="width:${pct}%;background:${colorVar}"></div></div>
+        <span class="wrank-cnt">${cnt}</span>
+      </div>`;
+    }).join('');
+  };
+
+  const concHTML = concs.length ? `
+    <div class="wrank-card">
+      <div class="wrank-hdr">
+        <span class="wrank-ttl">Top concorrentes</span>
+        <span style="font-size:10px;color:var(--hint)">${concs.length} · semana</span>
+      </div>
+      ${renderSection(concs, 'var(--red)', i => i.mencoes || i.contagem || 0)}
+    </div>` : '';
+
+  const marcasHTML = marcas.length ? `
+    <div class="wrank-card">
+      <div class="wrank-hdr">
+        <span class="wrank-ttl">Marcas mais citadas</span>
+        <span style="font-size:10px;color:var(--hint)">${marcas.length} · semana</span>
+      </div>
+      ${renderSection(marcas, 'var(--blue)', i => i.mencoes || i.contagem || 0)}
+    </div>` : '';
+
+  if (!concHTML && !marcasHTML) return '';
+  return `
+    <div class="section-label">
+      <span class="section-label-txt">Ranking da Semana</span>
+      <span class="section-label-line"></span>
+      <span class="section-label-tag">top menções</span>
+    </div>
+    <div class="wrank-grid">${concHTML}${marcasHTML}</div>
+  `;
 }
 
 // ── CONTEXT BAR ──────────────────────────────────────────────────────────
@@ -2043,7 +2373,36 @@ function animateDashboard(d, instant = false) {
           }
         },
         animation: { duration: instant ? 0 : 900, easing: 'easeOutQuart' }
-      }
+      },
+      plugins: [{
+        id: 'radarValueLabels',
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          chart.data.datasets.forEach((dataset, i) => {
+            const meta = chart.getDatasetMeta(i);
+            meta.data.forEach((point, j) => {
+              const v = dataset.data[j];
+              if (v == null || v === 0) return;
+              const cx = chart.scales.r.xCenter;
+              const cy = chart.scales.r.yCenter;
+              const dx = point.x - cx, dy = point.y - cy;
+              const len = Math.sqrt(dx*dx + dy*dy) || 1;
+              const lx = point.x + (dx/len) * 14;
+              const ly = point.y + (dy/len) * 14;
+              ctx.save();
+              ctx.font = '600 9px "Azo Sans", Inter, sans-serif';
+              ctx.fillStyle = 'rgba(245,165,5,.95)';
+              ctx.strokeStyle = isLight ? 'rgba(255,255,255,.9)' : 'rgba(10,13,20,.85)';
+              ctx.lineWidth = 3;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.strokeText(String(v), lx, ly);
+              ctx.fillText(String(v), lx, ly);
+              ctx.restore();
+            });
+          });
+        }
+      }]
     });
   }
 

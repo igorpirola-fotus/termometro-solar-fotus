@@ -12,7 +12,7 @@
           "interval": [
             {
               "field": "cronExpression",
-              "expression": "0 6 * * *"
+              "expression": "0 9 * * *"
             }
           ]
         }
@@ -26,7 +26,22 @@
       "position": [480, 300],
       "parameters": {
         "operation": "executeQuery",
-        "query": "SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = (CURRENT_DATE - INTERVAL '1 day') AND content_text IS NOT NULL AND content_text <> '' AND group_jid LIKE '%-%' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' ORDER BY message_timestamp ASC",
+        "query": "SELECT message_id, sender_name, group_name, group_jid, message_timestamp, message_type, ddd, content_text FROM public.messages WHERE DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = (CURRENT_DATE - INTERVAL '1 day') AND content_text IS NOT NULL AND content_text <> '' AND (group_jid LIKE '%-%' OR group_jid LIKE '%@g.us') AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' ORDER BY message_timestamp ASC",
+        "options": {}
+      },
+      "credentials": {
+        "postgres": { "name": "Postgres account" }
+      }
+    },
+    {
+      "id": "node-postgres-coverage",
+      "name": "Conta Cobertura de Grupos",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [720, 300],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT (SELECT COUNT(DISTINCT group_jid) FROM public.messages WHERE (group_jid LIKE '%-%' OR group_jid LIKE '%@g.us') AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' AND message_timestamp >= NOW() - INTERVAL '90 days') AS grupos_total_base, (SELECT COUNT(DISTINCT group_jid) FROM public.messages WHERE (group_jid LIKE '%-%' OR group_jid LIKE '%@g.us') AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' AND DATE(message_timestamp AT TIME ZONE 'America/Sao_Paulo') = (CURRENT_DATE - INTERVAL '1 day')) AS grupos_com_atividade, (SELECT COUNT(DISTINCT group_jid) FROM public.messages WHERE group_jid NOT LIKE '%-%' AND group_jid NOT LIKE '%@g.us' AND group_name NOT ILIKE '%FOTUS DISTRIBUIDORA SOLAR%' AND message_timestamp >= NOW() - INTERVAL '7 days') AS grupos_outro_formato",
         "options": {}
       },
       "credentials": {
@@ -38,10 +53,10 @@
       "name": "Prepara Payload",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [720, 300],
+      "position": [960, 300],
       "parameters": {
         "mode": "runOnceForAllItems",
-        "jsCode": "const items = $input.all();\nconst msgs = items.map(i => i.json);\n\nif (msgs.length === 0) {\n  throw new Error('Sem mensagens para ontem. Verificar integracao WhatsApp.');\n}\n\nconst yesterday = new Date();\nyesterday.setDate(yesterday.getDate() - 1);\nconst dataRef = yesterday.toISOString().split('T')[0];\n\nconst body = JSON.stringify({\n  messages: msgs,\n  data_referencia: dataRef,\n  periodo_inicio: msgs[0].message_timestamp,\n  periodo_fim: msgs[msgs.length - 1].message_timestamp\n});\n\nreturn [{ json: { body, data_referencia: dataRef, total: msgs.length } }];"
+        "jsCode": "// Mensagens de ontem\nconst msgs = $('Busca Mensagens de Ontem').all().map(i => i.json);\n\n// Cobertura de grupos (do nó anterior)\nconst coverageItems = $input.all();\nconst coverage = coverageItems.length > 0 ? coverageItems[0].json : {};\nconst gruposTotalBase = parseInt(coverage.grupos_total_base) || 0;\nconst gruposComAtividade = parseInt(coverage.grupos_com_atividade) || 0;\nconst gruposOutroFormato = parseInt(coverage.grupos_outro_formato) || 0;\n\nif (msgs.length === 0) {\n  // Log diagnóstico mesmo quando não há mensagens\n  console.log(`[TMS] Sem mensagens ontem. Grupos na base (90d): ${gruposTotalBase} | Outro formato (7d): ${gruposOutroFormato}`);\n  throw new Error(`Sem mensagens para ontem. Grupos monitorados (90d): ${gruposTotalBase}. Grupos em outro formato: ${gruposOutroFormato}. Verificar integração WhatsApp.`);\n}\n\nconst yesterday = new Date();\nyesterday.setDate(yesterday.getDate() - 1);\nconst dataRef = yesterday.toISOString().split('T')[0];\n\nconst body = JSON.stringify({\n  messages: msgs,\n  data_referencia: dataRef,\n  periodo_inicio: msgs[0].message_timestamp,\n  periodo_fim: msgs[msgs.length - 1].message_timestamp,\n  grupos_total_base: gruposTotalBase,\n  grupos_com_atividade: gruposComAtividade\n});\n\nconsole.log(`[TMS] ${dataRef}: ${msgs.length} msgs | ${gruposComAtividade}/${gruposTotalBase} grupos ativos | outro formato: ${gruposOutroFormato}`);\n\nreturn [{ json: { body, data_referencia: dataRef, total: msgs.length } }];"
       }
     },
     {
@@ -49,7 +64,7 @@
       "name": "Chama Edge Function",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [960, 300],
+      "position": [1200, 300],
       "parameters": {
         "method": "POST",
         "url": "https://wttmlnhzvevtabjetsqz.supabase.co/functions/v1/analyze-market",
@@ -74,6 +89,9 @@
       "main": [[{ "node": "Busca Mensagens de Ontem", "type": "main", "index": 0 }]]
     },
     "Busca Mensagens de Ontem": {
+      "main": [[{ "node": "Conta Cobertura de Grupos", "type": "main", "index": 0 }]]
+    },
+    "Conta Cobertura de Grupos": {
       "main": [[{ "node": "Prepara Payload", "type": "main", "index": 0 }]]
     },
     "Prepara Payload": {

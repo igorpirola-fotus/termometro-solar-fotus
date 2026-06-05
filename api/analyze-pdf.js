@@ -1,7 +1,8 @@
-// Rate limiting simples em memória (por IP, por janela de 1 minuto)
-// Nota: em Vercel serverless cada instância é independente — este limite
-// é por instância, não global. Para limite global, usar Vercel KV ou Upstash.
-// ⏳ PENDÊNCIA TI: adicionar CORS restrito para fotus.com.br após setup de domínio.
+// Origens permitidas — apenas domínios Fotus/Vercel de produção
+const ALLOWED_ORIGINS = [
+  'https://termometro-solar-fotus.vercel.app', // produção Vercel atual
+  'https://termometro.fotus.com.br',           // domínio personalizado (quando configurado)
+]
 const rateLimitMap = new Map()
 const RATE_LIMIT = 20       // requisições por janela
 const RATE_WINDOW = 60_000  // janela de 1 minuto em ms
@@ -21,13 +22,20 @@ function checkRateLimit(ip) {
 }
 
 module.exports = async function handler(req, res) {
-  // CORS — ⏳ PENDÊNCIA TI: restringir para 'https://termometro.fotus.com.br' após setup de domínio
-  res.setHeader('Access-Control-Allow-Origin', '*')
+  const origin = req.headers['origin'] || ''
+  const corsOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : null
+
+  // CORS — apenas origens permitidas
+  if (corsOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', corsOrigin)
+    res.setHeader('Vary', 'Origin')
+  }
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization')
 
   if (req.method === 'OPTIONS') {
-    return res.status(200).end()
+    // Preflight — retorna 204 se origem permitida, 403 se não
+    return corsOrigin ? res.status(204).end() : res.status(403).end()
   }
 
   if (req.method !== 'POST') {

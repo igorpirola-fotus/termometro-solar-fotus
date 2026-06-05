@@ -47,7 +47,7 @@ Bloco 1 — HEADLINE (primeira linha do texto, obrigatoriamente em maiúsculas):
 
 Bloco 2 — CONTEXTO (3 bullets separados por quebra de linha, começando com •): cada bullet com um fato numérico ou concreto, máximo 20 palavras cada.
 
-Bloco 3 — IMPLICAÇÃO COMERCIAL (parágrafo final, sem label): 2-3 frases sobre o impacto nas vendas dos próximos 15-30 dias. O que o time deve fazer diferente? Qual oportunidade ou risco concreto para o portfólio?
+Bloco 3 — IMPLICAÇÃO COMERCIAL E AÇÃO (parágrafo final, sem label): 2-3 frases sobre o impacto nas vendas dos próximos 15-30 dias. O que o time deve fazer diferente? Qual oportunidade ou risco concreto para o portfólio? OBRIGATÓRIO incluir uma ação comercial imediata e clara.
 
 REGRAS: voz ativa, número primeiro, foco em vendas (não em tecnologia), nunca cite nomes de pessoas da Fotus, nunca use frases genéricas como "o mercado está aquecido". Use sempre acentuação correta em português (ã, ç, é, ê, ô, õ, í, ú, à, etc.) — nunca omita acentos. Máximo 180 palavras no total.
 
@@ -310,23 +310,35 @@ function formatDate(dateStr: string): string {
 
 // ─── Claude call ─────────────────────────────────────────────────────────────
 
-async function callClaude(systemPrompt: string, userContent: string): Promise<string> {
+function calcCustoUsd(usage: Record<string, number>): number {
+  return (
+    (usage.input_tokens || 0)              * 3    / 1_000_000 +
+    (usage.output_tokens || 0)             * 15   / 1_000_000 +
+    (usage.cache_read_input_tokens || 0)   * 0.30 / 1_000_000 +
+    (usage.cache_creation_input_tokens||0) * 3.75 / 1_000_000
+  )
+}
+
+async function callClaude(systemPrompt: string, userContent: string): Promise<{ text: string; custo_usd: number }> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'x-api-key': ANTHROPIC_API_KEY,
       'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'prompt-caching-2024-07-31,extended-cache-ttl-2025-04-11',
     },
     body: JSON.stringify({
       model: 'claude-sonnet-4-6',
       max_tokens: 1024,
-      system: systemPrompt,
+      // cache_control ttl:3600 = 1 hora — personas são completamente estáticas
+      system: [{ type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral', ttl: 3600 } }],
       messages: [{ role: 'user', content: userContent }],
     }),
   })
   const data = await response.json()
-  return data.content?.[0]?.text ?? ''
+  const custo_usd = calcCustoUsd((data.usage || {}) as Record<string, number>)
+  return { text: data.content?.[0]?.text ?? '', custo_usd }
 }
 
 // ─── Save to Supabase ────────────────────────────────────────────────────────
@@ -374,7 +386,8 @@ Dados do mercado:
 ${JSON.stringify(payload, null, 2)}`
 
     const systemPrompt = tipo === 'newsletter' ? SYSTEM_NEWSLETTER : SYSTEM_BRIEFING
-    const texto = await callClaude(systemPrompt, userContent)
+    const { text: texto, custo_usd } = await callClaude(systemPrompt, userContent)
+    console.log(`[generate-newsletter] tipo=${tipo} custo_usd=${custo_usd.toFixed(6)}`)
 
     const html = tipo === 'newsletter'
       ? buildNewsletterHTML(texto, dataFormatada, score)
@@ -383,7 +396,7 @@ ${JSON.stringify(payload, null, 2)}`
     // Salva no histórico (fire and forget)
     saveComunicado(data_referencia, tipo, html, 0).catch(console.error)
 
-    return new Response(JSON.stringify({ html, texto, data_referencia, tipo }), {
+    return new Response(JSON.stringify({ html, texto, data_referencia, tipo, custo_usd }), {
       status: 200,
       headers: { ...CORS, 'Content-Type': 'application/json' },
     })

@@ -424,6 +424,16 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: 'Claude nao retornou conteudo' }), { status: 502 })
   }
 
+  // Calcula custo desta chamada ao Claude
+  const igUsage = (claudeData.usage || {}) as Record<string, number>
+  const igCustoUsd = (
+    (igUsage.input_tokens || 0)              * 3    / 1_000_000 +
+    (igUsage.output_tokens || 0)             * 15   / 1_000_000 +
+    (igUsage.cache_read_input_tokens || 0)   * 0.30 / 1_000_000 +
+    (igUsage.cache_creation_input_tokens||0) * 3.75 / 1_000_000
+  )
+  console.log(`[analyze-instagram] @${competitor.handle} custo_usd=${igCustoUsd.toFixed(6)} tokens_in=${igUsage.input_tokens||0} tokens_out=${igUsage.output_tokens||0}`)
+
   // ----------------------------------------------------------
   // 6. Parse do JSON retornado pelo Claude
   // ----------------------------------------------------------
@@ -457,6 +467,7 @@ Deno.serve(async (req) => {
     competitor: competitor.handle,
     data_referencia,
     posts_analisados: postsWithComments.length,
-    comentarios_analisados: totalComments
+    comentarios_analisados: totalComments,
+    custo_usd: Math.round(igCustoUsd * 1_000_000) / 1_000_000
   }), { headers: { 'Content-Type': 'application/json' } })
 })
