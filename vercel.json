@@ -1,5 +1,4 @@
 {
-  "outputDirectory": "public",
   "functions": {
     "api/analyze-pdf.js": {
       "maxDuration": 60
