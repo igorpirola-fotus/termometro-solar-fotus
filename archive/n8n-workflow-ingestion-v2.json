@@ -1,0 +1,1177 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "52524a37-92f0-46a8-85a3-345ee896463b",
+        "options": {
+          "responseMode": "onReceived"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        -288
+      ],
+      "id": "b6bafa01-24ca-404a-a02e-a92ce6a5e54e",
+      "name": "Webhook",
+      "webhookId": "52524a37-92f0-46a8-85a3-345ee896463b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9776499b-0d29-4294-80c8-677afadc85b4",
+              "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"fromMe\"] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e905e878-3387-44c5-8e91-db385fc49c8d",
+              "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"isGroup\"] }}",
+              "rightValue": "@g.us",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -288
+      ],
+      "id": "92527862-c224-4a22-97cf-274a94301518",
+      "name": "Filtra mensagens que não são do bot e que são de grupos"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e73944b-c683-42fa-8f12-9fbb92f2f9d0",
+              "name": "mensagem",
+              "value": "={{ $json.message || 'Sem mensagem' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2304,
+        -544
+      ],
+      "id": "5a22a532-02e0-47fb-8b27-e40ef4406692",
+      "name": "mensagemFinal"
+    },
+    {
+      "parameters": {
+        "content": "## Credenciais:\n- Redis\n- OpenAI\n- PostgreSQL",
+        "height": 352,
+        "width": 192
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        -848
+      ],
+      "typeVersion": 1,
+      "id": "fd3ddc9d-1317-47c4-9b1b-87f6e8c41f8a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3536,
+        -432
+      ],
+      "id": "3ce3ea55-a70c-45e7-b9ac-6e55ddb85c54",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "url": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"data\"][\"message\"][\"documentMessage\"][\"url\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1344,
+        -128
+      ],
+      "id": "225cf280-3867-4dad-b088-a01a90da7e1c",
+      "name": "Baixa documento"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "493e2b1e-8b3f-4612-ae54-21c47976c216",
+              "name": "instance",
+              "value": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"instanceId\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "b0b6dbb8-47a7-44d4-a5be-5e5ebd7be0b6",
+              "name": "number_from",
+              "value": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"participantPhone\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "e5e2999b-bd57-4d88-8f06-126d3b4b487e",
+              "name": "fromMe",
+              "value": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"fromMe\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "2b2d6ac8-a0fc-418b-8775-37af39ba0f5e",
+              "name": "name",
+              "value": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"senderName\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "9adfa704-981c-4d26-b60a-0b6ebae04bde",
+              "name": "session_id",
+              "value": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"participantPhone\"] }}",
+              "type": "string"
+            },
+            {
+              "id": "cd9dec1e-834b-4c03-bb59-f847d0e818ec",
+              "name": "message",
+              "value": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"text\"][\"message\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -288
+      ],
+      "id": "041c0c24-f8ec-4bdd-aba9-eb1b9ff7e2f3",
+      "name": "Seta dados da instância"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "2fcb63d1-d822-4729-83e4-5417985ae69f",
+              "leftValue": "={{ $json.message }}",
+              "rightValue": "552",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -160
+      ],
+      "id": "c9e3c538-4b4c-4ba3-bec4-55f652e51da3",
+      "name": "Se a mensagem é '552'"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8adcccb3-bf91-47ed-9e1d-486405ed43b5",
+              "leftValue": "={{ $json.message }}",
+              "rightValue": "552",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        672,
+        -416
+      ],
+      "id": "a78b6c18-d24a-485d-86b0-7456615d6436",
+      "name": "Se a mensagem NÃO é '552'"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"text\"] }}",
+                    "rightValue": "conversation",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "id": "1325e9d5-2ce0-4ea1-a71f-559d5dff3947"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "conversation"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "d552cb8f-2f92-41ee-82a8-177b8f0043fc",
+                    "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"audio\"] }}",
+                    "rightValue": "audioMessage",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audioMessage"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "fd40cd85-8e9e-4777-bdbb-56df4aa4fcd1",
+                    "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"image\"] }}",
+                    "rightValue": "imageMessage",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "imageMessage"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "7b530c2a-7a08-4556-aecf-6dc9d5e166ab",
+                    "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"video\"] }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "videoMessage"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "617ab9ae-a2ce-4f12-bb99-10c807ccf693",
+                    "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"document\"] }}",
+                    "rightValue": "documentMessage",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "documentMessage"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [
+        896,
+        -480
+      ],
+      "id": "cb1150f0-58e6-4e7c-91a8-7a26e23e2068",
+      "name": "Verifica tipo da mensagem"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "87e7ff4a-544e-46a9-8664-80b4cf38f1ea",
+              "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"data\"][\"message\"][\"documentMessage\"][\"mimetype\"] }}",
+              "rightValue": "application/pdf",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        -128
+      ],
+      "id": "f04b1a4e-9725-44e4-97e5-13c699dcbae2",
+      "name": "Se é PDF"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1568,
+        -128
+      ],
+      "id": "bad229dd-0adc-4324-abdb-51011e29627d",
+      "name": "Busca informações do PDF"
+    },
+    {
+      "parameters": {
+        "url": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"data\"][\"message\"][\"imageMessage\"][\"url\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1568,
+        -320
+      ],
+      "id": "19e7f190-237f-40dd-ae94-914f8203923b",
+      "name": "Baixa imagem"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "Transcreva fielmente qualquer texto presente nesta imagem. Se não houver texto legível, retorne apenas 'Sem texto'. Responda em Português.",
+        "inputType": "base64",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        2016,
+        -320
+      ],
+      "id": "19f19b89-ddd6-4464-a8c0-2ea8a0934fc1",
+      "name": "Analisa a imagem | OCR",
+      "credentials": {
+        "openAiApi": {
+          "id": "wlD85WOYKf2U02fY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"data\"][\"message\"][\"audioMessage\"][\"url\"] }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1568,
+        -512
+      ],
+      "id": "fcfb98c7-23ba-4a5a-ae90-687c5cec9256",
+      "name": "Baixa áudio"
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -512
+      ],
+      "id": "3b7fd38d-a24f-480c-8d97-cfa2f6d2e070",
+      "name": "Transcreve o áudio",
+      "credentials": {
+        "openAiApi": {
+          "id": "wlD85WOYKf2U02fY",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7d50af95-8a4e-4677-9cd0-c8a5a812be47",
+              "name": "message",
+              "value": "={{ $item(\"0\").$node[\"Webhook\"].json.body.text?.message || $item(\"0\").$node[\"Webhook\"].json.body.extendedTextMessage?.text || \"\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2016,
+        -704
+      ],
+      "id": "9f012e4f-61cf-4c61-878f-5de6e2d777e1",
+      "name": "Seta mensagem1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a54f3abc-b000-4ecd-9e5c-5523666f80d3",
+              "name": "message",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2016,
+        -512
+      ],
+      "id": "4371b68e-0811-45a9-a661-60f4c5ac7c44",
+      "name": "Seta mensagem2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00340d68-4225-4164-962a-a4006abc5190",
+              "name": "message",
+              "value": "={{ $item(\"0\").$node[\"Analisa a imagem | OCR\"].json[\"content\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2176,
+        -320
+      ],
+      "id": "595f8e82-6ae1-45b2-af4f-2fb94ead8ce9",
+      "name": "Seta mensagem3"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "143c6c77-4cb8-4cb2-89ba-7e3776d50ac9",
+              "name": "message",
+              "value": "Documento recebido via WhatsApp",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2016,
+        -128
+      ],
+      "id": "9ec53934-028f-4e41-9ec4-63ad67a56d85",
+      "name": "Seta mensagem4"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5e456dc6-d742-4ab1-9dd3-df59db299c45",
+              "name": "message",
+              "value": "=\"Documento Recebido\" - Texto: \"{{ $item(\"0\").$node[\"Busca informações do PDF\"].json[\"text\"] }}\"",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1792,
+        -128
+      ],
+      "id": "df2d3916-a089-499b-a0bc-95526f58022b",
+      "name": "Seta mensagem5"
+    },
+    {
+      "parameters": {
+        "jsCode": "\nfunction extractDDD(sender) {\n  const digits = String(sender || \"\").replace(/\\D/g, \"\");\n  if (digits.startsWith(\"55\") && digits.length >= 4) return digits.slice(2, 4);\n  if (digits.length >= 2) return digits.slice(0, 2);\n  return null;\n}\n\nfunction dddToUF(ddd) {\n  const map = {\n    \"11\":\"SP\",\"12\":\"SP\",\"13\":\"SP\",\"14\":\"SP\",\"15\":\"SP\",\"16\":\"SP\",\"17\":\"SP\",\"18\":\"SP\",\"19\":\"SP\",\n    \"21\":\"RJ\",\"22\":\"RJ\",\"24\":\"RJ\",\"27\":\"ES\",\"28\":\"ES\",\n    \"31\":\"MG\",\"32\":\"MG\",\"33\":\"MG\",\"34\":\"MG\",\"35\":\"MG\",\"37\":\"MG\",\"38\":\"MG\",\n    \"41\":\"PR\",\"42\":\"PR\",\"43\":\"PR\",\"44\":\"PR\",\"45\":\"PR\",\"46\":\"PR\",\n    \"47\":\"SC\",\"48\":\"SC\",\"49\":\"SC\",\n    \"51\":\"RS\",\"53\":\"RS\",\"54\":\"RS\",\"55\":\"RS\",\n    \"61\":\"DF\",\"62\":\"GO\",\"64\":\"GO\",\"67\":\"MS\",\"65\":\"MT\",\"66\":\"MT\",\n    \"68\":\"AC\",\"69\":\"RO\",\"71\":\"BA\",\"73\":\"BA\",\"74\":\"BA\",\"75\":\"BA\",\"77\":\"BA\",\n    \"79\":\"SE\",\"81\":\"PE\",\"87\":\"PE\",\"82\":\"AL\",\"83\":\"PB\",\"84\":\"RN\",\n    \"85\":\"CE\",\"88\":\"CE\",\"86\":\"PI\",\"89\":\"PI\",\"91\":\"PA\",\"93\":\"PA\",\"94\":\"PA\",\n    \"92\":\"AM\",\"97\":\"AM\",\"95\":\"RR\",\"96\":\"AP\",\"98\":\"MA\",\"99\":\"MA\",\"63\":\"TO\"\n  };\n  return map[String(ddd)] || null;\n}\n\nconst rawMessage = $item(\"0\").$node[\"mensagemFinal\"].json[\"mensagem\"] || \"\";\nconst body = $item(\"0\").$node[\"Webhook\"].json[\"body\"] || {};\n\nlet sender = body.participantPhone || null;\nif (sender && !sender.includes('@')) sender = sender + '@s.whatsapp.net';\n\nlet groupJid = body.phone || \"\";\nif (!groupJid.includes('@')) groupJid = groupJid + '@g.us';\n\nconst ddd = extractDDD(body.participantPhone);\n\nreturn {\n  json: {\n    message_id: body.messageId,\n    instance_name: body.instanceId,\n    group_jid: groupJid,\n    sender_jid: sender,\n    sender_name: body.senderName || \"Desconhecido\",\n    message_type: body.text ? 'text' : (body.image ? 'image' : (body.audio ? 'audio' : (body.video ? 'video' : 'unknown'))),\n    content_text: rawMessage,\n    raw_payload: body,\n    message_date: new Date(body.momment || Date.now()).toISOString().slice(0,10),\n    message_timestamp: new Date(body.momment || Date.now()).toISOString(),\n    processed: false,\n    ddd: ddd,\n    estado: dddToUF(ddd),\n    group_name: body.chatName || \"Grupo Desconhecido\"\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2944,
+        -544
+      ],
+      "id": "40cd6339-a97f-46fa-8324-bfbce7b277e4",
+      "name": "Formata mensagem, data e tipo"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cd350edb-cbe5-440e-b06d-6edc347a38ff",
+              "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"text\"][\"message\"] }}",
+              "rightValue": "https://",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "dd1c1d67-c8d5-459c-8fbf-0c80c85425c1",
+              "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"data\"][\"message\"][\"conversation\"] }}",
+              "rightValue": "http://",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3376,
+        -544
+      ],
+      "id": "61956d1c-9028-4e5d-8613-46ec71ad76a6",
+      "name": "Se a mensagem conter um link"
+    },
+    {
+      "parameters": {
+        "url": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"text\"][\"message\"] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        3536,
+        -656
+      ],
+      "id": "04c80d09-2364-47ae-87fd-e4ec6973b902",
+      "name": "Faz um GET no link"
+    },
+    {
+      "parameters": {
+        "operation": "insert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "shared_links"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message_id": "={{ $item(\"0\").$node[\"Upsert no Postgres (Seguro)\"].json[\"id\"] }}",
+            "url": "={{ ($item(\"0\").$node[\"mensagemFinal\"].json[\"mensagem\"].match(/(https?:\\/\\/[^\\s]+)/gi) || [])[0] }}",
+            "group_jid": "={{ $item(\"0\").$node[\"Formata mensagem, data e tipo\"].json[\"group_jid\"] }}",
+            "message_date": "={{ $item(\"0\").$node[\"Formata mensagem, data e tipo\"].json[\"message_date\"] }}",
+            "content": "={{ $item(\"0\").$node[\"Faz um GET no link\"].json[\"data\"] || \"\" }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3792,
+        -656
+      ],
+      "id": "be912d65-f503-41d3-bc72-58d7f3c369b3",
+      "name": "Salva o link na tabela",
+      "credentials": {
+        "postgres": {
+          "id": "nTAgCoTJ7cvG9pIz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const bin = $input.item.binary.data;\nbin.mimeType = 'image/jpeg';\nbin.fileName = 'image.jpg';\nreturn { binary: { data: bin }, json: {} };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -320
+      ],
+      "id": "195eb433-2fef-4335-ae61-94beb1335279",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "messages"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "message_id": "={{ $json.message_id }}",
+            "instance_name": "={{ $json.instance_name }}",
+            "group_jid": "={{ $json.group_jid }}",
+            "sender_jid": "={{ $json.sender_jid }}",
+            "sender_name": "={{ $json.sender_name }}",
+            "message_type": "={{ $json.message_type }}",
+            "content_text": "={{ $json.content_text }}",
+            "raw_payload": "={{ $json.raw_payload }}",
+            "message_date": "={{ $json.message_date }}",
+            "message_timestamp": "={{ $json.message_timestamp }}",
+            "processed": "={{ $json.processed }}",
+            "ddd": "={{ $json.ddd }}",
+            "estado": "={{ $json.estado }}",
+            "group_name": "={{ $json.group_name }}"
+          },
+          "matchingColumns": [
+            "instance_name",
+            "message_id"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        3168,
+        -544
+      ],
+      "id": "b9b64cfc-395c-434a-a365-60e1921017c5",
+      "name": "Upsert no Postgres (Seguro)",
+      "credentials": {
+        "postgres": {
+          "id": "nTAgCoTJ7cvG9pIz",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "34dfbe29-4130-461c-a561-fd83ec3bf2fd",
+              "leftValue": "={{ $item(\"0\").$node[\"Webhook\"].json[\"body\"][\"chatName\"] }}",
+              "rightValue": "[PCMK] IAMKT - Fotus Distribuidora Solar",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        -288
+      ],
+      "id": "d5b872ca-61e1-4080-8271-0070145b9832",
+      "name": "Filtra somente conversas que não são do grupo da IA da fotus"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filtra somente conversas que não são do grupo da IA da fotus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtra mensagens que não são do bot e que são de grupos": {
+      "main": [
+        [
+          {
+            "node": "Seta dados da instância",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "mensagemFinal": {
+      "main": [
+        [
+          {
+            "node": "Formata mensagem, data e tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa documento": {
+      "main": [
+        [
+          {
+            "node": "Busca informações do PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seta dados da instância": {
+      "main": [
+        [
+          {
+            "node": "Se a mensagem é '552'",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Se a mensagem NÃO é '552'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se a mensagem NÃO é '552'": {
+      "main": [
+        [
+          {
+            "node": "Verifica tipo da mensagem",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verifica tipo da mensagem": {
+      "main": [
+        [
+          {
+            "node": "Seta mensagem1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Baixa áudio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Baixa imagem",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [],
+        [
+          {
+            "node": "Se é PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se é PDF": {
+      "main": [
+        [
+          {
+            "node": "Baixa documento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Seta mensagem4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busca informações do PDF": {
+      "main": [
+        [
+          {
+            "node": "Seta mensagem5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa imagem": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analisa a imagem | OCR": {
+      "main": [
+        [
+          {
+            "node": "Seta mensagem3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Baixa áudio": {
+      "main": [
+        [
+          {
+            "node": "Transcreve o áudio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcreve o áudio": {
+      "main": [
+        [
+          {
+            "node": "Seta mensagem2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seta mensagem1": {
+      "main": [
+        [
+          {
+            "node": "mensagemFinal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seta mensagem2": {
+      "main": [
+        [
+          {
+            "node": "mensagemFinal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seta mensagem3": {
+      "main": [
+        [
+          {
+            "node": "mensagemFinal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seta mensagem4": {
+      "main": [
+        []
+      ]
+    },
+    "Seta mensagem5": {
+      "main": [
+        [
+          {
+            "node": "Seta mensagem4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formata mensagem, data e tipo": {
+      "main": [
+        [
+          {
+            "node": "Upsert no Postgres (Seguro)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Se a mensagem conter um link": {
+      "main": [
+        [
+          {
+            "node": "Faz um GET no link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Faz um GET no link": {
+      "main": [
+        [
+          {
+            "node": "Salva o link na tabela",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Analisa a imagem | OCR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "pega nome do grupo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pega nome do grupo": {
+      "main": [
+        [
+          {
+            "node": "Formata mensagem, data e tipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtra somente conversas que não são do grupo da IA da fotus": {
+      "main": [
+        [
+          {
+            "node": "Filtra mensagens que não são do bot e que são de grupos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert no Postgres (Seguro)": {
+      "main": [
+        [
+          {
+            "node": "Se a mensagem conter um link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
